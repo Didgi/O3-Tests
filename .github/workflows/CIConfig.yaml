@@ -47,9 +47,9 @@ jobs:
           gh_pages: gh-pages
           allure_results: target/allure-results
           allure_history: allure-history
-      - name: Build Swagger coverage report
-        if: always()
-        run: sudo cp swagger-coverage-report.html allure-history/${{ github.run_number }}
+#      - name: Build Swagger coverage report
+#        if: always()
+#        run: sudo cp swagger-coverage-report.html allure-history/${{ github.run_number }}
       - name: Publish test report
         uses: peaceiris/actions-gh-pages@v3
         if: always()
@@ -62,10 +62,10 @@ jobs:
         run: pwd && ls && docker compose -f infra/docker-compose.yaml down -v
       - name: Run Checkstyle
         run: ./mvnw checkstyle:checkstyle -q
-      - name: Build docker image and push to the docker hub
-        if: success()
-        run: infra/push-tests-in-repo.sh
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-          COMMIT_HASH: ${{ github.sha }}
+#      - name: Build docker image and push to the docker hub
+#        if: success()
+#        run: infra/push-tests-in-repo.sh
+#        env:
+#          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+#          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+#          COMMIT_HASH: ${{ github.sha }}
