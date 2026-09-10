@@ -38,6 +38,5 @@ public class AuthLoginTests extends BaseTestSenior {
     @Test
     public void checkTest(){
         Assertions.assertTrue(true);
-
     }
 }
