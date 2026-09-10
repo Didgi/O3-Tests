@@ -1,0 +1,2 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","239","checkTest()","","2026-09-10","passed","2026-09-10","","api_tests.AuthLoginTests","api_tests.AuthLoginTests","checkTest"
