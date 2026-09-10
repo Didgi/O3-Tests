@@ -31,7 +31,7 @@ jobs:
       - name: Run Swagger coverage
         if: always()
       #  run: ./swagger-coverage-commandline/bin/swagger-coverage-commandline -s http://localhost:4111/v3/api-docs -i target/swagger-coverage-output
-        run: ./swagger-coverage-commandline/bin/swagger-coverage-commandline -s ./o3-api.json -i target/swagger-coverage-output
+        run: ./swagger-coverage-commandline/bin/swagger-coverage-commandline -s /o3-api.json -i target/swagger-coverage-output
       #- name: Check api coverage
       #  if: always()
 #        run: infra/check-api-coverage.sh
@@ -48,9 +48,9 @@ jobs:
           gh_pages: gh-pages
           allure_results: target/allure-results
           allure_history: allure-history
-      - name: Build Swagger coverage report
-        if: always()
-        run: sudo cp swagger-coverage-report.html allure-history/${{ github.run_number }}
+#      - name: Build Swagger coverage report
+#        if: always()
+#        run: sudo cp swagger-coverage-report.html allure-history/${{ github.run_number }}
       - name: Publish test report
         uses: peaceiris/actions-gh-pages@v3
         if: always()
