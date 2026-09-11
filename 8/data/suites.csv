@@ -1,0 +1,5 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","6512","getAuthSessionWithValidDataAdmin()","","2026-09-11","passed","2026-09-11","","api_tests.AuthTests","api_tests.AuthTests","getAuthSessionWithValidDataAdmin"
+"","132","getAuthSessionWithInvalidDataAdmin(String, String) [1] username=Conrad, password=Admin123","","2026-09-11","passed","2026-09-11","","api_tests.AuthTests","api_tests.AuthTests","getAuthSessionWithInvalidDataAdmin"
+"","151","getAuthSessionWithInvalidDataAdmin(String, String) [3] username=Yuki, password=Medhurst","","2026-09-11","passed","2026-09-11","","api_tests.AuthTests","api_tests.AuthTests","getAuthSessionWithInvalidDataAdmin"
+"","145","getAuthSessionWithInvalidDataAdmin(String, String) [2] username=admin, password=Gottlieb","","2026-09-11","passed","2026-09-11","","api_tests.AuthTests","api_tests.AuthTests","getAuthSessionWithInvalidDataAdmin"
