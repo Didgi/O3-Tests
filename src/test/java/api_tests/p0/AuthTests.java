@@ -14,7 +14,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-public class AuthTests extends BaseTestSenior {
+public class AuthTests extends BaseApiTest {
 
     @Test
     public void getAuthSessionWithValidDataAdmin() {

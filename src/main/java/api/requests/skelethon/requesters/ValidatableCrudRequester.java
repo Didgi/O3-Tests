@@ -7,6 +7,8 @@ import api.requests.skelethon.interfaces.CrudRequestsInterface;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 
+import java.util.UUID;
+
 public class ValidatableCrudRequester<T extends BaseModel> extends HttpBaseRequest implements CrudRequestsInterface {
     private CrudRequester crudRequester;
 
@@ -48,7 +50,7 @@ public class ValidatableCrudRequester<T extends BaseModel> extends HttpBaseReque
     }
 
     @Override
-    public Object DELETE(int id) {
+    public Object DELETE(UUID id) {
         return null;
     }
 

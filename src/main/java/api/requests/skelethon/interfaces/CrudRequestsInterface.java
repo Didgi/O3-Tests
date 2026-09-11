@@ -2,6 +2,8 @@ package api.requests.skelethon.interfaces;
 
 import api.models.BaseModel;
 
+import java.util.UUID;
+
 public interface CrudRequestsInterface {
     Object POST(BaseModel baseModel);
 
@@ -11,5 +13,5 @@ public interface CrudRequestsInterface {
 
     Object PATCH(BaseModel baseModel);
 
-    Object DELETE(int id);
+    Object DELETE(UUID id);
 }

@@ -11,6 +11,8 @@ import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 
+import java.util.UUID;
+
 import static io.restassured.RestAssured.given;
 
 public class CrudRequester extends HttpBaseRequest implements CrudRequestsInterface {
@@ -98,8 +100,8 @@ public class CrudRequester extends HttpBaseRequest implements CrudRequestsInterf
     }
 
     @Override
-    @Step("DELETE запрос по id: {id}")
-    public ValidatableResponse DELETE(int id) {
+    @Step("DELETE запрос по UUID: {UUID}")
+    public ValidatableResponse DELETE(UUID id) {
         return StepLogger.log("Тело запроса/ответа по ручке: " + endpointRequests.getPath(), () -> {
             return given().spec(requestSpecification)
                     .delete(Config.getProperty("api_version") + endpointRequests.getPath() + id)
