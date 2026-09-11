@@ -28,10 +28,9 @@ jobs:
       - name: Build project
         run: ./mvnw clean package
 #        Обсудить откуда брать исходную openApi spec
-      - name: Run Swagger coverage
-        if: always()
-      #  run: ./swagger-coverage-commandline/bin/swagger-coverage-commandline -s http://localhost:4111/v3/api-docs -i target/swagger-coverage-output
-        run: ./swagger-coverage-commandline/bin/swagger-coverage-commandline -s /o3-api.json -i target/swagger-coverage-output
+#      - name: Run Swagger coverage
+#        if: always()
+#        run: ./swagger-coverage-commandline/bin/swagger-coverage-commandline -s infra/o3-api.yaml -i target/swagger-coverage-output
       #- name: Check api coverage
       #  if: always()
 #        run: infra/check-api-coverage.sh
