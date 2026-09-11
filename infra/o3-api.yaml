@@ -9,7 +9,7 @@ info:
   license:
     name: MPL-2.0 w/ HD
     url: 'http://openmrs.org/license'
-host: 'localhost:8080'
+host: 'localhost:80'
 basePath: /openmrs/ws/rest/v1
 schemes:
   - http
