@@ -30,6 +30,7 @@
         <maven-checkstyle.version>3.6.0</maven-checkstyle.version>
         <maven-compiler.version>3.13.0</maven-compiler.version>
         <maven-surefire-report.version>3.2.5</maven-surefire-report.version>
+        <datafaker>2.7.0</datafaker>
 
 
         <argLine>
@@ -146,6 +147,12 @@
             <groupId>com.github.viclovsky</groupId>
             <artifactId>swagger-coverage-rest-assured</artifactId>
             <version>${swagger-coverage}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.datafaker</groupId>
+            <artifactId>datafaker</artifactId>
+            <version>${datafaker}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
