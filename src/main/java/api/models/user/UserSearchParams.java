@@ -1,6 +1,6 @@
 package api.models.user;
 
-import api.requests.skeleton.query.QueryParams;
+import api.requests.skelethon.query.QueryParams;
 
 import java.util.Map;
 

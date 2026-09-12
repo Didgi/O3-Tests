@@ -1,7 +1,7 @@
 package api.requests.skelethon.requesters;
 
 import api.requests.skelethon.endpoints.CrudOperations;
-import api.requests.skelethon.interfaces.CrudEndpoint;
+import api.requests.skelethon.interfaces.NestedCrudEndpoint;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
@@ -9,13 +9,13 @@ import java.util.Objects;
 
 import static io.restassured.RestAssured.given;
 
-public class CrudRequester<CREATE, UPDATE>
-        implements CrudEndpoint<CREATE, UPDATE> {
+public class NestedCrudRequester<CREATE, UPDATE>
+        implements NestedCrudEndpoint<CREATE, UPDATE> {
 
     private final RequestSpecification requestSpecification;
     private final CrudOperations<?> operations;
 
-    public CrudRequester(
+    public NestedCrudRequester(
             RequestSpecification requestSpecification,
             CrudOperations<?> operations
     ) {
@@ -27,8 +27,10 @@ public class CrudRequester<CREATE, UPDATE>
     }
 
     @Override
-    public Response create(CREATE request) {
-        RequestSpecification preparedRequest = given().spec(requestSpecification);
+    public Response create(String parentId, CREATE request) {
+        RequestSpecification preparedRequest = given()
+                .spec(requestSpecification)
+                .pathParam("parentId", parentId);
         if (request != null) {
             preparedRequest.body(request);
         }
@@ -36,9 +38,10 @@ public class CrudRequester<CREATE, UPDATE>
     }
 
     @Override
-    public Response get(String id, ReadOptions options) {
+    public Response get(String parentId, String id, ReadOptions options) {
         RequestSpecification request = given()
                 .spec(requestSpecification)
+                .pathParam("parentId", parentId)
                 .pathParam("id", id);
 
         if (Objects.requireNonNull(options, "options must not be null").isExplicit()) {
@@ -49,20 +52,22 @@ public class CrudRequester<CREATE, UPDATE>
     }
 
     @Override
-    public Response update(String id, UPDATE request) {
+    public Response update(String parentId, String id, UPDATE requestBody) {
         RequestSpecification preparedRequest = given()
                 .spec(requestSpecification)
+                .pathParam("parentId", parentId)
                 .pathParam("id", id);
-        if (request != null) {
-            preparedRequest.body(request);
+        if (requestBody != null) {
+            preparedRequest.body(requestBody);
         }
         return preparedRequest.post(operations.update().pathTemplate());
     }
 
     @Override
-    public Response delete(String id, DeleteMode mode) {
+    public Response delete(String parentId, String id, DeleteMode mode) {
         RequestSpecification request = given()
                 .spec(requestSpecification)
+                .pathParam("parentId", parentId)
                 .pathParam("id", id);
 
         if (Objects.requireNonNull(mode, "mode must not be null") == DeleteMode.PURGE) {
