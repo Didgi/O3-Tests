@@ -8,12 +8,12 @@ public class BaseApiTest {
     public SoftAssertions softly;
 
     @BeforeEach
-    public void setUp() {
+    public void setupSoftly() {
         softly = new SoftAssertions();
     }
 
     @AfterEach
-    public void cleanUp() {
+    public void assertSoftly() {
         softly.assertAll();
     }
 }
