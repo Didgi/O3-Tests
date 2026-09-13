@@ -1,4 +1,4 @@
-package api.models.comparison;
+package api.utils.comparison;
 
 public class Rule {
     private final FieldRule rule;

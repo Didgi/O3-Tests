@@ -1,4 +1,4 @@
-package api.models.comparison;
+package api.utils.comparison;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;

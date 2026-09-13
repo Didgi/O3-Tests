@@ -1,6 +1,5 @@
 package api.testdata;
 
-import api.config.Config;
 import api.specs.RequestSpecs;
 
 import static io.restassured.RestAssured.given;
@@ -14,9 +13,7 @@ public class PatientTestData {
                 .spec(RequestSpecs.withAdminBasicAuth())
                 .pathParam(
                         "sourceUuid",
-                        Config.getProperty(
-                                "patient_identifier_source_uuid"
-                        )
+                        ReferenceTestData.patientIdentifierSourceUuid()
                 )
                 // OpenMRS binds the request to SimpleObject and rejects an empty
                 // body, even though the IDGen endpoint does not need any fields.

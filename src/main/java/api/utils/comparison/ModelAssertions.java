@@ -1,4 +1,4 @@
-package api.models.comparison;
+package api.utils.comparison;
 
 import org.assertj.core.api.AbstractAssert;
 

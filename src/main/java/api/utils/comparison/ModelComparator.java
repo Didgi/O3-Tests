@@ -1,4 +1,4 @@
-package api.models.comparison;
+package api.utils.comparison;
 
 import java.util.ArrayList;
 import java.util.List;
