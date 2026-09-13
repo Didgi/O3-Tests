@@ -1,6 +1,6 @@
 # Архитектура слоя API Requesters
 
-Статус: предложение для согласования с преподавателем. Дата анализа OpenMRS API: 12 сентября 2026 года.
+Статус: архитектурный baseline; requester layer и первые resource slices реализованы. Дата анализа OpenMRS API: 12 сентября 2026 года.
 
 ## 1. Краткий итог
 
@@ -27,7 +27,7 @@ SuccessfulRequester
 Источники перечислены в порядке приоритета:
 
 1. Swagger работающего целевого OpenMRS deployment.
-2. Сохраненный snapshot [`infra/o3-api.yaml`](../../infra/o3-api.yaml), версия `2.8.0-42ce79`.
+2. Сохраненный snapshot [`infra/swagger.unknown.json`](../../infra/swagger.unknown.json), Swagger `2.0`, версия `2.8.0-42ce79`.
 3. [OpenMRS REST API](https://rest.openmrs.org/) как высокоуровневая документация.
 
 Docker Compose использует плавающий тег `qa`, поэтому snapshot и работающий deployment могут различаться. Перед реализацией контрактов, отсутствующих в snapshot, их необходимо проверить на текущем стенде.
@@ -89,7 +89,7 @@ Docker Compose использует плавающий тег `qa`, поэтом
 5. Один тип endpoint'а описывает повторяющийся контракт, а не конкретный ресурс или произвольный HTTP-метод.
 6. Конкретный ресурс переиспользует типовые requester'ы через конфигурацию и композицию.
 7. Новый endpoint-тип добавляется только для операции из актуального scope, которую нельзя честно выразить существующими контрактами.
-8. Steps/facade задает предметные имена и связывает несколько запросов, но не дублирует низкоуровневый HTTP-код.
+8. Resource Steps задает предметные имена и связывает несколько запросов, но не дублирует низкоуровневый HTTP-код.
 
 ## 6. Общая UML-модель
 
@@ -119,6 +119,43 @@ classDiagram
 ```
 
 Разница возвращаемых значений принципиальна: `Requester.operation(...) → Response`, а `SuccessfulRequester.operation(...) → DTO` или проверенный `Response`.
+
+### 6.1. Реальная композиция проекта
+
+В прикладном коде успешные requester’ы не собираются в каждом тесте. Их
+создает `RequesterFactory`, а `ApiClient` передает одну и ту же авторизованную
+`RequestSpecification` всем ресурсным Steps:
+
+```mermaid
+classDiagram
+    class Test
+    class ApiClient
+    class UserSteps
+    class ObservationSteps
+    class RequesterFactory
+    class SuccessfulRequester
+    class Requester
+    class RequestSpecification
+
+    Test --> ApiClient : uses
+    ApiClient --> UserSteps : users()
+    ApiClient --> ObservationSteps : observations()
+    ApiClient --> RequesterFactory : creates
+    ApiClient --> RequestSpecification : auth + common config
+    UserSteps --> SuccessfulRequester : composes
+    ObservationSteps --> SuccessfulRequester : composes
+    RequesterFactory --> SuccessfulRequester : creates
+    SuccessfulRequester --> Requester : delegates
+```
+
+`ApiClient.admin()` создает клиент с административной авторизацией,
+`ApiClient.authenticatedAs(credentials)` — с Basic Auth конкретного пользователя.
+Текущий `RequesterFactory` создает successful-варианты для Search, CRUD и
+nested requester’ов; Auth пока собирается напрямую в auth-тестах. Текущие
+прикладные реализации находятся в [`ApiClient`](../../src/main/java/api/steps/ApiClient.java),
+[`RequesterFactory`](../../src/main/java/api/requests/skelethon/requesters/RequesterFactory.java),
+[`UserSteps`](../../src/main/java/api/steps/UserSteps.java) и
+[`ObservationSteps`](../../src/main/java/api/steps/ObservationSteps.java).
 
 ## 7. Активные типы endpoint'ов
 
@@ -213,7 +250,7 @@ public record EndpointSpec<RES>(
 }
 ```
 
-Один `EndpointSpec` относится к одной операции и хранит ее путь и тип успешного тела. HTTP-метод остается частью типового requester'а. Для CRUD и Nested CRUD отдельная группа связывает четыре спецификации, чтобы один экземпляр requester'а реализовывал весь контракт.
+Один `EndpointSpec` относится к одной операции и хранит ее путь и тип успешного тела. HTTP-метод остается частью типового requester'а. Для обычного и nested CRUD используется `CrudOperations`: группа связывает четыре спецификации, чтобы один экземпляр requester'а реализовывал весь контракт. Отдельного `NestedCrudOperations` в текущей реализации нет.
 
 `EndpointSpec<Void>` допустим для DELETE как внутренняя конфигурация, но `DELETE_RES` не становится generic-параметром публичного successful requester'а.
 
@@ -255,6 +292,21 @@ public enum DeleteMode {
 
 Если несколько реальных ресурсов подтвердят разные response-контракты, successful-слой расширяется до отдельных `CREATE_RES`, `GET_RES` и `UPDATE_RES`. Raw interface и raw requester при этом не меняются. Единичное исключение обрабатывается предметной successful-оберткой, а не усложняет общий тип.
 
+### 8.5. Reference и runtime test data
+
+Заранее созданные на стенде reference objects не являются test target. Их
+идентификаторы хранятся в
+[`config.properties`](../../src/main/resources/config.properties) и читаются
+через [`ReferenceTestData`](../../src/main/java/api/testdata/ReferenceTestData.java).
+Тесты не должны хардкодить такие UUID или напрямую обращаться к
+`Config.getProperty(...)`.
+
+Уникальные данные, которые создаются во время выполнения, относятся к runtime
+test data и размещаются в специализированных `*TestData` helpers. Например,
+`PatientTestData.generateIdentifier()` использует seed-значение
+`patient_identifier_source_uuid`, выполняет служебный IDGen POST и возвращает
+новый identifier. IDGen при этом остается вне requester layer.
+
 ## 9. Распределение по ресурсам
 
 | Область | Crud | Search | NestedCrud | NestedSearch | Auth |
@@ -267,31 +319,38 @@ public enum DeleteMode {
 | Observation | ✓ | ✓ |  |  |  |
 | User | ✓ | ✓ |  |  |  |
 
+Таблица описывает API scope, а не наличие готового Steps для каждого ресурса.
+Сейчас реализованы первые resource slices: `UserSteps` для поиска пользователей
+и `ObservationSteps` для Observation CRUD/search. Остальные строки обозначают
+контракты API, которые подключаются по тому же шаблону.
+
 IDGen намеренно отсутствует в таблице requester-типов. Это один прямой служебный `POST` в `PatientTestData`, используемый только перед созданием Patient.
 
-## 10. Композиция Encounter
+## 10. Композиция ресурсных Steps
 
 ```mermaid
 classDiagram
-    class EncounterApi
-    class CrudEndpoint
-    class SearchEndpoint
-    class NestedCrudEndpoint
-    class NestedSearchEndpoint
+    class ApiClient
+    class UserSteps
+    class ObservationSteps
 
-    EncounterApi --> CrudEndpoint : encounter CRUD
-    EncounterApi --> SearchEndpoint : encounter search
-    EncounterApi --> NestedCrudEndpoint : provider CRUD
-    EncounterApi --> NestedSearchEndpoint : provider search
+    ApiClient --> UserSteps : users()
+    ApiClient --> ObservationSteps : observations()
 ```
 
-`EncounterApi` дает тестам предметный вход, но каждая операция остается реализована соответствующим типовым requester'ом.
+Текущий прикладной вход — `ApiClient`, а не отдельный `EncounterApi` или пакет
+`facades`. При добавлении нового ресурса создается предметный `*Steps`, который
+получает `RequesterFactory` в конструкторе, а затем регистрируется в `ApiClient`.
+Для будущего Encounter это будет `EncounterSteps`, добавленный в `ApiClient` по
+тому же правилу.
 
 ## 11. Поток позитивного и негативного сценария
 
 ```mermaid
 flowchart LR
-    Positive[Позитивный тест] --> Successful[SuccessfulRequester]
+    Positive[Позитивный тест] --> Client[ApiClient]
+    Client --> Steps[Resource Steps]
+    Steps --> Successful[SuccessfulRequester]
     Negative[Негативный тест] --> Raw[Requester]
     Successful --> Raw
     Raw --> HTTP[REST Assured]
@@ -306,15 +365,23 @@ flowchart LR
 
 ## 12. Текущее и целевое состояние
 
-Базовый requester layer уже реализует пять троек, operation groups, `EndpointSpec`, `ReadOptions`, `DeleteMode` и Auth. Старые универсальные обертки удалены. IDGen оставлен за границей requester layer как прямой вызов из `PatientTestData`.
+Базовый requester layer уже реализует пять троек, operation groups, `EndpointSpec`,
+`ReadOptions`, `DeleteMode`, `RequesterFactory` и Auth. Первые resource slices
+также подключены: `ApiClient` предоставляет `UserSteps` и `ObservationSteps`.
+Старые универсальные обертки удалены. IDGen и reference data оставлены за
+границей requester layer.
 
-Следующий этап — подключать слой к предметным vertical slices без создания DTO заранее:
+Следующий этап — подключать остальные предметные vertical slices без создания
+DTO заранее для ресурсов, которые не входят в текущий тест:
 
-1. Подключить Auth к интеграционным тестам и проверить контракт на `qa`.
-2. Добавить DTO и operation specifications для Observation CRUD и Search.
-3. Добавить EncounterProvider Nested CRUD и Nested Search.
-4. Распространить проверенные конфигурации на остальные ресурсы scope.
-5. Использовать `PatientTestData.generateIdentifier()` при подготовке Patient test data.
+1. Добавить и проверить Steps для Patient, Person, Visit и Encounter.
+2. Добавить nested Steps для identifier, allergy, attributes, names и
+   encounterprovider по актуальному API inventory.
+3. Для каждого нового ресурса зарегистрировать Steps в `ApiClient`.
+4. Проверять seed/reference data на каждом окружении и добавлять новые ключи
+   через `ReferenceTestData`, когда это необходимо.
+5. Подключать Auth к интеграционным сценариям по мере подтверждения контракта на
+   текущем deployment.
 
 ## 13. Принятые и отложенные решения
 
@@ -324,6 +391,8 @@ flowchart LR
 | Принято | Auth включает получение и завершение сессии; item GET поддерживает `ReadOptions`. |
 | Принято | Successful CRUD начинает с одного `RES`; full CRUD requester получает четыре operation specifications. |
 | Принято | IDGen не образует отдельный endpoint-тип: `PatientTestData` отправляет прямой `POST`, а UUID источника `OpenMRS ID` хранится в properties. |
+| Принято | Позитивный тест входит через `ApiClient` и предметный Steps; `RequesterFactory` скрывает сборку raw/successful requester’ов. |
+| Принято | Стабильные reference IDs читаются через `ReferenceTestData`, а уникальные runtime-данные создаются через `*TestData` helpers. |
 | Отложено | Разные create/get/update response-типы в общем successful requester. |
 | Отложено | Новые endpoint-типы и произвольные path parameters не вводятся до появления подтвержденной необходимости. |
 | Вне scope | Password actions, Visit configuration и остальной IDGen API. |
@@ -336,4 +405,5 @@ flowchart LR
 - Successful requester не дублирует HTTP-вызов.
 - Auth проверяет `authenticated`, а item GET передает representation.
 - `PatientTestData.generateIdentifier()` отправляет прямой IDGen `POST` и возвращает поле `identifier`.
+- Reference IDs не хардкодятся в тестах и читаются через `ReferenceTestData`.
 - Полные примеры из [приложения](api-requester-examples.md) соответствуют контрактам этого документа.

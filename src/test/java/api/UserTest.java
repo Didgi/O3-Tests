@@ -1,4 +1,4 @@
-package api_tests.p0;
+package api;
 
 import api.models.user.UserSearchResponse;
 import api.steps.ApiClient;

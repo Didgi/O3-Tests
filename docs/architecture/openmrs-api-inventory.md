@@ -7,7 +7,7 @@
 
 | Код | Источник |
 |---|---|
-| `S1` | Локальный [`infra/o3-api.yaml`](../../infra/o3-api.yaml), Swagger `2.0`, версия API `2.8.0-42ce79`. |
+| `S1` | Локальный [`infra/swagger.unknown.json`](../../infra/swagger.unknown.json), Swagger `2.0`, версия API `2.8.0-42ce79`. |
 | `S2` | [OpenMRS REST API](https://rest.openmrs.org/) — высокоуровневая документация ресурсов, auth и IDGen. |
 | `S3` | Работающий OpenMRS `qa` deployment — окончательный источник перед реализацией и тестированием. |
 
@@ -194,7 +194,12 @@ Collection GET для этого subresource отсутствует в `S1`, п�
 |---|---|---|---|---:|---|---|
 | POST | `/idgen/identifiersource/{sourceUuid}/identifier` | Generate one patient identifier | `path:sourceUuid*`; JSON body `{}` | 201 + непустой `identifier` | Test-data setup, вне requester layer | `S3` |
 
-`sourceUuid` указывает на IdentifierSource `OpenMRS ID`, хранится в `config.properties` и не является test target. Метод `PatientTestData.generateIdentifier()` отправляет прямой `POST` с пустым JSON-объектом `{}` и извлекает поле `identifier`. Отдельные interface/requester/successful requester и response DTO для этого вызова не нужны. Batch, reserve и upload-команды не входят в контракт.
+`sourceUuid` указывает на IdentifierSource `OpenMRS ID`, хранится в
+`config.properties` и читается через `ReferenceTestData`; сам IdentifierSource не
+является test target. Метод `PatientTestData.generateIdentifier()` отправляет
+прямой `POST` с пустым JSON-объектом `{}` и извлекает поле `identifier`.
+Отдельные interface/requester/successful requester и response DTO для этого
+вызова не нужны. Batch, reserve и upload-команды не входят в контракт.
 
 ## 7. Исключения
 

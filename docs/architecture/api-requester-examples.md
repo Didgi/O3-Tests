@@ -1,9 +1,15 @@
 # Примеры реализации API requester layer
 
-Статус: иллюстративные примеры для [архитектурного предложения](api-requester-layer.md).
+Статус: иллюстративное приложение к реализованному requester layer; рабочая
+композиция resource slice описана в
+[`api-requester-resource-slice.md`](../guides/api-requester-resource-slice.md).
 Операции и параметры сверяются с [инвентаризацией OpenMRS API](openmrs-api-inventory.md).
 
-Типовые requester'ы уже реализованы в проекте. Код ниже остается иллюстративным: package declarations и imports опущены, а имена предметных DTO и детали DI уточняются при реализации resource vertical slices.
+Типовые requester'ы уже реализованы в проекте. Код ниже показывает их контракты
+и внутреннюю реализацию; package declarations и imports местами опущены. Для
+добавления нового ресурса используйте пошаговый
+[`resource-slice guide`](../guides/api-requester-resource-slice.md), а не
+собирайте эту композицию вручную в тесте.
 
 ## 1. Общие объекты
 
@@ -21,6 +27,12 @@ public record EndpointSpec<RES>(
 
 ```java
 public record ReadOptions(String representation) {
+
+    public ReadOptions {
+        if (representation != null && representation.isBlank()) {
+            throw new IllegalArgumentException("representation must not be blank");
+        }
+    }
 
     public static ReadOptions defaults() {
         return new ReadOptions(null);
@@ -43,7 +55,7 @@ public record ReadOptions(String representation) {
     }
 
     public boolean isExplicit() {
-        return representation != null && !representation.isBlank();
+        return representation != null;
     }
 }
 ```
@@ -60,6 +72,7 @@ public enum DeleteMode {
 ### 1.4. QueryParams
 
 ```java
+@FunctionalInterface
 public interface QueryParams {
     Map<String, ?> asMap();
 
@@ -68,6 +81,7 @@ public interface QueryParams {
     }
 
     static QueryParams of(Map<String, ?> parameters) {
+        Objects.requireNonNull(parameters, "parameters must not be null");
         Map<String, ?> copy = Map.copyOf(parameters);
         return () -> copy;
     }
@@ -112,24 +126,24 @@ public record CrudOperations<RES>(
 ```
 
 ```java
-public final class ObsEndpoints {
+public final class ObservationEndpoints {
 
-    public static final EndpointSpec<ObsResponse> CREATE =
+    public static final EndpointSpec<ObservationResponse> CREATE =
             new EndpointSpec<>("/obs", new TypeRef<>() {});
 
-    public static final EndpointSpec<ObsResponse> GET =
+    public static final EndpointSpec<ObservationResponse> READ =
             new EndpointSpec<>("/obs/{id}", new TypeRef<>() {});
 
-    public static final EndpointSpec<ObsResponse> UPDATE =
+    public static final EndpointSpec<ObservationResponse> UPDATE =
             new EndpointSpec<>("/obs/{id}", new TypeRef<>() {});
 
     public static final EndpointSpec<Void> DELETE =
             new EndpointSpec<>("/obs/{id}", new TypeRef<>() {});
 
-    public static final CrudOperations<ObsResponse> CRUD =
-            new CrudOperations<>(CREATE, GET, UPDATE, DELETE);
+    public static final CrudOperations<ObservationResponse> CRUD =
+            new CrudOperations<>(CREATE, READ, UPDATE, DELETE);
 
-    private ObsEndpoints() {
+    private ObservationEndpoints() {
     }
 }
 ```
@@ -253,11 +267,11 @@ public class SuccessfulCrudRequester<CREATE, UPDATE, RES> {
 Пример конфигурации:
 
 ```java
-CrudEndpoint<ObsCreateRequest, ObsUpdateRequest> rawObs =
-        new CrudRequester<>(authorizedRequestSpec, ObsEndpoints.CRUD);
+CrudEndpoint<ObservationCreateRequest, ObservationUpdateRequest> rawObservation =
+        new CrudRequester<>(authorizedRequestSpec, ObservationEndpoints.CRUD);
 
-SuccessfulCrudRequester<ObsCreateRequest, ObsUpdateRequest, ObsResponse> obs =
-        new SuccessfulCrudRequester<>(rawObs, ObsEndpoints.CRUD);
+SuccessfulCrudRequester<ObservationCreateRequest, ObservationUpdateRequest, ObservationResponse> observation =
+        new SuccessfulCrudRequester<>(rawObservation, ObservationEndpoints.CRUD);
 ```
 
 ## 3. Observation Search
@@ -273,6 +287,10 @@ obsSearch.search(QueryParams.empty());
 Результирующий запрос: `GET /obs`.
 
 ### 3.2. Params-модель для поиска
+
+Следующий пример показывает, как расширить params-модель Observation при появлении
+реальных фильтров. В текущем коде `ObservationSearchParams` пока пустая и
+используется для list без фильтров.
 
 ```java
 public record ObsSearchParams(
@@ -493,15 +511,9 @@ public interface NestedSearchEndpoint<PARAMS extends QueryParams> {
 
 ### 5.2. Спецификации
 
-```java
-public record NestedCrudOperations<RES>(
-        EndpointSpec<RES> create,
-        EndpointSpec<RES> get,
-        EndpointSpec<RES> update,
-        EndpointSpec<Void> delete
-) {
-}
-```
+Для nested CRUD используется тот же `CrudOperations<RES>`, что и для обычного
+CRUD. Отличие nested-контракта находится в сигнатурах операций requester’а:
+они дополнительно получают `parentId`.
 
 ```java
 public final class EncounterProviderEndpoints {
@@ -512,7 +524,7 @@ public final class EncounterProviderEndpoints {
                     new TypeRef<>() {}
             );
 
-    public static final EndpointSpec<EncounterProviderResponse> GET =
+    public static final EndpointSpec<EncounterProviderResponse> READ =
             new EndpointSpec<>(
                     "/encounter/{parentId}/encounterprovider/{id}",
                     new TypeRef<>() {}
@@ -536,8 +548,8 @@ public final class EncounterProviderEndpoints {
                     new TypeRef<>() {}
             );
 
-    public static final NestedCrudOperations<EncounterProviderResponse> CRUD =
-            new NestedCrudOperations<>(CREATE, GET, UPDATE, DELETE);
+    public static final CrudOperations<EncounterProviderResponse> CRUD =
+            new CrudOperations<>(CREATE, READ, UPDATE, DELETE);
 
     private EncounterProviderEndpoints() {
     }
@@ -553,11 +565,11 @@ public class NestedCrudRequester<CREATE, UPDATE>
         implements NestedCrudEndpoint<CREATE, UPDATE> {
 
     private final RequestSpecification requestSpecification;
-    private final NestedCrudOperations<?> operations;
+    private final CrudOperations<?> operations;
 
     public NestedCrudRequester(
             RequestSpecification requestSpecification,
-            NestedCrudOperations<?> operations
+            CrudOperations<?> operations
     ) {
         this.requestSpecification = requestSpecification;
         this.operations = operations;
@@ -646,11 +658,11 @@ public class NestedSearchRequester<PARAMS extends QueryParams>
 public class SuccessfulNestedCrudRequester<CREATE, UPDATE, RES> {
 
     private final NestedCrudEndpoint<CREATE, UPDATE> requester;
-    private final NestedCrudOperations<RES> operations;
+    private final CrudOperations<RES> operations;
 
     public SuccessfulNestedCrudRequester(
             NestedCrudEndpoint<CREATE, UPDATE> requester,
-            NestedCrudOperations<RES> operations
+            CrudOperations<RES> operations
     ) {
         this.requester = requester;
         this.operations = operations;
@@ -717,7 +729,10 @@ public class SuccessfulNestedSearchRequester<
 
 ## 6. IDGen POST для подготовки Patient test data
 
-IDGen сейчас не является test target и не образует отдельный тип endpoint'а. Для единственного служебного вызова достаточно прямого `POST`. UUID источника `OpenMRS ID` хранится в конфигурации окружения:
+IDGen сейчас не является test target и не образует отдельный тип endpoint'а. Для
+единственного служебного вызова достаточно прямого `POST`. UUID источника
+`OpenMRS ID` хранится в конфигурации окружения и читается через
+`ReferenceTestData`:
 
 ```properties
 patient_identifier_source_uuid=8549f706-7e85-4c1d-9424-217d50a2988b
@@ -734,7 +749,7 @@ public final class PatientTestData {
                 .spec(RequestSpecs.withAdminBasicAuth())
                 .pathParam(
                         "sourceUuid",
-                        Config.getProperty("patient_identifier_source_uuid")
+                        ReferenceTestData.patientIdentifierSourceUuid()
                 )
                 .body("{}")
                 .post("/idgen/identifiersource/{sourceUuid}/identifier")
@@ -755,7 +770,7 @@ public final class PatientTestData {
 ```java
 @Test
 void getsExistingObservationInFullRepresentation() {
-    ObsResponse observation = successfulObs.get(
+    ObservationResponse observation = successfulObservation.get(
             existingObsId,
             ReadOptions.full()
     );
@@ -769,7 +784,7 @@ void getsExistingObservationInFullRepresentation() {
 ```java
 @Test
 void returnsNotFoundForUnknownObservation() {
-    Response response = rawObs.get(
+    Response response = rawObservation.get(
             unknownObsId,
             ReadOptions.defaults()
     );
@@ -779,62 +794,45 @@ void returnsNotFoundForUnknownObservation() {
 }
 ```
 
-## 8. Композиция resource facade
+## 8. Композиция `ApiClient` и resource Steps
+
+Текущий прикладной вход — `ApiClient`. Он создает общую авторизованную
+`RequestSpecification`, передает ее в `RequesterFactory` и публикует ресурсные
+Steps:
 
 ```java
-public class EncounterApi {
+public final class ApiClient {
 
-    private final SuccessfulCrudRequester<
-            EncounterCreateRequest,
-            EncounterUpdateRequest,
-            EncounterResponse
-            > encounters;
+    private final UserSteps users;
+    private final ObservationSteps observations;
 
-    private final SuccessfulSearchRequester<
-            EncounterSearchParams,
-            EncounterSearchResponse
-            > encounterSearch;
+    private ApiClient(RequestSpecification specification) {
+        RequesterFactory requesters =
+                new RequesterFactory(specification);
 
-    private final SuccessfulNestedCrudRequester<
-            EncounterProviderCreateRequest,
-            EncounterProviderUpdateRequest,
-            EncounterProviderResponse
-            > providers;
+        users = new UserSteps(requesters);
+        observations = new ObservationSteps(requesters);
+    }
 
-    private final SuccessfulNestedSearchRequester<
-            ProviderSearchParams,
-            EncounterProviderSearchResponse
-            > providerSearch;
+    public static ApiClient admin() {
+        return new ApiClient(RequestSpecs.withAdminBasicAuth());
+    }
 
-    public EncounterApi(
-            SuccessfulCrudRequester<
-                    EncounterCreateRequest,
-                    EncounterUpdateRequest,
-                    EncounterResponse
-                    > encounters,
-            SuccessfulSearchRequester<
-                    EncounterSearchParams,
-                    EncounterSearchResponse
-                    > encounterSearch,
-            SuccessfulNestedCrudRequester<
-                    EncounterProviderCreateRequest,
-                    EncounterProviderUpdateRequest,
-                    EncounterProviderResponse
-                    > providers,
-            SuccessfulNestedSearchRequester<
-                    ProviderSearchParams,
-                    EncounterProviderSearchResponse
-                    > providerSearch
-    ) {
-        this.encounters = encounters;
-        this.encounterSearch = encounterSearch;
-        this.providers = providers;
-        this.providerSearch = providerSearch;
+    public UserSteps users() {
+        return users;
+    }
+
+    public ObservationSteps observations() {
+        return observations;
     }
 }
 ```
 
-Facade может добавлять бизнес-сценарии, например создать Encounter и назначить Provider. Он не формирует HTTP-запросы самостоятельно.
+Каждый resource Steps хранит типизированные successful requester’ы и выставляет
+предметные методы (`searchUsers`, `createObservation`, `getObservation`). Новый
+ресурс добавляется в `ApiClient` полем, инициализацией через тот же
+`RequesterFactory` и accessor’ом. Сам `ApiClient` не формирует HTTP-запросы, а
+Steps не содержит assertions.
 
 ## 9. Как позднее разделить response-типы
 
@@ -901,24 +899,33 @@ public class SuccessfulTypedCrudRequester<
 
 Существующий `CrudEndpoint<CREATE, UPDATE>` и его raw implementation сохраняются, потому что они всегда возвращают `Response`. `DELETE_RES` не добавляется: успешный DELETE проверяет пустой `204` response.
 
-## 10. Возможная структура пакетов
+## 10. Структура пакетов
+
+Ниже показано фактическое расположение requester layer и уже добавленных
+прикладных слоев. Каталоги ресурсов, которые еще не реализованы, создаются по
+мере появления соответствующего resource slice.
 
 ```text
 api/
+├── config/
 ├── models/
 │   ├── auth/
 │   ├── encounter/
-│   ├── obs/
+│   ├── observations/
 │   ├── patient/
 │   ├── person/
 │   ├── user/
 │   └── visit/
+├── specs/
 ├── requests/
-│   ├── endpoints/
-│   ├── interfaces/
-│   └── requesters/
-├── facades/
-└── testdata/
+│   └── skelethon/
+│       ├── endpoints/
+│       ├── interfaces/
+│       ├── query/
+│       └── requesters/
+├── steps/
+├── testdata/
+└── utils/
 ```
 
 Пакеты создаются по мере реализации vertical slices; структура не требует заранее создавать пустые классы для каждого ресурса.

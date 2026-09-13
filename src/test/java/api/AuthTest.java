@@ -1,4 +1,4 @@
-package api_tests.p0;
+package api;
 
 import api.config.Config;
 import api.models.auth.request.Credentials;
@@ -7,7 +7,6 @@ import api.requests.skelethon.interfaces.AuthEndpoint;
 import api.requests.skelethon.requesters.AuthRequester;
 import api.requests.skelethon.requesters.SuccessfulAuthRequester;
 import api.specs.RequestSpecs;
-import api.testdata.PatientTestData;
 import io.restassured.response.Response;
 import net.datafaker.Faker;
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,7 @@ import java.util.stream.Stream;
 import static api.requests.skelethon.endpoints.AuthEndpoints.SESSION;
 
 @EnabledIfSystemProperty(named = "openmrs.integration.enabled", matches = "true")
-public class AuthTests extends BaseApiTest {
+public class AuthTest extends BaseApiTest {
 
     @Test
     public void getAuthSessionWithValidDataAdmin() {
