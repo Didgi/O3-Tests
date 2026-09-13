@@ -1,10 +1,8 @@
 package api.models.observations;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -13,8 +11,7 @@ public record ObservationResponse(
         String display,
         Concept concept,
         Person person,
-        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-        OffsetDateTime obsDatetime,
+        String obsDatetime,
         String accessionNumber,
         ObservationResponse obsGroup,
         String valueCodedName,
@@ -32,8 +29,7 @@ public record ObservationResponse(
         String interpretation,
         ReferenceRange referenceRange,
         List<Link> links,
-        String resourceVersion,
-        List<ObservationResponse> previousVersions
+        String resourceVersion
 ) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)

@@ -23,9 +23,9 @@ public class ModelComparisonConfigLoader {
 
         if (value == null) return null;
 
-        String[] parts = value.split(":", 2);
+        String[] parts = value.split(":");
         String responseClass = parts[0];
-        String rulesPart = parts.length > 1 ? parts[1] : "";
+        String rulesPart = parts[1];
 
         return new ComparisonRule(name, responseClass, parseRules(rulesPart));
     }

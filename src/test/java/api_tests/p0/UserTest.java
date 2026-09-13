@@ -1,25 +1,22 @@
 package api_tests.p0;
 
 import api.models.user.UserSearchResponse;
-import api.requests.steps.UserSteps;
-import api.specs.RequestSpecs;
+import api.steps.ApiClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class UserTest extends BaseApiTest {
-    private UserSteps userSteps;
+    private ApiClient admin;
 
     @BeforeEach
-    void setUpUserSteps() {
-        userSteps = new UserSteps(
-                RequestSpecs.withAdminBasicAuth()
-        );
+    void setUp() {
+        admin = ApiClient.admin();
     }
 
     @Test
     void searchAdminUserReturnsNonEmptyList() {
         UserSearchResponse response =
-                userSteps.searchUsers("admin");
+                admin.users().searchUsers("admin");
 
         softly.assertThat(response.results())
                 .as("Users found by query")

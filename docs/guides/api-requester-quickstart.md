@@ -15,14 +15,13 @@ Requester — это готовый способ отправить запрос
    - позитивный сценарий → `Successful...Requester`;
    - негативный сценарий → обычный requester, возвращающий `Response`.
 
-Позитивный тест вызывает предметный класс `*Steps`. Считайте, что готовых steps
-нет: ниже мы создадим step с нуля, соберем в нем raw и successful requester'ы и
-дадим операции понятное предметное имя. Конструировать requester прямо в тесте
-стоит только для негативного сценария.
+Позитивный тест вызывает предметный класс `*Steps` через `ApiClient`. `ApiClient`
+выбирает авторизацию и предоставляет готовые Steps для ресурсов. Конструировать
+requester прямо в тесте стоит только для негативного сценария.
 
 ```text
 Тест
- ├─ позитивный сценарий → Steps → SuccessfulRequester → Requester → API
+ ├─ позитивный сценарий → ApiClient → Steps → SuccessfulRequester → Requester → API
  └─ негативный сценарий ─────────→ Requester → API → raw Response
 ```
 
@@ -68,8 +67,8 @@ Requester — это готовый способ отправить запрос
 
 #### Позитивный сценарий
 
-Используйте `Successful...Requester` через предметный `*Steps`, который создается
-вместе с тестом. Successful-обертка сама проверит базовый контракт и вернет DTO:
+Используйте `Successful...Requester` через предметный `*Steps`, который доступен
+из `ApiClient`. Successful-обертка сама проверит базовый контракт и вернет DTO:
 
 | Операция | Ожидаемый статус |
 |---|---:|
@@ -81,7 +80,9 @@ Requester — это готовый способ отправить запрос
 Для auth дополнительно проверяется `authenticated == true`.
 
 ```java
-UserSearchResponse response = userSteps.searchUsers("admin");
+UserSearchResponse response = ApiClient.admin()
+        .users()
+        .searchUsers("admin");
 ```
 
 Не нужно еще раз проверять в тесте, что status равен `200`: это уже обязанность
@@ -121,81 +122,54 @@ Base URL и учетные данные по умолчанию берутся �
 `src/main/resources/config.properties`. Любое значение можно переопределить
 системным параметром или переменной окружения, не меняя файл в репозитории.
 
-## Как написать тест за 5 минут
+## Используйте seed/reference data
 
-Этот путь рассчитан на ресурс, для которого уже существуют DTO и endpoint spec,
-но еще нет `*Steps`. За пять минут мы выберем requester, напишем step с нуля,
-добавим тест и запустим его. Если нет также DTO или endpoint spec, сначала нужен
-новый resource slice — это отдельная задача, описанная ниже.
-
-### 0:00–1:00. Выберите requester
-
-Допустим, нужно проверить `GET /user?q=admin`:
-
-- URL не содержит `parentId`;
-- нужен поиск коллекции, значит выбираем `SearchRequester`;
-- сценарий позитивный, значит добавляем `SuccessfulSearchRequester`;
-- запрос выполняется от администратора через
-  `RequestSpecs.withAdminBasicAuth()`.
-
-Для сборки уже существуют `UserEndpoints.SEARCH`, `UserSearchParams` и
-`UserSearchResponse`.
-
-### 1:00–3:00. Напишите step с нуля
-
-Создайте файл `src/main/java/api/requests/steps/UserSteps.java`:
+Некоторые тесты используют данные, которые заранее созданы на стенде и не
+являются test target. Их идентификаторы хранятся в
+[`config.properties`](../../src/main/resources/config.properties), а в коде
+получаются через [`ReferenceTestData.java`](../../src/main/java/api/testdata/ReferenceTestData.java).
 
 ```java
-package api.requests.steps;
-
-import api.models.user.UserSearchParams;
-import api.models.user.UserSearchResponse;
-import api.requests.skelethon.endpoints.UserEndpoints;
-import api.requests.skelethon.interfaces.SearchEndpoint;
-import api.requests.skelethon.requesters.SearchRequester;
-import api.requests.skelethon.requesters.SuccessfulSearchRequester;
-import io.restassured.specification.RequestSpecification;
-
-public class UserSteps {
-
-    private final SuccessfulSearchRequester<
-            UserSearchParams,
-            UserSearchResponse
-            > userSearchRequester;
-
-    public UserSteps(RequestSpecification requestSpecification) {
-        SearchEndpoint<UserSearchParams> rawRequester = new SearchRequester<>(
-                requestSpecification,
-                UserEndpoints.SEARCH
-        );
-
-        userSearchRequester = new SuccessfulSearchRequester<>(
-                rawRequester,
-                UserEndpoints.SEARCH
-        );
-    }
-
-    public UserSearchResponse searchUsers(String query) {
-        return userSearchRequester.search(
-                new UserSearchParams(query, "default")
-        );
-    }
-}
+String conceptId = ReferenceTestData.conceptId();
+String locationUuid = ReferenceTestData.locationUuid();
 ```
 
-В step есть три части:
+Не хардкодьте такие UUID и не создавайте один и тот же reference object в каждом
+тесте. Если нужна новая reference data, добавьте ключ в properties, getter в
+`ReferenceTestData` и используйте getter в тесте или test-data helper. Полное
+описание ключей и порядка добавления — в
+[`api-requester-resource-slice.md`](api-requester-resource-slice.md).
 
-1. Поле хранит successful requester нужных generic-типов.
-2. Конструктор получает готовую `RequestSpecification`, создает raw requester и
-   оборачивает его в successful requester.
-3. Публичный метод переводит предметное действие `searchUsers` в технический
-   вызов `search(...)` и собирает query parameters.
+Для уникальных данных, которые тест создает во время выполнения, используйте
+специализированный helper. Например, новый patient identifier получается так:
 
-Step не проверяет конкретные данные ответа и не содержит JUnit assertions. Его
-задача — скрыть HTTP-детали и дать тесту предметную операцию, которую можно
-переиспользовать.
+```java
+String identifier = PatientTestData.generateIdentifier();
+```
 
-### 3:00–4:00. Создайте тест
+## Как написать тест за 5 минут
+
+Этот путь рассчитан на ресурс, для которого уже существуют DTO, params-модель,
+endpoint spec и Steps. Для пользователя такой готовый путь выглядит так:
+
+### 0:00–1:00. Выберите способ авторизации
+
+Для администратора используйте `ApiClient.admin()`. Для конкретного пользователя
+передайте `Credentials` в `ApiClient.authenticatedAs(...)`:
+
+```java
+ApiClient admin = ApiClient.admin();
+
+ApiClient user = ApiClient.authenticatedAs(
+        new Credentials("username", "password")
+);
+```
+
+`ApiClient` один раз создает `RequestSpecification`, `RequesterFactory` и Steps
+для доступных ресурсов. В тесте не нужно вручную собирать raw requester и
+successful requester.
+
+### 1:00–4:00. Вызовите операцию через Steps
 
 Создайте файл
 `src/test/java/api_tests/p0/UserSearchSmokeTest.java`:
@@ -204,23 +178,22 @@ Step не проверяет конкретные данные ответа и �
 package api_tests.p0;
 
 import api.models.user.UserSearchResponse;
-import api.requests.steps.UserSteps;
-import api.specs.RequestSpecs;
+import api.steps.ApiClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class UserSearchSmokeTest extends BaseApiTest {
 
-    private UserSteps userSteps;
+    private ApiClient admin;
 
     @BeforeEach
     void setUp() {
-        userSteps = new UserSteps(RequestSpecs.withAdminBasicAuth());
+        admin = ApiClient.admin();
     }
 
     @Test
     void findsAdminUser() {
-        UserSearchResponse response = userSteps.searchUsers("admin");
+        UserSearchResponse response = admin.users().searchUsers("admin");
 
         softly.assertThat(response.results())
                 .as("Users found by query")
@@ -236,12 +209,16 @@ class UserSearchSmokeTest extends BaseApiTest {
 Что здесь дает фреймворк:
 
 - `BaseApiTest` создает `SoftAssertions` и вызывает `assertAll()` после теста;
-- `RequestSpecs.withAdminBasicAuth()` добавляет base URL, JSON headers,
-  авторизацию, логирование, Allure и сбор Swagger coverage;
+- `ApiClient.admin()` создает specification с base URL, JSON headers,
+  авторизацией, логированием, Allure и сбором Swagger coverage;
+- `ApiClient` предоставляет `UserSteps` через `admin.users()`;
 - `UserSteps` скрывает сборку requester'а и params-модели;
 - `SuccessfulSearchRequester` внутри steps проверяет `200` и преобразует JSON в
   `UserSearchResponse`;
 - в тесте остается только действие и проверка бизнес-результата.
+
+Если нужного ресурса еще нет в `ApiClient`, сначала добавьте resource slice по
+инструкции [`api-requester-resource-slice.md`](api-requester-resource-slice.md).
 
 ### 4:00–5:00. Запустите только свой тест
 
@@ -274,10 +251,19 @@ class UserSearchSmokeTest extends BaseApiTest {
 ### Получить ресурс в нужном representation
 
 ```java
-ObsResponse observation = successfulObs.get(obsId, ReadOptions.full());
+ObservationResponse observation = ApiClient.admin()
+        .observations()
+        .getObservation(obsId);
 ```
 
-Доступные варианты:
+Готовый `ObservationSteps` предоставляет базовое получение ресурса через
+`getObservation(id)`. Если тесту нужно явно выбирать `v=ref`, `v=full` или
+`v=custom:(...)`, добавьте соответствующий метод в предметный Steps и передайте
+`ReadOptions` в underlying CRUD requester. Подробности о `ReadOptions` находятся
+в [`api-requester-layer.md`](../architecture/api-requester-layer.md).
+
+Если Steps предоставляет управление representation, в низкоуровневом CRUD
+requester доступны варианты:
 
 - `ReadOptions.defaults()` — не передавать параметр `v`;
 - `ReadOptions.ref()` — `v=ref`;
@@ -287,35 +273,38 @@ ObsResponse observation = successfulObs.get(obsId, ReadOptions.full());
 
 ### Получить список или выполнить поиск
 
-```java
-// List без фильтров
-rawSearch.search(QueryParams.empty());
+Подробное объяснение params-моделей, сопоставления Java-полей с именами API и
+разницы между query и path parameters — в отдельном гайде:
+[`api-requester-search-params.md`](api-requester-search-params.md).
 
-// Search с фильтрами — в прикладном коде предпочтительнее отдельная params-модель
-rawSearch.search(QueryParams.of(Map.of("q", "admin", "v", "default")));
+```java
+ApiClient admin = ApiClient.admin();
+
+// List без фильтров
+admin.observations().listObservations();
+
+// Search с фильтрами
+admin.users().searchUsers("admin");
 ```
+
+Для правил создания `*SearchParams` и низкоуровневого raw-примера используйте
+отдельный [гайд по search и query parameters](api-requester-search-params.md).
 
 ### Удалить ресурс
 
 ```java
-successfulRequester.delete(id);                    // обычное удаление
-successfulRequester.delete(id, DeleteMode.PURGE); // ?purge=true
+ApiClient admin = ApiClient.admin();
+
+admin.observations().deleteObservation(id); // обычное удаление
+admin.observations().purgeObservation(id);  // ?purge=true
 ```
 
 ### Вызвать nested endpoint
 
-У nested requester первым аргументом всегда идет `parentId`, затем `id`
-дочернего ресурса:
-
-```java
-AllergyResponse allergy = successfulAllergies.get(
-        patientId,
-        allergyId,
-        ReadOptions.full()
-);
-```
-
-Для nested list/search нужен только `parentId` и параметры:
+У nested requester первым аргументом всегда идет `parentId`, затем `id` дочернего
+ресурса. Для nested list/search передаются `parentId` и params-модель. Пример
+ниже относится к уровню requester layer; готовый предметный Steps для nested
+ресурса оформляется по [гайду resource slice](api-requester-resource-slice.md):
 
 ```java
 ProviderSearchResponse providers = successfulProviderSearch.search(
@@ -326,40 +315,18 @@ ProviderSearchResponse providers = successfulProviderSearch.search(
 
 ## Если нет DTO или EndpointSpec
 
-Steps мы создаем вместе с тестом. Но «тест за 5 минут» предполагает, что контракт
-ресурса уже описан DTO и endpoint spec. Если их нет, не пишите Rest
-Assured-вызов прямо в позитивном тесте. Добавьте минимальный вертикальный срез:
+«Тест за 5 минут» предполагает, что resource slice уже описан. Если ресурса еще
+нет в `ApiClient`, добавьте его по отдельному
+[`api-requester-resource-slice.md`](api-requester-resource-slice.md). Вкратце,
+нужны следующие части:
 
 1. request/response DTO в `api.models.<resource>`;
 2. params-модель с `QueryParams`, если нужен search;
 3. `EndpointSpec` или `CrudOperations` в
    `api.requests.skelethon.endpoints`;
-4. raw requester выбранного типа;
-5. соответствующую successful-обертку;
-6. новый класс с предметным методом в `api.requests.steps`;
-7. тест, который вызывает steps.
-
-Минимальная сборка search-операции выглядит так:
-
-```java
-SearchEndpoint<UserSearchParams> rawRequester = new SearchRequester<>(
-        requestSpecification,
-        UserEndpoints.SEARCH
-);
-
-SuccessfulSearchRequester<UserSearchParams, UserSearchResponse> successfulRequester =
-        new SuccessfulSearchRequester<>(rawRequester, UserEndpoints.SEARCH);
-```
-
-`EndpointSpec` связывает путь с типом успешного ответа:
-
-```java
-public static final EndpointSpec<UserSearchResponse> SEARCH =
-        new EndpointSpec<>(
-                "/user",
-                new TypeRef<UserSearchResponse>() {}
-        );
-```
+4. новый класс с предметными методами в `api.steps`;
+5. регистрация Steps в `ApiClient`;
+6. тест, который вызывает `ApiClient` и Steps.
 
 Если endpoint не укладывается ни в один из пяти типов, не маскируйте его под
 CRUD. Сначала проверьте актуальный Swagger и обсудите отдельный контракт. Прямой
@@ -369,12 +336,13 @@ patient identifier в `PatientTestData`, но не как обычный спо�
 ## Чек-лист перед отправкой теста
 
 - Requester выбран по форме endpoint'а, а не только по HTTP-методу.
-- Позитивный тест идет через steps/successful requester.
+- Позитивный тест идет через `ApiClient` и предметный Steps.
 - Негативный тест использует raw requester и сам проверяет status/body.
 - Тест проверяет бизнес-результат, а не повторяет status, уже проверенный
   successful-оберткой.
-- Авторизация задается через `RequestSpecs`, секреты не записаны в тест.
-- Для item GET осознанно выбран `ReadOptions`.
+- Авторизация задается через `ApiClient`, секреты не записаны в тест.
+- Для item GET используется подходящий метод Steps; `ReadOptions` добавляется в
+  Steps, если тестам нужен выбор representation.
 - Для delete осознанно выбран обычный режим или `PURGE`.
 - Запущен хотя бы новый тест; перед merge — подходящий Maven profile.
 
@@ -382,6 +350,10 @@ patient identifier в `PatientTestData`, но не как обычный спо�
 
 - [`api-requester-layer.md`](../architecture/api-requester-layer.md) — принципы и
   архитектурные решения.
+- [`api-requester-resource-slice.md`](api-requester-resource-slice.md) — пошаговое
+  добавление DTO, Endpoints, Steps и регистрации ресурса в `ApiClient`.
+- [`api-requester-search-params.md`](api-requester-search-params.md) — создание
+  params-моделей и работа с query parameters.
 - [`api-requester-examples.md`](../architecture/api-requester-examples.md) —
   полные примеры реализации всех типов requester'ов.
 - [`openmrs-api-inventory.md`](../architecture/openmrs-api-inventory.md) — какие
