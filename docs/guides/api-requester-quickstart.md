@@ -240,10 +240,10 @@ class UserSearchSmokeTest extends BaseApiTest {
   test
 ```
 
-Запуск всего набора API P0:
+Запуск всего набора тестов:
 
 ```bash
-./mvnw -Papi-p0 test
+./mvnw test
 ```
 
 ## Частые операции

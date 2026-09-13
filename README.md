@@ -61,21 +61,15 @@ Auth-интеграционные тесты по умолчанию отклю�
 ```text
 src/main/java/
 ├── api/models              # DTO и query params
-├── api/requests            # endpoint layer и предметные API Steps
-│   ├── endpoints           # EndpointSpec, CrudOperations и *Endpoints
-│   ├── skeleton            # generic contracts и requester implementations
-│   │   ├── interfaces
-│   │   ├── options         # ReadOptions и DeleteMode
-│   │   ├── query           # QueryParams
-│   │   └── requesters      # raw/successful requesters и RequesterFactory
-│   └── steps               # ApiClient и предметные resource Steps
+├── api/requests/skelethon  # endpoint specs, interfaces и requester-ы
+├── api/steps               # предметные операции ресурсов
 ├── api/specs               # request/response specifications
 ├── api/testdata             # reference и runtime test data
 ├── api/utils                # генерация данных и сравнение моделей
 └── common                   # общие extensions, retry и logging
 
 src/test/java/
-├── api/requests/skeleton   # изолированные проверки requester layer
+├── api/requests/skelethon   # изолированные проверки requester layer
 └── api_tests/p0             # API-тесты ресурсов и auth
 ```
 

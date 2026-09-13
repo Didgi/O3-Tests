@@ -1,7 +1,7 @@
 package api;
 
 import api.models.user.UserSearchResponse;
-import api.requests.steps.ApiClient;
+import api.steps.ApiClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

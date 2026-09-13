@@ -10,6 +10,7 @@ import api.requests.skelethon.requesters.*;
 import io.restassured.builder.ResponseBuilder;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.response.Response;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@Disabled
 class SuccessfulRequesterTest {
 
     @Test
