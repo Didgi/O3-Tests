@@ -3,9 +3,9 @@ package api;
 import api.config.Config;
 import api.models.auth.request.Credentials;
 import api.models.auth.response.SessionResponse;
-import api.requests.skelethon.interfaces.AuthEndpoint;
-import api.requests.skelethon.requesters.AuthRequester;
-import api.requests.skelethon.requesters.SuccessfulAuthRequester;
+import api.requests.skeleton.interfaces.AuthEndpoint;
+import api.requests.skeleton.requesters.AuthRequester;
+import api.requests.skeleton.requesters.SuccessfulAuthRequester;
 import api.specs.RequestSpecs;
 import io.restassured.response.Response;
 import net.datafaker.Faker;
@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-import static api.requests.skelethon.endpoints.AuthEndpoints.SESSION;
+import static api.requests.endpoints.AuthEndpoints.SESSION;
 
 @EnabledIfSystemProperty(named = "openmrs.integration.enabled", matches = "true")
 public class AuthTest extends BaseApiTest {

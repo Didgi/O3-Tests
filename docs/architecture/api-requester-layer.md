@@ -151,11 +151,32 @@ classDiagram
 `ApiClient.admin()` создает клиент с административной авторизацией,
 `ApiClient.authenticatedAs(credentials)` — с Basic Auth конкретного пользователя.
 Текущий `RequesterFactory` создает successful-варианты для Search, CRUD и
-nested requester’ов; Auth пока собирается напрямую в auth-тестах. Текущие
-прикладные реализации находятся в [`ApiClient`](../../src/main/java/api/steps/ApiClient.java),
-[`RequesterFactory`](../../src/main/java/api/requests/skelethon/requesters/RequesterFactory.java),
-[`UserSteps`](../../src/main/java/api/steps/UserSteps.java) и
-[`ObservationSteps`](../../src/main/java/api/steps/ObservationSteps.java).
+nested requester’ов. Его `rawCrud(...)` — отдельный escape hatch для Steps,
+которым рядом с successful CRUD нужен исходный `Response`; Auth пока собирается
+напрямую в auth-тестах. Текущие прикладные реализации находятся в
+[`ApiClient`](../../src/main/java/api/requests/steps/ApiClient.java),
+[`RequesterFactory`](../../src/main/java/api/requests/skeleton/requesters/RequesterFactory.java),
+[`UserSteps`](../../src/main/java/api/requests/steps/UserSteps.java) и
+[`ObservationSteps`](../../src/main/java/api/requests/steps/ObservationSteps.java).
+
+### 6.2. Раскладка пакетов
+
+```text
+api/requests/
+├── endpoints/
+│   ├── EndpointSpec, CrudOperations
+│   └── resource-specific *Endpoints
+├── skeleton/
+│   ├── interfaces/   # endpoint contracts
+│   ├── options/      # ReadOptions, DeleteMode
+│   ├── query/        # QueryParams
+│   └── requesters/   # raw/successful requesters, RequesterFactory
+└── steps/            # ApiClient и resource Steps
+```
+
+`endpoints` содержит конфигурацию маршрутов и response types. `skeleton`
+содержит переиспользуемые контракты и реализации requester layer, а `steps`
+предоставляет предметный facade для тестов.
 
 ## 7. Активные типы endpoint'ов
 
@@ -343,6 +364,23 @@ classDiagram
 получает `RequesterFactory` в конструкторе, а затем регистрируется в `ApiClient`.
 Для будущего Encounter это будет `EncounterSteps`, добавленный в `ApiClient` по
 тому же правилу.
+
+### 10.1. Переиспользование CRUD в Steps
+
+[`CrudStepsSupport`](../../src/main/java/api/requests/steps/CrudStepsSupport.java) —
+необязательная базовая инициализация для Steps, которым нужны одновременно
+`SuccessfulCrudRequester` и raw `CrudEndpoint`. Он не добавляет предметных
+операций и не содержит assertions. Если в нескольких Steps появится одинаковая
+связка `Crud + Search`, допустимо добавить отдельный
+`CrudSearchStepsSupport`, расширяющий `CrudStepsSupport` и добавляющий
+`SuccessfulSearchRequester`. Это решение принимается только после появления
+реального дублирования.
+
+Nested CRUD и Nested Search не являются продолжением top-level CRUD. Несмотря на
+то что nested CRUD использует те же `CrudOperations` для конфигурации, его
+контракт содержит обязательный `parentId`, а nested search вообще может
+отсутствовать у subresource. Поэтому nested requester’ы хранятся в Steps как
+отдельная композиция, без иерархии `Nested ... extends Crud ...`.
 
 ## 11. Поток позитивного и негативного сценария
 
