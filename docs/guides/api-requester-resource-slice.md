@@ -21,8 +21,9 @@
 |---|---|
 | `api.models.<resource>` | request, response и query params модели |
 | `*Endpoints` | пути endpoint’ов и типы успешных response |
-| `RequesterFactory` | сборка raw requester и successful-обертки |
+| [`RequesterFactory`](../../src/main/java/api/requests/skeleton/requesters/RequesterFactory.java) | сборка raw requester и successful-обертки; для CRUD также дает raw-доступ |
 | `*Steps` | понятные предметные операции ресурса |
+| [`CrudStepsSupport`](../../src/main/java/api/requests/steps/CrudStepsSupport.java) | необязательная общая инициализация successful и raw CRUD для Steps |
 | `ApiClient` | авторизация и доступ к Steps |
 | `ReferenceTestData` | доступ к идентификаторам заранее созданных reference objects |
 | `*TestData` | создание уникальных или временных данных для конкретного теста |
@@ -31,6 +32,17 @@
 Позитивный тест обычно работает только с `ApiClient` и `Steps`. Детали
 `RequesterFactory` нужны при создании нового resource slice, но не должны
 появляться в каждом тесте.
+
+В текущем дереве проекта эти роли находятся в следующих пакетах:
+
+| Пакет | Содержимое |
+|---|---|
+| `api.requests.endpoints` | `EndpointSpec`, `CrudOperations` и ресурсные `*Endpoints` |
+| `api.requests.skeleton.interfaces` | контракты `AuthEndpoint`, `CrudEndpoint`, `SearchEndpoint` и nested-варианты |
+| `api.requests.skeleton.options` | `ReadOptions`, `DeleteMode` |
+| `api.requests.skeleton.query` | `QueryParams` и его реализации в моделях ресурсов |
+| `api.requests.skeleton.requesters` | raw/successful requester’ы и `RequesterFactory` |
+| `api.requests.steps` | `ApiClient`, resource Steps и Steps-support классы |
 
 ## Шаг 1. Подготовьте модели
 
@@ -52,9 +64,9 @@ src/main/java/api/models/observations/
 ```
 
 Готовый resource slice наблюдений можно использовать как рабочий пример:
-[`ObservationEndpoints.java`](../../src/main/java/api/requests/skelethon/endpoints/ObservationEndpoints.java),
-[`ObservationSteps.java`](../../src/main/java/api/steps/ObservationSteps.java) и
-[`ApiClient.java`](../../src/main/java/api/steps/ApiClient.java).
+[`ObservationEndpoints.java`](../../src/main/java/api/requests/endpoints/ObservationEndpoints.java),
+[`ObservationSteps.java`](../../src/main/java/api/requests/steps/ObservationSteps.java) и
+[`ApiClient.java`](../../src/main/java/api/requests/steps/ApiClient.java).
 
 Params-модель должна реализовывать `QueryParams`. Подробнее о сопоставлении
 полей модели с query parameters написано в
@@ -173,7 +185,7 @@ String identifier = PatientTestData.generateIdentifier();
 Для search-only ресурса достаточно одного `EndpointSpec`:
 
 ```java
-package api.requests.skelethon.endpoints;
+package api.requests.endpoints;
 
 import api.models.product.ProductSearchResponse;
 import io.restassured.common.mapper.TypeRef;
@@ -183,7 +195,8 @@ public final class ProductEndpoints {
     public static final EndpointSpec<ProductSearchResponse> SEARCH =
             new EndpointSpec<>(
                     "/product",
-                    new TypeRef<>() {}
+                    new TypeRef<>() {
+                    }
             );
 
     private ProductEndpoints() {
@@ -249,13 +262,13 @@ requester и оборачивает его в successful requester.
 ### Search-only resource
 
 ```java
-package api.steps;
+package api.requests.steps;
 
 import api.models.product.ProductSearchParams;
 import api.models.product.ProductSearchResponse;
-import api.requests.skelethon.endpoints.ProductEndpoints;
-import api.requests.skelethon.requesters.RequesterFactory;
-import api.requests.skelethon.requesters.SuccessfulSearchRequester;
+import api.requests.endpoints.ProductEndpoints;
+import api.requests.skeleton.requesters.RequesterFactory;
+import api.requests.skeleton.requesters.SuccessfulSearchRequester;
 
 public class ProductSteps {
 
@@ -342,7 +355,82 @@ public class ProductSteps {
 в Steps не добавляются — они остаются в тесте.
 
 Реальный пример такого класса находится в
-[`ObservationSteps.java`](../../src/main/java/api/steps/ObservationSteps.java).
+[`ObservationSteps.java`](../../src/main/java/api/requests/steps/ObservationSteps.java).
+
+### Переиспользование CRUD-части в Steps
+
+Если несколько ресурсных Steps повторяют инициализацию successful и raw CRUD,
+для общей части можно использовать
+[`CrudStepsSupport.java`](../../src/main/java/api/requests/steps/CrudStepsSupport.java):
+
+```java
+public class ProductSteps extends CrudStepsSupport<
+        ProductCreateRequest,
+        ProductUpdateRequest,
+        ProductResponse
+        > {
+
+    private final SuccessfulSearchRequester<
+            ProductSearchParams,
+            ProductSearchResponse
+            > searchRequester;
+
+    public ProductSteps(RequesterFactory requesters) {
+        super(requesters, ProductEndpoints.CRUD);
+        this.searchRequester =
+                requesters.successfulSearch(ProductEndpoints.SEARCH);
+    }
+
+    public ProductResponse createProduct(ProductCreateRequest request) {
+        return successfulCrud.create(request);
+    }
+
+    public Response getProductRaw(String id) {
+        return rawCrud.get(id, ReadOptions.defaults());
+    }
+}
+```
+
+`CrudStepsSupport` не добавляет предметных методов и не содержит assertions: он
+только хранит типизированные `successfulCrud` и `rawCrud`. Последний нужен,
+когда тому же Steps требуется негативный CRUD-сценарий или проверка raw
+response; для обычного позитивного Steps достаточно прямого поля
+`SuccessfulCrudRequester`.
+
+Если в нескольких Steps начнет повторяться именно связка `Crud + Search`, можно
+добавить отдельный абстрактный `CrudSearchStepsSupport`, который расширяет
+`CrudStepsSupport` и инициализирует `SuccessfulSearchRequester`. Такой класс не
+нужно вводить заранее: сначала должна появиться реальная повторяемость и
+одинаковый контракт.
+
+Nested CRUD и Nested Search не следует включать в эту иерархию. У них другой
+контракт с обязательным `parentId`, а наличие nested search не следует из
+наличия nested CRUD. Храните nested requester’ы отдельными полями в конкретном
+Steps или отдельным композиционным support-объектом:
+
+```java
+public class PatientSteps extends CrudStepsSupport<
+        PatientCreateRequest,
+        PatientUpdateRequest,
+        PatientResponse
+        > {
+
+    private final SuccessfulNestedCrudRequester<
+            AllergyCreateRequest,
+            AllergyUpdateRequest,
+            AllergyResponse
+            > allergyCrud;
+
+    public PatientSteps(RequesterFactory requesters) {
+        super(requesters, PatientEndpoints.CRUD);
+        this.allergyCrud =
+                requesters.successfulNestedCrud(PatientEndpoints.ALLERGY_CRUD);
+    }
+}
+```
+
+Так top-level CRUD переиспользуется через наследование, а nested API остается
+явной композицией с собственным parent ID.
 
 ## Шаг 4. Зарегистрируйте Steps в `ApiClient`
 
@@ -409,8 +497,10 @@ ProductSearchResponse response =
 
 ## Если нужен негативный сценарий
 
-`RequesterFactory` предназначен для successful requester’ов. В негативном тесте
-создайте raw requester напрямую и проверяйте `Response` самостоятельно:
+Основное назначение `RequesterFactory` — создание successful requester’ов. Для
+CRUD он также предоставляет `rawCrud(...)`, поэтому общий CRUD-support может
+хранить raw requester рядом с successful. В отдельном негативном тесте можно
+создать raw requester напрямую и проверять `Response` самостоятельно:
 
 ```java
 SearchEndpoint<UserSearchParams> requester = new SearchRequester<>(

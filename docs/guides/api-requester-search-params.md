@@ -38,7 +38,7 @@ userSearch.search(new UserSearchParams("admin", "default"));
 ```java
 package api.models.user;
 
-import api.requests.skelethon.query.QueryParams;
+import api.requests.skeleton.query.QueryParams;
 
 import java.util.Map;
 
@@ -73,7 +73,7 @@ Params-модель описывает параметры запроса, а н�
 ```java
 package api.models.observations;
 
-import api.requests.skelethon.query.QueryParams;
+import api.requests.skeleton.query.QueryParams;
 
 import java.util.HashMap;
 import java.util.Map;

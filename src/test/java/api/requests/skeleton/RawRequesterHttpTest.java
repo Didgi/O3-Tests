@@ -1,11 +1,13 @@
-package api.requests.skelethon;
+package api.requests.skeleton;
 
 import api.models.auth.request.Credentials;
-import api.requests.skelethon.endpoints.CrudOperations;
-import api.requests.skelethon.endpoints.EndpointSpec;
-import api.requests.skelethon.interfaces.*;
-import api.requests.skelethon.query.QueryParams;
-import api.requests.skelethon.requesters.*;
+import api.requests.endpoints.CrudOperations;
+import api.requests.endpoints.EndpointSpec;
+import api.requests.skeleton.interfaces.*;
+import api.requests.skeleton.options.DeleteMode;
+import api.requests.skeleton.options.ReadOptions;
+import api.requests.skeleton.query.QueryParams;
+import api.requests.skeleton.requesters.*;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import io.restassured.builder.RequestSpecBuilder;

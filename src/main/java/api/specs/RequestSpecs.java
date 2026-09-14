@@ -11,7 +11,6 @@ import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 
 import java.nio.file.Paths;
-import java.util.Base64;
 import java.util.List;
 
 import static com.github.viclovsky.swagger.coverage.SwaggerCoverageConstants.OUTPUT_DIRECTORY;
@@ -38,22 +37,25 @@ public final class RequestSpecs {
     }
 
     public static RequestSpecification withAdminBasicAuth() {
-        return defaultRequestSpec()
-                .addHeader("Authorization", "Basic " +
-                        Base64.getEncoder()
-                                .encodeToString((Config.getProperty("admin_username")
-                                        + ":"
-                                        + Config.getProperty("admin_password"))
-                                        .getBytes()))
-                .build();
+        return withBasicAuth(
+                Config.getProperty("admin_username"),
+                Config.getProperty("admin_password")
+        );
     }
 
     public static RequestSpecification withAuth(String username, String password) {
+        return withBasicAuth(username, password);
+    }
+
+    private static RequestSpecification withBasicAuth(
+            String username,
+            String password
+    ) {
         return defaultRequestSpec()
-                .addHeader("Authorization", "Basic " +
-                        Base64.getEncoder()
-                                .encodeToString((username + ":" + password).getBytes()))
-                .build();
+                .build()
+                .auth()
+                .preemptive()
+                .basic(username, password);
     }
 
 }

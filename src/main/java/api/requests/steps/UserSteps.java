@@ -1,10 +1,10 @@
-package api.steps;
+package api.requests.steps;
 
 import api.models.user.UserSearchParams;
 import api.models.user.UserSearchResponse;
-import api.requests.skelethon.endpoints.UserEndpoints;
-import api.requests.skelethon.requesters.RequesterFactory;
-import api.requests.skelethon.requesters.SuccessfulSearchRequester;
+import api.requests.endpoints.UserEndpoints;
+import api.requests.skeleton.requesters.RequesterFactory;
+import api.requests.skeleton.requesters.SuccessfulSearchRequester;
 
 public class UserSteps {
     private final SuccessfulSearchRequester<

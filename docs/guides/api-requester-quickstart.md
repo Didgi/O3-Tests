@@ -178,7 +178,7 @@ successful requester.
 package api_tests.p0;
 
 import api.models.user.UserSearchResponse;
-import api.steps.ApiClient;
+import api.requests.steps.ApiClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -323,8 +323,8 @@ ProviderSearchResponse providers = successfulProviderSearch.search(
 1. request/response DTO в `api.models.<resource>`;
 2. params-модель с `QueryParams`, если нужен search;
 3. `EndpointSpec` или `CrudOperations` в
-   `api.requests.skelethon.endpoints`;
-4. новый класс с предметными методами в `api.steps`;
+   `api.requests.endpoints`;
+4. новый класс с предметными методами в `api.requests.steps`;
 5. регистрация Steps в `ApiClient`;
 6. тест, который вызывает `ApiClient` и Steps.
 

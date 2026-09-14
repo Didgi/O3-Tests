@@ -1,12 +1,14 @@
-package api.requests.skelethon;
+package api.requests.skeleton;
 
 import api.models.auth.request.Credentials;
 import api.models.auth.response.SessionResponse;
-import api.requests.skelethon.endpoints.CrudOperations;
-import api.requests.skelethon.endpoints.EndpointSpec;
-import api.requests.skelethon.interfaces.*;
-import api.requests.skelethon.query.QueryParams;
-import api.requests.skelethon.requesters.*;
+import api.requests.endpoints.CrudOperations;
+import api.requests.endpoints.EndpointSpec;
+import api.requests.skeleton.interfaces.*;
+import api.requests.skeleton.options.DeleteMode;
+import api.requests.skeleton.options.ReadOptions;
+import api.requests.skeleton.query.QueryParams;
+import api.requests.skeleton.requesters.*;
 import io.restassured.builder.ResponseBuilder;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.response.Response;
