@@ -69,4 +69,10 @@ public final class RequesterFactory {
                 operations
         );
     }
+
+    public <CREATE, UPDATE> CrudEndpoint<CREATE, UPDATE> rawCrud(
+            CrudOperations<?> operations
+    ) {
+        return new CrudRequester<>(specification, operations);
+    }
 }
