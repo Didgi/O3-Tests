@@ -7,32 +7,19 @@ import api.testdata.PatientTestData;
 import api.utils.comparison.ModelAssertions;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class PatientTest extends BaseApiTest {
     private ApiClient admin;
-
-    private void assertPreferredName(
-            PatientResponse response,
-            String expectedDisplay
-    ) {
-        softly.assertThat(response.person().preferredName())
-                .as("Preferred name")
-                .isNotNull()
-                .satisfies(name ->
-                        softly.assertThat(name.display())
-                                .as("Preferred name display")
-                                .isEqualTo(expectedDisplay)
-                );
-    }
 
     @BeforeEach
     void setUp() {
         admin = ApiClient.admin();
     }
 
-    // PAT-P0-01: создание пациента с валидными минимальными данными
     @Test
+    @DisplayName("PAT-P0-01: Создание пациента с валидными минимальными данными")
     void createPatientWithValidMinimalData() {
         PatientCreateRequest request =
                 PatientTestData.validPatient();
@@ -90,8 +77,8 @@ public class PatientTest extends BaseApiTest {
                 .isNotBlank();
     }
 
-    // PAT-P0-02: получение созданного пациента по UUID
     @Test
+    @DisplayName("PAT-P0-02: Получение созданного пациента по UUID")
     void getCreatedPatientByUuid() {
         PatientCreateRequest request =
                 PatientTestData.validPatient();
@@ -140,8 +127,8 @@ public class PatientTest extends BaseApiTest {
                 });
     }
 
-    // PAT-P0-03: поиск пациента по идентификатору возвращает созданного пациента
     @Test
+    @DisplayName("PAT-P0-03: Поиск пациента по идентификатору возвращает созданного пациента")
     void searchPatientByIdentifierReturnsCreatedPatient() {
         PatientCreateRequest request =
                 PatientTestData.validPatient();
@@ -166,8 +153,8 @@ public class PatientTest extends BaseApiTest {
                 );
     }
 
-    // PAT-P0-04: обновление пациента с сохранением остальных данных
     @Test
+    @DisplayName("PAT-P0-04: Обновление пациента с сохранением остальных данных")
     void updatePatientAndPreserveOtherData() {
         PatientCreateRequest createRequest =
                 PatientTestData.validPatient();
@@ -218,8 +205,8 @@ public class PatientTest extends BaseApiTest {
                 );
     }
 
-    // PAT-P0-05: отклонение дублирующего идентификатора пациента
     @Test
+    @DisplayName("PAT-P0-05: Отклонение дублирующего идентификатора пациента")
     void rejectDuplicatePatientIdentifier() {
         PatientCreateRequest firstRequest =
                 PatientTestData.validPatient();
@@ -245,8 +232,8 @@ public class PatientTest extends BaseApiTest {
                 .spec(ResponseSpecs.requestReturnsBadRequest());
     }
 
-    // PAT-P1-01: поиск пациента по имени возвращает созданного пациента
     @Test
+    @DisplayName("PAT-P1-01: Поиск пациента по имени возвращает созданного пациента")
     void searchPatientByNameReturnsCreatedPatient() {
         PatientCreateRequest request =
                 PatientTestData.validPatient();
@@ -272,8 +259,8 @@ public class PatientTest extends BaseApiTest {
                 );
     }
 
-    // PAT-P1-02: получение пациента по несуществующему UUID возвращает 404
     @Test
+    @DisplayName("PAT-P1-02: Получение пациента по несуществующему UUID возвращает 404")
     void getPatientByNonExistingUuidReturnsNotFound() {
         String nonExistingUuid =
                 PatientTestData.nonExistingUuid();
@@ -285,8 +272,8 @@ public class PatientTest extends BaseApiTest {
                 .spec(ResponseSpecs.requestReturnsNotFound());
     }
 
-    // PAT-P1-03: создание пациента без имени отклоняется
     @Test
+    @DisplayName("PAT-P1-03: Создание пациента без имени отклоняется")
     void createPatientWithoutNameReturnsBadRequest() {
         PatientCreateRequest request =
                 PatientTestData.patientWithoutName();
@@ -298,8 +285,8 @@ public class PatientTest extends BaseApiTest {
                 .spec(ResponseSpecs.requestReturnsBadRequest());
     }
 
-    // PAT-P1-04: создание пациента без пола отклоняется
     @Test
+    @DisplayName("PAT-P1-04: Создание пациента без пола отклоняется")
     void createPatientWithoutGenderReturnsBadRequest() {
         PatientCreateRequest request =
                 PatientTestData.patientWithoutGender();
@@ -311,8 +298,8 @@ public class PatientTest extends BaseApiTest {
                 .spec(ResponseSpecs.requestReturnsBadRequest());
     }
 
-    // PAT-P1-05: создание пациента без идентификатора отклоняется
     @Test
+    @DisplayName("PAT-P1-05: Создание пациента без идентификатора отклоняется")
     void createPatientWithoutIdentifierReturnsBadRequest() {
         PatientCreateRequest request =
                 PatientTestData.patientWithoutIdentifier();
@@ -324,8 +311,8 @@ public class PatientTest extends BaseApiTest {
                 .spec(ResponseSpecs.requestReturnsBadRequest());
     }
 
-    // PAT-P1-06: создание пациента с датой рождения в будущем отклоняется
     @Test
+    @DisplayName("PAT-P1-06: Создание пациента с датой рождения в будущем отклоняется")
     void createPatientWithFutureBirthdateReturnsBadRequest() {
         PatientCreateRequest request =
                 PatientTestData.patientWithFutureBirthdate();
@@ -337,8 +324,8 @@ public class PatientTest extends BaseApiTest {
                 .spec(ResponseSpecs.requestReturnsBadRequest());
     }
 
-    // PAT-P1-07: создание пациента со слишком старой датой рождения отклоняется
     @Test
+    @DisplayName("PAT-P1-07: Создание пациента со слишком старой датой рождения отклоняется")
     void createPatientWithTooOldBirthdateReturnsBadRequest() {
         PatientCreateRequest request =
                 PatientTestData.patientWithTooOldBirthdate();
@@ -350,8 +337,8 @@ public class PatientTest extends BaseApiTest {
                 .spec(ResponseSpecs.requestReturnsBadRequest());
     }
 
-    // PAT-P1-08: создание пациента с невалидным идентификатором отклоняется
     @Test
+    @DisplayName("PAT-P1-08: Создание пациента с невалидным идентификатором отклоняется")
     void createPatientWithInvalidIdentifierReturnsBadRequest() {
         PatientCreateRequest request =
                 PatientTestData.patientWithInvalidIdentifier();
@@ -363,8 +350,8 @@ public class PatientTest extends BaseApiTest {
                 .spec(ResponseSpecs.requestReturnsBadRequest());
     }
 
-    // PAT-P1-09: создание пациента с несуществующим типом идентификатора отклоняется
     @Test
+    @DisplayName("PAT-P1-09: Создание пациента с несуществующим типом идентификатора отклоняется")
     void createPatientWithNonExistingIdentifierTypeReturnsBadRequest() {
         PatientCreateRequest request =
                 PatientTestData.patientWithNonExistingIdentifierType();
@@ -376,8 +363,8 @@ public class PatientTest extends BaseApiTest {
                 .spec(ResponseSpecs.requestReturnsBadRequest());
     }
 
-    // PAT-P1-10: создание пациента с несуществующей локацией идентификатора отклоняется
     @Test
+    @DisplayName("PAT-P1-10: Создание пациента с несуществующей локацией идентификатора отклоняется")
     void createPatientWithNonExistingLocationReturnsBadRequest() {
         PatientCreateRequest request =
                 PatientTestData.patientWithNonExistingLocation();
@@ -389,8 +376,8 @@ public class PatientTest extends BaseApiTest {
                 .spec(ResponseSpecs.requestReturnsBadRequest());
     }
 
-    // PAT-P1-11: поиск несуществующего пациента возвращает пустой список
     @Test
+    @DisplayName("PAT-P1-11: Поиск несуществующего пациента возвращает пустой список")
     void searchNonExistingPatientReturnsEmptyResults() {
         String nonExistingQuery =
                 PatientTestData.nonExistingQuery();
@@ -405,8 +392,8 @@ public class PatientTest extends BaseApiTest {
                 .isEmpty();
     }
 
-    // PAT-P1-12: создание пациента без даты рождения
     @Test
+    @DisplayName("PAT-P1-12: Создание пациента без даты рождения")
     void createPatientWithoutBirthdate() {
         PatientCreateRequest request =
                 PatientTestData.patientWithoutBirthdate();
