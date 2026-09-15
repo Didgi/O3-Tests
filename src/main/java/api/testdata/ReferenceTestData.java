@@ -15,15 +15,7 @@ public final class ReferenceTestData {
         return Config.getProperty("patient_identifier_source_uuid");
     }
 
-    public static String consultationEncounterTypeUuid() {
-        return Config.getProperty("consultation_encounter_type_uuid");
-    }
-
-    public static String encounterProviderUuid() {
-        return Config.getProperty("encounter_provider_uuid");
-    }
-
-    public static String clinicianEncounterRoleUuid() {
-        return Config.getProperty("clinician_encounter_role_uuid");
+    public static String patientIdentifierTypeUuid() {
+        return Config.getProperty("patient_identifier_type_uuid");
     }
 }
