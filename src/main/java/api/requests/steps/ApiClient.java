@@ -8,6 +8,7 @@ import io.restassured.specification.RequestSpecification;
 public final class ApiClient {
     private final UserSteps users;
     private final ObservationSteps observations;
+    private final EncounterSteps encounters;
 
     private ApiClient(
             RequestSpecification specification
@@ -17,6 +18,7 @@ public final class ApiClient {
 
         users = new UserSteps(requesters);
         observations = new ObservationSteps(requesters);
+        encounters = new EncounterSteps(requesters);
     }
 
     public static ApiClient authenticatedAs(
@@ -38,5 +40,9 @@ public final class ApiClient {
 
     public ObservationSteps observations() {
         return observations;
+    }
+
+    public EncounterSteps encounters() {
+        return encounters;
     }
 }
