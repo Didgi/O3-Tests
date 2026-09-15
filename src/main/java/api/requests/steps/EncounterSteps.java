@@ -8,14 +8,19 @@ import api.requests.skeleton.options.ReadOptions;
 import api.requests.skeleton.requesters.RequesterFactory;
 import io.restassured.response.Response;
 
-public class EncounterSteps
-        extends CrudStepsSupport<EncounterCreateRequest, EncounterCreateRequest, EncounterResponse> {
+public class EncounterSteps extends CrudStepsSupport<
+        EncounterCreateRequest,
+        EncounterCreateRequest,
+        EncounterResponse
+        > {
 
     public EncounterSteps(RequesterFactory requesters) {
         super(requesters, EncounterEndpoints.CRUD);
     }
 
-    public EncounterResponse createEncounter(EncounterCreateRequest request) {
+    public EncounterResponse createEncounter(
+            EncounterCreateRequest request
+    ) {
         return successfulCrud.create(request);
     }
 
@@ -29,13 +34,5 @@ public class EncounterSteps
 
     public Response purgeEncounter(String id) {
         return successfulCrud.delete(id, DeleteMode.PURGE);
-    }
-
-    public Response createEncounterRaw(EncounterCreateRequest request) {
-        return rawCrud.create(request);
-    }
-
-    public EncounterResponse updateEncounter(String id, EncounterCreateRequest request) {
-        return successfulCrud.update(id, request);
     }
 }

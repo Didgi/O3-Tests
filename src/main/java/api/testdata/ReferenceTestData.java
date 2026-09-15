@@ -15,27 +15,15 @@ public final class ReferenceTestData {
         return Config.getProperty("patient_identifier_source_uuid");
     }
 
-    public static String patientUuid() {
-        return Config.getProperty("test_patient_uuid");
+    public static String consultationEncounterTypeUuid() {
+        return Config.getProperty("consultation_encounter_type_uuid");
     }
 
-    public static String visitTypeUuid() {
-        return Config.getProperty("test_visit_type_uuid");
+    public static String encounterProviderUuid() {
+        return Config.getProperty("encounter_provider_uuid");
     }
 
-    public static String appointmentServiceUuid() {
-        return Config.getProperty("test_appointment_service_uuid");
-    }
-
-    public static String appointmentKind() {
-        return Config.getProperty("test_appointment_kind");
-    }
-
-    public static String timeZone() {
-        return Config.getProperty("time_zone");
-    }
-
-    public static String dateTimeFormat() {
-        return Config.getProperty("date_time_format");
+    public static String clinicianEncounterRoleUuid() {
+        return Config.getProperty("clinician_encounter_role_uuid");
     }
 }
