@@ -1,12 +1,9 @@
 package common.extensions;
 
 import api.models.patients.PatientResponse;
-import api.models.visit.VisitCreateResponse;
 import api.requests.steps.ApiClient;
 import api.testdata.PatientTestData;
-import api.testdata.VisitTestData;
 import common.annotations.WithPatient;
-import common.annotations.WithVisit;
 import org.junit.jupiter.api.extension.*;
 import org.junit.platform.commons.support.AnnotationSupport;
 
@@ -17,32 +14,21 @@ public final class OpenMrsFixtureExtension implements
     public static final ExtensionContext.Namespace NAMESPACE =
             ExtensionContext.Namespace.create(OpenMrsFixtureExtension.class);
     private final ApiClient admin = ApiClient.admin();
+    private static final String PATIENT_KEY = "patient";
 
     @Override
     public void beforeEach(
             ExtensionContext context
     ) throws Exception {
 
-        if (!hasWithPatient(context)) {
+        if(!hasWithPatient(context)) {
             return;
         }
-
-        ExtensionContext.Store store = context.getStore(NAMESPACE);
 
         PatientResponse patient =
                 admin.patients().createPatient(PatientTestData.validPatient());
 
-        store.put(PatientResponse.class, patient);
-
-        if (hasWithVisit(context)) {
-            VisitCreateResponse visit = admin.visits().createVisit(
-                    VisitTestData.validVisitCreateRequest(patient.uuid())
-            );
-
-            store.put(VisitCreateResponse.class, visit);
-        }
-
-
+        context.getStore(NAMESPACE).put(PATIENT_KEY, patient);
     }
 
     @Override
@@ -51,45 +37,34 @@ public final class OpenMrsFixtureExtension implements
             ExtensionContext extensionContext
     ) throws ParameterResolutionException {
 
-        return (parameterContext.getParameter().getType() == PatientResponse.class
-                && hasWithPatient(extensionContext))
-                || ((parameterContext.getParameter().getType() == VisitCreateResponse.class)
-                && hasWithVisit(extensionContext));
+        return parameterContext.getParameter().getType() == PatientResponse.class
+                && hasWithPatient(extensionContext);
     }
 
     @Override
-    public Object resolveParameter(
+    public PatientResponse resolveParameter(
             ParameterContext parameterContext,
             ExtensionContext extensionContext
     ) throws ParameterResolutionException {
+        PatientResponse patient = extensionContext.getStore(NAMESPACE).get(
+                PATIENT_KEY,
+                PatientResponse.class
+        );
 
-        Class<?> type = parameterContext.getParameter().getType();
-
-        Object fixture = extensionContext.getStore(NAMESPACE)
-                .get(type, type);
-
-        if (fixture == null) {
+        if(patient == null) {
             throw new ParameterResolutionException(
-                    "Fixture " + type.getSimpleName()
-                            + " was not created for test: "
-                            + extensionContext.getDisplayName()
+                    "Patient fixture was not created for test: "
+                    + extensionContext.getDisplayName()
             );
         }
 
-        return fixture;
+        return patient;
     }
 
     private boolean hasWithPatient(ExtensionContext context) {
         return AnnotationSupport.isAnnotated(
                 context.getRequiredTestMethod(),
                 WithPatient.class
-        );
-    }
-
-    private boolean hasWithVisit(ExtensionContext context) {
-        return AnnotationSupport.isAnnotated(
-                context.getRequiredTestMethod(),
-                WithVisit.class
         );
     }
 }

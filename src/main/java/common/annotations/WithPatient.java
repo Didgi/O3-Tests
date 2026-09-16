@@ -8,10 +8,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({
-        ElementType.METHOD,
-        ElementType.ANNOTATION_TYPE
-})
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @ExtendWith(OpenMrsFixtureExtension.class)
 public @interface WithPatient {
