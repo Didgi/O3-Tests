@@ -1,16 +1,11 @@
 package api.testdata;
 
 import api.models.observations.ObservationCreateRequest;
-import api.specs.RequestSpecs;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.Map;
-
-import static io.restassured.RestAssured.given;
 
 public final class ObservationTestData {
 
@@ -65,25 +60,6 @@ public final class ObservationTestData {
                 .obsDatetime(OBS_DATETIME)
                 .person(patientUuid)
                 .build();
-    }
-
-    // TODO: Remove this method when encounter steps are available.
-    public static String createEncounter(String patientUuid) {
-        return given()
-                .spec(RequestSpecs.withAdminBasicAuth())
-                .body(Map.of(
-                        "encounterDatetime", OBS_DATETIME.format(
-                                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-                        ),
-                        "patient", patientUuid,
-                        "encounterType", ReferenceTestData.encounterVitalsTypeUuid(),
-                        "location", ReferenceTestData.locationUuid()
-                ))
-                .post("/encounter")
-                .then()
-                .statusCode(201)
-                .extract()
-                .path("uuid");
     }
 
     public static ObservationCreateRequest validObservationWithEncounter(
