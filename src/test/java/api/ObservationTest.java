@@ -4,10 +4,10 @@ import api.models.observations.ObservationCreateRequest;
 import api.models.observations.ObservationResponse;
 import api.models.observations.ObservationSearchResponse;
 import api.models.observations.ObservationUpdateRequest;
-import api.models.patients.PatientCreateRequest;
 import api.models.patients.PatientResponse;
 import api.requests.skeleton.options.ReadOptions;
 import api.requests.steps.ApiClient;
+import api.testdata.EncounterTestData;
 import api.testdata.ObservationTestData;
 import api.testdata.PatientTestData;
 import api.testdata.ReferenceTestData;
@@ -30,7 +30,7 @@ public class ObservationTest extends BaseApiTest {
         admin = ApiClient.admin();
     }
 
-    @DisplayName("OBS-P0-01 Create numeric observation")
+    @DisplayName("OBS-P0-01 Создание наблюдения с числовым значением")
     @WithPatient
     @Test
     void createNumericObservationTest(PatientResponse patient) {
@@ -45,23 +45,23 @@ public class ObservationTest extends BaseApiTest {
                 admin.observations().createObservation(request);
 
         softly.assertThat(observationResponse.uuid())
-                .as("response uuid is not null")
+                .as("Created observation UUID is present")
                 .isNotNull();
         softly.assertThat(observationResponse.person().uuid())
-                .as("person uuid")
+                .as("Created observation references the requested patient")
                 .isEqualTo(request.person());
         softly.assertThat(observationResponse.concept().uuid())
-                .as("concept uuid")
+                .as("Created observation references the requested concept")
                 .isEqualTo(request.concept());
         softly.assertThat(observationResponse.value().decimalValue())
-                .as("value field")
+                .as("Created observation numeric value matches the request")
                 .isEqualByComparingTo(request.value().decimalValue());
         softly.assertThat(observationResponse.obsDatetime())
-                .as("date field")
+                .as("Created observation datetime matches the request")
                 .isEqualTo(request.obsDatetime());
     }
 
-    @DisplayName("OBS-P0-02 Reject incompatible value without creating Observation")
+    @DisplayName("OBS-P0-02 Отклонение несовместимого значения без создания наблюдения")
     @WithPatient
     @Test
     void rejectIncompatibleValueWithoutCreatingObservationTest(PatientResponse patient) {
@@ -83,10 +83,11 @@ public class ObservationTest extends BaseApiTest {
                 );
 
         softly.assertThat(searchObservationResponse.results())
+                .as("Search by patient and concept returns no observations after rejecting an incompatible value")
                 .isEmpty();
     }
 
-    @DisplayName("OBS-P0-03 Get created observation by UUID")
+    @DisplayName("OBS-P0-03 Получение созданного наблюдения по UUID")
     @WithPatient
     @Test
     void getCreatedObservationByUuid(PatientResponse patient) {
@@ -101,29 +102,27 @@ public class ObservationTest extends BaseApiTest {
                 admin.observations().getObservation(createdObservation.uuid());
 
         softly.assertThat(observationResponse.uuid())
-                .as("uuid field")
+                .as("Retrieved observation UUID matches the created observation")
                 .isEqualTo(createdObservation.uuid());
         softly.assertThat(observationResponse.voided())
-                .as("voided field is false")
+                .as("Retrieved observation is not voided")
                 .isFalse();
         softly.assertThat(observationResponse)
+                .as("Retrieved observation patient, concept, value, and datetime match the created observation")
                 .usingRecursiveComparison()
                 .comparingOnlyFields("person", "concept", "value", "obsDatetime")
                 .isEqualTo(createdObservation);
     }
 
-    @DisplayName("OBS-P0-04 Filter observations by patient + concept")
+    @DisplayName("OBS-P0-04 Фильтрация наблюдений по пациенту и концепту")
     @WithPatient
     @Test
     void filterObservationByPatientAndConcept(PatientResponse patient) {
 
         // Arrange
 
-        PatientCreateRequest anotherPatientRequest =
-                PatientTestData.validPatient();
-
         PatientResponse anotherPatient =
-                admin.patients().createPatient(anotherPatientRequest);
+                admin.patients().createPatient(PatientTestData.validPatient());
 
         ObservationCreateRequest patientWeightRequest =
                 ObservationTestData.validObservation(patient.uuid());
@@ -155,9 +154,8 @@ public class ObservationTest extends BaseApiTest {
                         );
 
         softly.assertThat(searchObservationResponse.results())
-                .as("Patient weight is in results; " +
-                        "Patient height is NOT in result; " +
-                        "Another Patient weight is NOT in results")
+                .as("Search by patient and weight concept includes the patient's weight observation " +
+                        "and excludes their height observation and another patient's weight observation")
                 .extracting(ObservationSearchResponse.ObservationItem::uuid)
                 .contains(patientWeightResponse.uuid())
                 .doesNotContain(
@@ -166,13 +164,15 @@ public class ObservationTest extends BaseApiTest {
                 );
     }
 
-    @DisplayName("OBS-P0-05 Create observation linked to Encounter")
+    @DisplayName("OBS-P0-05 Создание наблюдения, связанного с медицинским контактом")
     @WithPatient
     @Test
     void createObservationLinkedToEncounter(PatientResponse patient) {
 
-        // TODO: Replace the direct Rest Assured call with encounter steps once they are available.
-        String encounterUuid = ObservationTestData.createEncounter(patient.uuid());
+        String encounterUuid =
+                admin.encounters().createEncounter(
+                        EncounterTestData.minimalEncounter(patient.uuid())
+                ).uuid();
 
         ObservationCreateRequest request =
                 ObservationTestData.validObservationWithEncounter(
@@ -184,19 +184,22 @@ public class ObservationTest extends BaseApiTest {
                 admin.observations().createObservation(request);
 
         softly.assertThat(response.encounter().uuid())
+                .as("Created observation references the requested encounter")
                 .isEqualTo(encounterUuid);
         softly.assertThat(response.person().uuid())
+                .as("Observation linked to an encounter references the fixture patient")
                 .isEqualTo(patient.uuid());
 
         ObservationSearchResponse searchResponse =
                 admin.observations().searchObservationByEncounter(encounterUuid);
 
         softly.assertThat(searchResponse.results())
+                .as("Search by encounter includes the observation linked to that encounter")
                 .extracting(ObservationSearchResponse.ObservationItem::uuid)
                 .contains(response.uuid());
     }
 
-    @DisplayName("OBS-P0-06 Update observation preserving version history")
+    @DisplayName("OBS-P0-06 Обновление наблюдения с сохранением истории версий")
     @WithPatient
     @Test
     void updateObservationPreservingVersionHistory(PatientResponse patient) {
@@ -220,12 +223,16 @@ public class ObservationTest extends BaseApiTest {
                         );
 
         softly.assertThat(updatedResponse.value().decimalValue())
+                .as("Updated observation numeric value matches the update request")
                 .isEqualByComparingTo(updateRequest.value().decimalValue());
         softly.assertThat(updatedResponse.uuid())
+                .as("Updating an observation creates a new UUID")
                 .isNotEqualTo(createdResponse.uuid());
         softly.assertThat(updatedResponse.voided())
+                .as("Updated observation version is not voided")
                 .isFalse();
         softly.assertThat(updatedResponse.status())
+                .as("Updated observation status indicates an amendment")
                 .isEqualTo(UPDATED_OBSERVATION_STATUS);
 
         ObservationResponse observationWithHistory =
@@ -235,6 +242,7 @@ public class ObservationTest extends BaseApiTest {
                 );
 
         softly.assertThat(observationWithHistory.previousVersions())
+                .as("Version history contains the previous observation UUID and its original value")
                 .extracting(
                         ObservationResponse::uuid,
                         ObservationResponse::value
@@ -246,12 +254,14 @@ public class ObservationTest extends BaseApiTest {
                 .getObservation(createdResponse.uuid());
 
         softly.assertThat(oldObservation.voided())
+                .as("Previous observation version is voided after the update")
                 .isTrue();
         softly.assertThat(oldObservation.value().decimalValue())
+                .as("Previous observation version retains its original numeric value")
                 .isEqualByComparingTo(createRequest.value().decimalValue());
     }
 
-    @DisplayName("OBS-P0-07 Delete observation performs void, not purge")
+    @DisplayName("OBS-P0-07 Логическое удаление наблюдения без физического удаления")
     @WithPatient
     @Test
     void deleteOperationPerformsVoidNotPurge(PatientResponse patient) {
@@ -268,12 +278,14 @@ public class ObservationTest extends BaseApiTest {
                 .getObservation(createdObservation.uuid());
 
         softly.assertThat(voidedObservation.voided())
+                .as("Deleted observation is marked as voided")
                 .isTrue();
 
         ObservationSearchResponse patientObservations = admin.observations()
                 .searchObservationByPatient(patient.uuid());
 
         softly.assertThat(patientObservations.results())
+                .as("Search by patient excludes the voided observation")
                 .extracting(ObservationSearchResponse.ObservationItem::uuid)
                 .doesNotContain(createdObservation.uuid());
     }
