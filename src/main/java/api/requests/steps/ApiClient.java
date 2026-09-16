@@ -8,6 +8,7 @@ import io.restassured.specification.RequestSpecification;
 public final class ApiClient {
     private final UserSteps users;
     private final ObservationSteps observations;
+    private final PatientSteps patients;
     private final EncounterSteps encounters;
 
     private ApiClient(
@@ -18,6 +19,7 @@ public final class ApiClient {
 
         users = new UserSteps(requesters);
         observations = new ObservationSteps(requesters);
+        patients = new PatientSteps(requesters);
         encounters = new EncounterSteps(requesters);
     }
 
@@ -40,6 +42,10 @@ public final class ApiClient {
 
     public ObservationSteps observations() {
         return observations;
+    }
+
+    public PatientSteps patients() {
+        return patients;
     }
 
     public EncounterSteps encounters() {
