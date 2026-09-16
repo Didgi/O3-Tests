@@ -1,0 +1,38 @@
+<div>POST to http://localhost:80/openmrs/ws/rest/v1/appointment</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;patientUuid&quot;: &quot;81b2c55c-822b-431c-8bb5-917ef870df35&quot;,
+    &quot;serviceUuid&quot;: &quot;4ec5c4fe-cfe0-48ff-9e4d-2f201078feae&quot;,
+    &quot;startDateTime&quot;: &quot;2026-09-30T15:11:25.770412844&quot;,
+    &quot;endDateTime&quot;: &quot;2026-09-30T15:41:25.770433152&quot;,
+    &quot;appointmentKind&quot;: &quot;Scheduled&quot;,
+    &quot;locationUuid&quot;: &quot;f47ac10b-58cc-4372-a567-0e02b2c3d479&quot;,
+    &quot;dateAppointmentScheduled&quot;: &quot;2026-09-30T15:11:25.770412844&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Basic YWRtaW46QWRtaW4xMjM=</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://localhost:80/openmrs/ws/rest/v1/appointment&#39; -H &#39;Authorization: Basic YWRtaW46QWRtaW4xMjM=&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;patientUuid&quot;: &quot;81b2c55c-822b-431c-8bb5-917ef870df35&quot;,
+    &quot;serviceUuid&quot;: &quot;4ec5c4fe-cfe0-48ff-9e4d-2f201078feae&quot;,
+    &quot;startDateTime&quot;: &quot;2026-09-30T15:11:25.770412844&quot;,
+    &quot;endDateTime&quot;: &quot;2026-09-30T15:41:25.770433152&quot;,
+    &quot;appointmentKind&quot;: &quot;Scheduled&quot;,
+    &quot;locationUuid&quot;: &quot;f47ac10b-58cc-4372-a567-0e02b2c3d479&quot;,
+    &quot;dateAppointmentScheduled&quot;: &quot;2026-09-30T15:11:25.770412844&quot;
+}&#39;
+    </div>
+
