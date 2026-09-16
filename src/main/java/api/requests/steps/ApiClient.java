@@ -34,6 +34,14 @@ public final class ApiClient {
         return new ApiClient(RequestSpecs.withAdminBasicAuth());
     }
 
+    public static ApiClient adminCookie() {
+        return new ApiClient(RequestSpecs.withAdminCookie());
+    }
+
+    public static ApiClient userCookie(String cookie) {
+        return new ApiClient(RequestSpecs.withCookie(cookie));
+    }
+
     public UserSteps users() {
         return users;
     }

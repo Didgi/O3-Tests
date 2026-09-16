@@ -16,7 +16,7 @@ public final class RequesterFactory {
     }
 
     public <PARAMS extends QueryParams, RESPONSE>
-    SuccessfulSearchRequester <PARAMS, RESPONSE> successfulSearch(
+    SuccessfulSearchRequester<PARAMS, RESPONSE> successfulSearch(
             EndpointSpec<RESPONSE> endpoint
     ) {
         SearchEndpoint<PARAMS> rawRequester =
@@ -26,6 +26,22 @@ public final class RequesterFactory {
                 );
 
         return new SuccessfulSearchRequester<>(
+                rawRequester,
+                endpoint
+        );
+    }
+
+    public <PARAMS extends QueryParams, RESPONSE>
+    ErrorSearchRequester<PARAMS, RESPONSE> errorSearch(
+            EndpointSpec<RESPONSE> endpoint
+    ) {
+        SearchEndpoint<PARAMS> rawRequester =
+                new SearchRequester<>(
+                        specification,
+                        endpoint
+                );
+
+        return new ErrorSearchRequester<>(
                 rawRequester,
                 endpoint
         );

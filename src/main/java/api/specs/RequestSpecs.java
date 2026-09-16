@@ -1,6 +1,8 @@
 package api.specs;
 
 import api.config.Config;
+import api.requests.skeleton.interfaces.AuthEndpoint;
+import api.requests.skeleton.requesters.AuthRequester;
 import com.github.viclovsky.swagger.coverage.FileSystemOutputWriter;
 import com.github.viclovsky.swagger.coverage.SwaggerCoverageRestAssured;
 import io.qameta.allure.restassured.AllureRestAssured;
@@ -13,9 +15,11 @@ import io.restassured.specification.RequestSpecification;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static api.requests.endpoints.AuthEndpoints.SESSION;
 import static com.github.viclovsky.swagger.coverage.SwaggerCoverageConstants.OUTPUT_DIRECTORY;
 
 public final class RequestSpecs {
+    static final String SESSION_COOKIE_NAME = "JSESSIONID";
 
     private RequestSpecs() {
     }
@@ -56,6 +60,17 @@ public final class RequestSpecs {
                 .auth()
                 .preemptive()
                 .basic(username, password);
+    }
+
+    public static RequestSpecification withCookie(String cookieValue) {
+        return defaultRequestSpec().addCookie(SESSION_COOKIE_NAME, cookieValue).build();
+    }
+
+    public static RequestSpecification withAdminCookie() {
+        AuthEndpoint rawRequester = new AuthRequester(RequestSpecs.withAdminBasicAuth(), SESSION);
+        final String cookie = rawRequester.getSession().cookie(SESSION_COOKIE_NAME);
+
+        return withCookie(cookie);
     }
 
 }
