@@ -3,6 +3,7 @@ package api.requests.skeleton.requesters;
 import api.requests.endpoints.CrudOperations;
 import api.requests.endpoints.EndpointSpec;
 import api.requests.skeleton.interfaces.CrudEndpoint;
+import api.requests.skeleton.interfaces.PostSearchEndpoint;
 import api.requests.skeleton.interfaces.SearchEndpoint;
 import api.requests.skeleton.query.QueryParams;
 import io.restassured.specification.RequestSpecification;
@@ -74,5 +75,17 @@ public final class RequesterFactory {
             CrudOperations<?> operations
     ) {
         return new CrudRequester<>(specification, operations);
+    }
+
+    public <BODY, RESPONSE>
+    SuccessfulPostSearchRequester<BODY, RESPONSE> successfulPostSearch(
+            EndpointSpec<RESPONSE> endpoint
+    ) {
+        PostSearchEndpoint<BODY> rawRequester = new PostSearchRequester<>(
+                specification,
+                endpoint
+        );
+
+        return new SuccessfulPostSearchRequester<>(rawRequester, endpoint);
     }
 }
