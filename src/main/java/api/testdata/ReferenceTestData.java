@@ -26,4 +26,16 @@ public final class ReferenceTestData {
     public static String encounterVitalsTypeUuid() {
         return Config.getProperty("encounter_vitals_type_uuid");
     }
+
+    public static String consultationEncounterTypeUuid() {
+        return Config.getProperty("consultation_encounter_type_uuid");
+    }
+
+    public static String encounterProviderUuid() {
+        return Config.getProperty("encounter_provider_uuid");
+    }
+
+    public static String clinicianEncounterRoleUuid() {
+        return Config.getProperty("clinician_encounter_role_uuid");
+    }
 }
