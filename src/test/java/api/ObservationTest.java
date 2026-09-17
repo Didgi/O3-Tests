@@ -14,6 +14,7 @@ import api.testdata.ReferenceTestData;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import common.annotations.WithPatient;
+import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,9 @@ import static org.assertj.core.api.Assertions.tuple;
 
 public class ObservationTest extends BaseApiTest {
     private static final String UPDATED_OBSERVATION_STATUS = "AMENDED";
+    private static final String UNKNOWN_UUID = "00000000-0000-0000-0000-000000000000";
+    private static final String UNKNOWN_CONCEPT = "0000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+    private static final String TEXT_CONCEPT = "159650AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 
     private ApiClient admin;
 
@@ -288,5 +292,87 @@ public class ObservationTest extends BaseApiTest {
                 .as("Search by patient excludes the voided observation")
                 .extracting(ObservationSearchResponse.ObservationItem::uuid)
                 .doesNotContain(createdObservation.uuid());
+    }
+
+    @DisplayName("OBS-P1-01 Missing person → rejected")
+    @WithPatient
+    @Test
+    void rejectRequestWithoutRequiredPersonField(PatientResponse patient) {
+        Response response = admin.observations().createObservationRawJson(
+                ObservationTestData.observationWithoutField(patient.uuid(), "person")
+        );
+
+        response.then().statusCode(400);
+
+    }
+
+    @DisplayName("OBS-P1-02 Missing concept → rejected")
+    @WithPatient
+    @Test
+    void rejectRequestWithoutRequiredConceptField(PatientResponse patient) {
+        Response response = admin.observations().createObservationRawJson(
+                ObservationTestData.observationWithoutField(patient.uuid(), "concept")
+        );
+
+        response.then().statusCode(400);
+    }
+
+    @DisplayName("OBS-P1-03 Missing obsDatetime → rejected")
+    @WithPatient
+    @Test
+    void rejectRequestWithoutRequiredObsDatetimeField(PatientResponse patient) {
+        Response response = admin.observations().createObservationRawJson(
+                ObservationTestData.observationWithoutField(patient.uuid(), "obsDatetime")
+        );
+
+        response.then().statusCode(400);
+    }
+
+    @DisplayName("OBS-P1-04 Invalid/non-existing concept → rejected")
+    @WithPatient
+    @Test
+    void rejectRequestWithNonexistingConcept(PatientResponse patient) {
+        ObservationCreateRequest request =
+                ObservationTestData.validObservation(patient.uuid())
+                        .toBuilder()
+                        .concept(UNKNOWN_CONCEPT)
+                        .build();
+
+        Response response = admin.observations().createObservationRaw(request);
+
+        response.then().statusCode(400);
+    }
+
+    @DisplayName("OBS-P1-05 Invalid/non-existing person → rejected")
+    @Test
+    void rejectRequestWithNonexistingPatient() {
+        ObservationCreateRequest request =
+                ObservationTestData.validObservation(UNKNOWN_UUID);
+
+        Response response = admin.observations().createObservationRaw(request);
+
+        response.then().statusCode(400);
+    }
+
+    @DisplayName("OBS-P1-06 Create Text observation")
+    @WithPatient
+    @Test
+    void createTextObservation(PatientResponse patient) {
+        ObservationCreateRequest request =
+                ObservationTestData.validObservation(patient.uuid())
+                        .toBuilder()
+                        .concept(TEXT_CONCEPT)
+                        .value(TextNode.valueOf("clear and colorless"))
+                        .build();
+
+        ObservationResponse response =
+                admin.observations().createObservation(request);
+
+        softly.assertThat(response.uuid())
+                .isNotNull();
+        softly.assertThat(response.concept().uuid())
+                .isEqualTo(request.concept());
+        softly.assertThat(response.person().uuid())
+                .isEqualTo(patient.uuid());
     }
 }
