@@ -6,7 +6,8 @@ import api.models.appointment.AppointmentResponse;
 import api.models.appointment.AppointmentStatus;
 import api.models.appointment.AppointmentStatusChangeRequest;
 import api.requests.steps.ApiClient;
-import api.testdata.ReferenceTestData;
+import api.testdata.AppointmentTestData;
+import api.testdata.PatientTestData;
 import api.utils.RandomData;
 import api.utils.comparison.ModelAssertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,20 +33,11 @@ public class AppointmentTest extends BaseApiTest {
     @Test
     @DisplayName("Создание нового appointment")
     void adminCanCreateAppointment() {
-        AppointmentCreateRequest request = new AppointmentCreateRequest(
-                ReferenceTestData.patientUuid(),
-                ReferenceTestData.appointmentServiceUuid(),
-                start.toString(),
-                end.toString(),
-                ReferenceTestData.appointmentKind(),
-                ReferenceTestData.locationUuid(),
-                start.toString()
-        );
+        String patientUuid = admin.patients().createPatient(PatientTestData.validPatient()).uuid();
+        AppointmentCreateRequest appointmentCreateRequest = AppointmentTestData.validAppointmentCreateRequest(patientUuid);
+        AppointmentResponse created = admin.appointments().createAppointment(appointmentCreateRequest);
 
-        AppointmentResponse created = admin.appointments().createAppointment(request);
-
-        ModelAssertions.assertThatModels(request, created).match();
-
+        ModelAssertions.assertThatModels(appointmentCreateRequest, created).match();
 
         softly.assertThat(created.voided())
                 .as("Newly created appointment is not voided")
@@ -53,7 +45,7 @@ public class AppointmentTest extends BaseApiTest {
 
         AppointmentResponse fetched = admin.appointments().getAppointment(created.uuid());
 
-        ModelAssertions.assertThatModels(request, fetched).match();
+        ModelAssertions.assertThatModels(appointmentCreateRequest, fetched).match();
 
         softly.assertThat(fetched.uuid())
                 .as("GET returns the created appointment")
@@ -63,19 +55,10 @@ public class AppointmentTest extends BaseApiTest {
     @Test
     @DisplayName("Получение списка Appointment за один день")
     void getAppointmentsByOneDay() {
+        String patientUuid = admin.patients().createPatient(PatientTestData.validPatient()).uuid();
+        AppointmentCreateRequest appointmentCreateRequest = AppointmentTestData.validAppointmentCreateRequest(patientUuid);
 
-        AppointmentCreateRequest request = new AppointmentCreateRequest(
-                ReferenceTestData.patientUuid(),
-                ReferenceTestData.appointmentServiceUuid(),
-                start.toString(),
-                end.toString(),
-                AppointmentStatus.SCHEDULED.toString(),
-                ReferenceTestData.locationUuid(),
-                start.toString()
-        );
-
-        AppointmentResponse created = admin.appointments().createAppointment(request);
-
+        AppointmentResponse created = admin.appointments().createAppointment(appointmentCreateRequest);
         String forDate = start.atZone(ZoneId.of(TIME_ZONE)).format(ON_DATE_FORMAT);
         List<AppointmentResponse> appointments =
                 admin.appointments().getAppointmentsForDate(forDate);
@@ -89,21 +72,14 @@ public class AppointmentTest extends BaseApiTest {
     @Test
     @DisplayName("Получение списка Appointments пациента")
     void getAppointmentsByPatient() {
-        AppointmentCreateRequest request = new AppointmentCreateRequest(
-                ReferenceTestData.patientUuid(),
-                ReferenceTestData.appointmentServiceUuid(),
-                start.toString(),
-                end.toString(),
-                AppointmentStatus.SCHEDULED.toString(),
-                ReferenceTestData.locationUuid(),
-                start.toString()
-        );
+        String patientUuid = admin.patients().createPatient(PatientTestData.validPatient()).uuid();
 
-        AppointmentResponse created = admin.appointments().createAppointment(request);
+        AppointmentCreateRequest appointmentCreateRequest = AppointmentTestData.validAppointmentCreateRequest(patientUuid);
+        AppointmentResponse created = admin.appointments().createAppointment(appointmentCreateRequest);
 
         List<AppointmentResponse> appointments =
                 admin.appointments().searchAppointmentsByPatient(
-                        ReferenceTestData.patientUuid(),
+                        patientUuid,
                         Instant.now().toString()
                 );
 
@@ -116,20 +92,11 @@ public class AppointmentTest extends BaseApiTest {
     @Test
     @DisplayName("Checkout appointment: статус становится Completed")
     void adminCanCheckoutAppointment() {
-        AppointmentCreateRequest createRequest = new AppointmentCreateRequest(
-                ReferenceTestData.patientUuid(),
-                ReferenceTestData.appointmentServiceUuid(),
-                start.toString(),
-                end.toString(),
-                AppointmentStatus.SCHEDULED.toString(),
-                ReferenceTestData.locationUuid(),
-                start.toString()
-        );
-
-        AppointmentResponse created = admin.appointments().createAppointment(createRequest);
+        String patientUuid = admin.patients().createPatient(PatientTestData.validPatient()).uuid();
+        AppointmentCreateRequest appointmentCreateRequest = AppointmentTestData.validAppointmentCreateRequest(patientUuid);
+        AppointmentResponse created = admin.appointments().createAppointment(appointmentCreateRequest);
 
         String onDate = ZonedDateTime.now(ZoneId.of(TIME_ZONE)).format(ON_DATE_FORMAT);
-
         admin.appointments().changeAppointmentStatus(
                 created.uuid(),
                 new AppointmentStatusChangeRequest(onDate, TIME_ZONE, AppointmentStatus.CHECKED_IN.toString())
