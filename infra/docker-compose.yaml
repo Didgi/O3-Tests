@@ -18,7 +18,10 @@ services:
       SPA_DEFAULT_LOCALE:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 10s
       timeout: 5s
+      retries: 60
+      start_period: 60s
     depends_on:
       - backend
 
@@ -37,9 +40,12 @@ services:
       OMRS_CONFIG_CONNECTION_PASSWORD: ${OMRS_DB_PASSWORD:-openmrs}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/openmrs"]
+      interval: 10s
       timeout: 5s
+      retries: 60
+      start_period: 60s
     volumes:
-      - openmrs-data:/openmrs/data
+      - ./openmrs-data:/openmrs/data
 
   # MariaDB
   db:
@@ -58,7 +64,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-openmrs}
     volumes:
       - db-data:/var/lib/mysql
+      - ./db/openmrs-test.sql:/docker-entrypoint-initdb.d/openmrs-test.sql:ro
 
 volumes:
-  openmrs-data: ~
   db-data: ~
