@@ -1,10 +1,16 @@
 package api;
 
+import api.helpers.EncounterTestHelper;
+import api.helpers.EncounterTestHelper.PatientVisit;
 import api.models.encounter.EncounterCreateRequest;
 import api.models.encounter.EncounterProviderRequest;
 import api.models.encounter.EncounterResponse;
+import api.models.patients.PatientResponse;
 import api.requests.steps.ApiClient;
 import api.testdata.EncounterTestData;
+import api.utils.RandomData;
+import api.utils.comparison.ModelAssertions;
+import common.annotations.Bug;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -26,39 +32,27 @@ import static api.testdata.EncounterValidationErrors.VISIT_FIELD;
 
 public class EncounterTest extends BaseApiTest {
 
-    private static final String PATIENT_UUID = "59e2c777-2932-42f7-921e-a1e6ff60f40a";
-    private static final String VISIT_UUID = "688eb514-cc5b-4016-aa88-0fb5d8d6d293";
-    private static final String UNKNOWN_UUID = "00000000-0000-0000-0000-000000000000";
-    private static final String ANOTHER_PATIENT_VISIT_UUID = "d6996a93-c77a-4405-be77-99837378165f";
-    private static final String VISIT_START_DATETIME = "2026-09-14T18:38:31.000+0000";
-
     private ApiClient admin;
+    private EncounterTestHelper helper;
 
     @BeforeEach
     void setUp() {
         admin = ApiClient.admin();
+        helper = new EncounterTestHelper(admin);
     }
 
     @Test
     @DisplayName("Создание Encounter внутри существующего Visit")
     void createEncounterInsideExistingVisit() {
-        EncounterCreateRequest request = EncounterTestData.validEncounter(PATIENT_UUID, VISIT_UUID);
+        PatientVisit data = helper.createPatientWithVisit();
+        EncounterCreateRequest request = EncounterTestData.validEncounter(data.patient().uuid(), data.visit().uuid());
 
         EncounterResponse createdEncounter = admin.encounters().createEncounter(request);
-        String encounterUuid = createdEncounter.uuid();
+        EncounterResponse actualEncounter = admin.encounters().getEncounterFull(createdEncounter.uuid());
 
-        softly.assertThat(encounterUuid).isNotBlank();
+        ModelAssertions.assertThatModels(request, actualEncounter).match();
 
-        EncounterResponse actualEncounter = admin.encounters().getEncounterFull(encounterUuid);
-        EncounterProviderRequest expectedProvider = request.encounterProviders().get(0);
-
-        softly.assertThat(actualEncounter.uuid()).isEqualTo(encounterUuid);
-        softly.assertThat(actualEncounter.encounterDatetime()).isEqualTo(request.encounterDatetime());
-        softly.assertThat(actualEncounter.patient().uuid()).isEqualTo(request.patient());
-        softly.assertThat(actualEncounter.visit().uuid()).isEqualTo(request.visit());
-        softly.assertThat(actualEncounter.encounterType().uuid()).isEqualTo(request.encounterType());
-        softly.assertThat(actualEncounter.location().uuid()).isEqualTo(request.location());
-        softly.assertThat(actualEncounter.voided()).isFalse();
+        EncounterProviderRequest expectedProvider = request.encounterProviders().getFirst();
 
         softly.assertThat(actualEncounter.encounterProviders())
                 .singleElement()
@@ -72,7 +66,8 @@ public class EncounterTest extends BaseApiTest {
     @Test
     @DisplayName("Создание Encounter с минимальным набором обязательных данных")
     void createEncounterWithRequiredFieldsOnly() {
-        EncounterCreateRequest request = EncounterTestData.minimalEncounter(PATIENT_UUID);
+        PatientResponse patient = helper.createPatient();
+        EncounterCreateRequest request = EncounterTestData.minimalEncounter(patient.uuid());
 
         EncounterResponse createdEncounter = admin.encounters().createEncounter(request);
         EncounterResponse actualEncounter = admin.encounters().getEncounterFull(createdEncounter.uuid());
@@ -87,40 +82,36 @@ public class EncounterTest extends BaseApiTest {
     @Test
     @DisplayName("Encounter создаётся с датой, равной началу Visit")
     void createEncounterAtVisitStart() {
-        EncounterCreateRequest validRequest = EncounterTestData.validEncounter(PATIENT_UUID, VISIT_UUID);
-        EncounterCreateRequest request = EncounterTestData.withEncounterDatetime(validRequest, VISIT_START_DATETIME);
+        PatientVisit data = helper.createPatientWithVisit();
+        EncounterCreateRequest validRequest =
+                EncounterTestData.validEncounter(data.patient().uuid(), data.visit().uuid());
+        EncounterCreateRequest request =
+                EncounterTestData.withEncounterDatetime(validRequest, data.visit().startDatetime());
 
         EncounterResponse createdEncounter = admin.encounters().createEncounter(request);
         EncounterResponse actualEncounter = admin.encounters().getEncounterFull(createdEncounter.uuid());
 
-        softly.assertThat(actualEncounter.uuid()).isEqualTo(createdEncounter.uuid());
-        softly.assertThat(actualEncounter.encounterDatetime()).isEqualTo(VISIT_START_DATETIME);
-        softly.assertThat(actualEncounter.patient().uuid()).isEqualTo(PATIENT_UUID);
-        softly.assertThat(actualEncounter.visit().uuid()).isEqualTo(VISIT_UUID);
+        softly.assertThat(actualEncounter.encounterDatetime()).isEqualTo(data.visit().startDatetime());
     }
 
     @Test
     @DisplayName("Изменение Encounter сохраняется")
     void updateEncounter() {
-        EncounterCreateRequest createRequest = EncounterTestData.validEncounter(PATIENT_UUID, VISIT_UUID);
-        EncounterResponse createdEncounter = admin.encounters().createEncounter(createRequest);
-        String encounterUuid = createdEncounter.uuid();
+        PatientVisit data = helper.createPatientWithVisit();
+        EncounterCreateRequest createRequest =
+                EncounterTestData.validEncounter(data.patient().uuid(), data.visit().uuid());
 
+        EncounterResponse createdEncounter = admin.encounters().createEncounter(createRequest);
         String updatedDatetime = EncounterTestData.oneMinuteBefore(createdEncounter.encounterDatetime());
         EncounterCreateRequest updateRequest = EncounterTestData.withEncounterDatetime(createRequest, updatedDatetime);
 
-        admin.encounters().updateEncounter(encounterUuid, updateRequest);
+        admin.encounters().updateEncounter(createdEncounter.uuid(), updateRequest);
 
-        EncounterResponse actualEncounter = admin.encounters().getEncounterFull(encounterUuid);
-        EncounterProviderRequest expectedProvider = updateRequest.encounterProviders().get(0);
+        EncounterResponse actualEncounter = admin.encounters().getEncounterFull(createdEncounter.uuid());
 
-        softly.assertThat(actualEncounter.uuid()).isEqualTo(encounterUuid);
-        softly.assertThat(actualEncounter.encounterDatetime()).isEqualTo(updateRequest.encounterDatetime());
-        softly.assertThat(actualEncounter.patient().uuid()).isEqualTo(updateRequest.patient());
-        softly.assertThat(actualEncounter.visit().uuid()).isEqualTo(updateRequest.visit());
-        softly.assertThat(actualEncounter.encounterType().uuid()).isEqualTo(updateRequest.encounterType());
-        softly.assertThat(actualEncounter.location().uuid()).isEqualTo(updateRequest.location());
-        softly.assertThat(actualEncounter.voided()).isFalse();
+        ModelAssertions.assertThatModels(updateRequest, actualEncounter).match();
+
+        EncounterProviderRequest expectedProvider = updateRequest.encounterProviders().getFirst();
 
         softly.assertThat(actualEncounter.encounterProviders())
                 .singleElement()
@@ -134,8 +125,10 @@ public class EncounterTest extends BaseApiTest {
     @Test
     @DisplayName("Encounter не создаётся без Encounter Type")
     void encounterIsNotCreatedWithoutEncounterType() {
+        PatientResponse patient = helper.createPatient();
+
         EncounterCreateRequest request = EncounterTestData.withEncounterType(
-                EncounterTestData.minimalEncounter(PATIENT_UUID),
+                EncounterTestData.minimalEncounter(patient.uuid()),
                 null
         );
 
@@ -147,14 +140,20 @@ public class EncounterTest extends BaseApiTest {
     @Test
     @DisplayName("Encounter не создаётся с датой в будущем")
     void encounterIsNotCreatedWithFutureDatetime() {
+        PatientResponse patient = helper.createPatient();
+
         EncounterCreateRequest request = EncounterTestData.withEncounterDatetime(
-                EncounterTestData.minimalEncounter(PATIENT_UUID),
+                EncounterTestData.minimalEncounter(patient.uuid()),
                 EncounterTestData.futureDatetime()
         );
 
         Response response = admin.encounters().createEncounterRaw(request);
 
-        assertBadRequestWithFieldError(response, ENCOUNTER_DATETIME_FIELD, FUTURE_DATETIME);
+        assertBadRequestWithFieldError(
+                response,
+                ENCOUNTER_DATETIME_FIELD,
+                FUTURE_DATETIME
+        );
     }
 
     @Test
@@ -170,53 +169,77 @@ public class EncounterTest extends BaseApiTest {
     @Test
     @DisplayName("Encounter не создаётся с несуществующим Patient")
     void encounterIsNotCreatedWithUnknownPatient() {
-        EncounterCreateRequest request = EncounterTestData.minimalEncounter(UNKNOWN_UUID);
+        EncounterCreateRequest request = EncounterTestData.minimalEncounter(RandomData.randomUuid());
 
         Response response = admin.encounters().createEncounterRaw(request);
 
-        assertBadRequestWithFieldError(response, PATIENT_FIELD, PATIENT_REQUIRED);
+        assertBadRequestWithFieldError(
+                response,
+                PATIENT_FIELD,
+                PATIENT_REQUIRED
+        );
     }
 
     @Test
     @DisplayName("Encounter не создаётся, если Patient не совпадает с Patient Visit")
     void encounterIsNotCreatedWhenPatientDoesNotMatchVisitPatient() {
-        EncounterCreateRequest request = EncounterTestData.validEncounter(PATIENT_UUID, ANOTHER_PATIENT_VISIT_UUID);
+        PatientVisit data = helper.createPatientWithVisit();
+        PatientResponse anotherPatient = helper.createPatient();
+        EncounterCreateRequest request = EncounterTestData.validEncounter(anotherPatient.uuid(), data.visit().uuid());
 
         Response response = admin.encounters().createEncounterRaw(request);
 
-        assertBadRequestWithFieldError(response, VISIT_FIELD, PATIENT_VISIT_MISMATCH);
+        assertBadRequestWithFieldError(
+                response,
+                VISIT_FIELD,
+                PATIENT_VISIT_MISMATCH
+        );
     }
 
     @Test
     @DisplayName("Encounter не создаётся раньше начала Visit")
     void encounterIsNotCreatedBeforeVisitStart() {
-        EncounterCreateRequest validRequest = EncounterTestData.validEncounter(PATIENT_UUID, VISIT_UUID);
-        String datetimeBeforeVisit = EncounterTestData.oneMinuteBefore(VISIT_START_DATETIME);
+        PatientVisit data = helper.createPatientWithVisit();
+        EncounterCreateRequest validRequest =
+                EncounterTestData.validEncounter(data.patient().uuid(), data.visit().uuid());
+        String datetimeBeforeVisit = EncounterTestData.oneMinuteBefore(data.visit().startDatetime());
         EncounterCreateRequest request = EncounterTestData.withEncounterDatetime(validRequest, datetimeBeforeVisit);
 
         Response response = admin.encounters().createEncounterRaw(request);
 
-        assertBadRequestWithFieldError(response, ENCOUNTER_DATETIME_FIELD, DATETIME_OUTSIDE_VISIT_RANGE);
+        assertBadRequestWithFieldError(
+                response,
+                ENCOUNTER_DATETIME_FIELD,
+                DATETIME_OUTSIDE_VISIT_RANGE
+        );
     }
 
     @Test
     @DisplayName("Encounter не создаётся с несуществующим Encounter Type")
     void encounterIsNotCreatedWithUnknownEncounterType() {
+        PatientResponse patient = helper.createPatient();
+
         EncounterCreateRequest request = EncounterTestData.withEncounterType(
-                EncounterTestData.minimalEncounter(PATIENT_UUID),
-                UNKNOWN_UUID
+                EncounterTestData.minimalEncounter(patient.uuid()),
+                RandomData.randomUuid()
         );
 
         Response response = admin.encounters().createEncounterRaw(request);
 
-        assertBadRequestWithFieldError(response, ENCOUNTER_TYPE_FIELD, ENCOUNTER_TYPE_REQUIRED);
+        assertBadRequestWithFieldError(
+                response,
+                ENCOUNTER_TYPE_FIELD,
+                ENCOUNTER_TYPE_REQUIRED
+        );
     }
 
     @Test
+    @Bug(true)
     @Disabled("BUG: API создаёт Encounter с несуществующим Visit вместо возврата 400")
     @DisplayName("Encounter не создаётся с несуществующим Visit")
     void encounterIsNotCreatedWithUnknownVisit() {
-        EncounterCreateRequest request = EncounterTestData.validEncounter(PATIENT_UUID, UNKNOWN_UUID);
+        PatientResponse patient = helper.createPatient();
+        EncounterCreateRequest request = EncounterTestData.validEncounter(patient.uuid(), RandomData.randomUuid());
 
         Response response = admin.encounters().createEncounterRaw(request);
 
@@ -224,11 +247,16 @@ public class EncounterTest extends BaseApiTest {
     }
 
     @Test
-    @Disabled("BUG: API создаёт Encounter с несуществующим Location вместо возврата 400")
+    @Bug(true)
+    @Disabled(
+            "BUG: API создаёт Encounter с несуществующим Location вместо возврата 400"
+    )
     @DisplayName("Encounter не создаётся с несуществующим Location")
     void encounterIsNotCreatedWithUnknownLocation() {
-        EncounterCreateRequest validRequest = EncounterTestData.validEncounter(PATIENT_UUID, VISIT_UUID);
-        EncounterCreateRequest request = EncounterTestData.withLocation(validRequest, UNKNOWN_UUID);
+        PatientVisit data = helper.createPatientWithVisit();
+        EncounterCreateRequest validRequest =
+                EncounterTestData.validEncounter(data.patient().uuid(), data.visit().uuid());
+        EncounterCreateRequest request = EncounterTestData.withLocation(validRequest, RandomData.randomUuid());
 
         Response response = admin.encounters().createEncounterRaw(request);
 
@@ -236,11 +264,14 @@ public class EncounterTest extends BaseApiTest {
     }
 
     @Test
+    @Bug(true)
     @Disabled("BUG: API возвращает 500 для несуществующего Provider вместо клиентской ошибки")
     @DisplayName("Encounter не создаётся с несуществующим Provider")
     void encounterIsNotCreatedWithUnknownProvider() {
-        EncounterCreateRequest validRequest = EncounterTestData.validEncounter(PATIENT_UUID, VISIT_UUID);
-        EncounterCreateRequest request = EncounterTestData.withProvider(validRequest, UNKNOWN_UUID);
+        PatientVisit data = helper.createPatientWithVisit();
+        EncounterCreateRequest validRequest =
+                EncounterTestData.validEncounter(data.patient().uuid(), data.visit().uuid());
+        EncounterCreateRequest request = EncounterTestData.withProvider(validRequest, RandomData.randomUuid());
 
         Response response = admin.encounters().createEncounterRaw(request);
 
@@ -248,11 +279,14 @@ public class EncounterTest extends BaseApiTest {
     }
 
     @Test
+    @Bug(true)
     @Disabled("BUG: API возвращает 500 для несуществующего Encounter Role вместо клиентской ошибки")
     @DisplayName("Encounter не создаётся с несуществующим Encounter Role")
     void encounterIsNotCreatedWithUnknownEncounterRole() {
-        EncounterCreateRequest validRequest = EncounterTestData.validEncounter(PATIENT_UUID, VISIT_UUID);
-        EncounterCreateRequest request = EncounterTestData.withEncounterRole(validRequest, UNKNOWN_UUID);
+        PatientVisit data = helper.createPatientWithVisit();
+        EncounterCreateRequest validRequest =
+                EncounterTestData.validEncounter(data.patient().uuid(), data.visit().uuid());
+        EncounterCreateRequest request = EncounterTestData.withEncounterRole(validRequest, RandomData.randomUuid());
 
         Response response = admin.encounters().createEncounterRaw(request);
 
