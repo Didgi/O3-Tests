@@ -17,6 +17,10 @@ public class ResponseSpecs {
         return basicResponseSpec().expectStatusCode(SC_OK).build();
     }
 
+    public static ResponseSpecification requestReturnsNoContent() {
+        return basicResponseSpec().expectStatusCode(SC_NO_CONTENT).build();
+    }
+
     public static ResponseSpecification entityWasCreated() {
         return basicResponseSpec().expectStatusCode(SC_CREATED).build();
     }

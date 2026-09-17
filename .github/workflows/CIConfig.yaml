@@ -1,71 +1,124 @@
-name: ci workflow
+name: CI
 on:
   push:
-    paths:
-      - src/**
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   run-tests:
-    name: basic job
+    name: Run tests
     runs-on: ubuntu-latest
     environment: Test
+
+    permissions:
+      contents: read
+
+    env:
+      OMRS_DB_NAME: ${{ secrets.OMRS_DB_NAME }}
+      OMRS_DB_USER: ${{ secrets.OMRS_DB_USER }}
+      OMRS_DB_HOST: ${{ secrets.OMRS_DB_HOST }}
+      OMRS_DB_PASSWORD: ${{ secrets.OMRS_DB_PASSWORD }}
+      MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+      OMRS_ENCRYPTION_KEY: ${{ secrets.OMRS_ENCRYPTION_KEY }}
+      OMRS_ENCRYPTION_VECTOR: ${{ secrets.OMRS_ENCRYPTION_VECTOR }}
+      OPENMRS_INTEGRATION_ENABLED: true
+
+    outputs:
+      has_allure_results: ${{ steps.check-allure.outputs.has_results }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+
       - name: Set up JDK
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
-      - name: Cache Maven repository
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: Prepare docker apps environment
+          cache: maven
+
+      - name: Run Checkstyle report
+        run: ./mvnw --batch-mode checkstyle:checkstyle
+
+      - name: Prepare test environment
         run: infra/restart-docker-images.sh
-      - name: Build project
-        run: ./mvnw clean package
-#        Обсудить откуда брать исходную openApi spec
-#      - name: Run Swagger coverage
-#        if: always()
-#        run: ./swagger-coverage-commandline/bin/swagger-coverage-commandline -s infra/o3-api.yaml -i target/swagger-coverage-output
-      #- name: Check api coverage
-      #  if: always()
-#        run: infra/check-api-coverage.sh
-      - name: Load test report history
-        uses: actions/checkout@v2
+
+      - name: Run tests
+        run: >
+          ./mvnw --batch-mode clean verify
+          -Dopenmrs.integration.enabled=${OPENMRS_INTEGRATION_ENABLED}
+
+      - name: Check Allure results
+        id: check-allure
         if: always()
+        run: |
+          if [ -d target/allure-results ] && \
+             [ "$(find target/allure-results -type f | wc -l)" -gt 0 ]; then
+            echo "has_results=true" >> "$GITHUB_OUTPUT"
+            echo "Allure results found"
+          else
+            echo "has_results=false" >> "$GITHUB_OUTPUT"
+            echo "Allure results not found"
+          fi
+
+      - name: Upload Allure results
+        if: always() && steps.check-allure.outputs.has_results == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: target/allure-results
+          retention-days: 7
+
+      - name: Clean up test environment
+        if: always()
+        run: docker compose -f infra/docker-compose.yaml down -v
+
+
+  publish-report:
+    name: Publish Allure report
+
+    needs:
+      - run-tests
+
+    if: >
+      always() &&
+      needs.run-tests.outputs.has_allure_results == 'true'
+#      github.ref == 'refs/heads/master' &&
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Download Allure results
+        uses: actions/download-artifact@v5
+        with:
+          name: allure-results
+          path: target/allure-results
+
+      - name: Load Allure history
+        continue-on-error: true
+        uses: actions/checkout@v7
         with:
           ref: gh-pages
           path: gh-pages
-      - name: Build test report
+
+      - name: Build Allure report
         uses: simple-elf/allure-report-action@master
-        if: always()
         with:
           gh_pages: gh-pages
           allure_results: target/allure-results
           allure_history: allure-history
-#      - name: Build Swagger coverage report
-#        if: always()
-#        run: sudo cp swagger-coverage-report.html allure-history/${{ github.run_number }}
-      - name: Publish test report
+
+      - name: Publish Allure report
         uses: peaceiris/actions-gh-pages@v3
-        if: always()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: allure-history
-      - name: Clean up app environment
-        if: always()
-        run: pwd && ls && docker compose -f infra/docker-compose.yaml down -v
-      - name: Run Checkstyle
-        run: ./mvnw checkstyle:checkstyle -q
-#      - name: Build docker image and push to the docker hub
-#        if: success()
-#        run: infra/push-tests-in-repo.sh
-#        env:
-#          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-#          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-#          COMMIT_HASH: ${{ github.sha }}
