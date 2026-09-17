@@ -1,0 +1,46 @@
+<div>POST to http://localhost:80/openmrs/ws/rest/v1/encounter/ad552ecd-cfc9-4b1c-a09b-f02a9dc72b7c</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;encounterDatetime&quot;: &quot;2026-09-17T21:40:29.000+0000&quot;,
+    &quot;patient&quot;: &quot;d054154a-55cc-4433-877b-1dcc88df7538&quot;,
+    &quot;encounterType&quot;: &quot;dd528487-82a5-4082-9c72-ed246bd49591&quot;,
+    &quot;location&quot;: &quot;44c3efb0-2583-4c80-a79e-1f756a03c0a1&quot;,
+    &quot;encounterProviders&quot;: [
+        {
+            &quot;provider&quot;: &quot;705f5791-07a7-44b8-932f-a81f3526fc98&quot;,
+            &quot;encounterRole&quot;: &quot;240b26f9-dd88-4172-823d-4a8bfeb7841f&quot;
+        }
+    ],
+    &quot;visit&quot;: &quot;e49442bb-9251-4973-9457-e2c7390c9c93&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Basic YWRtaW46QWRtaW4xMjM=</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://localhost:80/openmrs/ws/rest/v1/encounter/ad552ecd-cfc9-4b1c-a09b-f02a9dc72b7c&#39; -H &#39;Authorization: Basic YWRtaW46QWRtaW4xMjM=&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;encounterDatetime&quot;: &quot;2026-09-17T21:40:29.000+0000&quot;,
+    &quot;patient&quot;: &quot;d054154a-55cc-4433-877b-1dcc88df7538&quot;,
+    &quot;encounterType&quot;: &quot;dd528487-82a5-4082-9c72-ed246bd49591&quot;,
+    &quot;location&quot;: &quot;44c3efb0-2583-4c80-a79e-1f756a03c0a1&quot;,
+    &quot;encounterProviders&quot;: [
+        {
+            &quot;provider&quot;: &quot;705f5791-07a7-44b8-932f-a81f3526fc98&quot;,
+            &quot;encounterRole&quot;: &quot;240b26f9-dd88-4172-823d-4a8bfeb7841f&quot;
+        }
+    ],
+    &quot;visit&quot;: &quot;e49442bb-9251-4973-9457-e2c7390c9c93&quot;
+}&#39;
+    </div>
+
