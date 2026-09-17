@@ -4,11 +4,21 @@ import java.util.Objects;
 
 public enum FieldRule {
 
-    //сравнивает значения одинаковых полей по имени в запросе/ответе
+    //сравнивает значения одинаковых полей по имени в запросе/ответе;
+    //param — опциональный путь в ответе (например patient.uuid)
     STANDARD_EQUALS((req, res, field, param) -> {
         Object r1 = ReflectionUtils.getFieldValue(req, field);
-        Object r2 = ReflectionUtils.getFieldValue(res, field);
+        Object r2 = ReflectionUtils.getResponseValue(res, field, param);
         return Objects.equals(r1, r2)
+                ? null
+                : new Mismatch(field, r1, r2);
+    }),
+
+    //сравнивает даты: ISO-8601 и epoch millis, с точностью до секунды
+    DATE_EQUALS((req, res, field, param) -> {
+        Object r1 = ReflectionUtils.getFieldValue(req, field);
+        Object r2 = ReflectionUtils.getResponseValue(res, field, param);
+        return DateTimeComparison.equalsTruncatedToSeconds(r1, r2)
                 ? null
                 : new Mismatch(field, r1, r2);
     }),
