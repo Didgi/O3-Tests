@@ -2,7 +2,9 @@ package api.testdata;
 
 import api.models.observations.ObservationCreateRequest;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -16,6 +18,8 @@ public final class ObservationTestData {
     );
     private static final int WEIGHT_VALUE = 70;
     private static final int HEIGHT_VALUE = 170;
+    private static final ObjectMapper MAPPER =
+    new ObjectMapper().findAndRegisterModules();
 
     private ObservationTestData() {
     }
@@ -73,10 +77,35 @@ public final class ObservationTestData {
                 .build();
     }
 
+    public static ObjectNode observationWithoutField(
+            String personUuid,
+            String fieldName
+    ) {
+        ObjectNode body = validObservationJson(personUuid);
+
+        if (!body.has(fieldName)) {
+            throw new IllegalArgumentException(
+                    "Field is absent from the base request: " + fieldName
+            );
+        }
+
+        body.remove(fieldName);
+        return body;
+    }
+
     private static ObservationCreateRequest.ObservationCreateRequestBuilder
     validCreateWeightObservationRequest() {
         return ObservationCreateRequest.builder()
                 .concept(ReferenceTestData.conceptId())
                 .obsDatetime(OBS_DATETIME);
+    }
+
+    private static ObjectNode validObservationJson(String personUuid) {
+        ObservationCreateRequest request = validCreateWeightObservationRequest()
+                .value(IntNode.valueOf(WEIGHT_VALUE))
+                .person(personUuid)
+                .build();
+
+        return MAPPER.valueToTree(request);
     }
 }

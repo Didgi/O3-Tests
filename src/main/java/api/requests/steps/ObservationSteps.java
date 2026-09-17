@@ -2,10 +2,12 @@ package api.requests.steps;
 
 import api.models.observations.*;
 import api.requests.endpoints.ObservationEndpoints;
+import api.requests.skeleton.interfaces.CrudEndpoint;
 import api.requests.skeleton.options.DeleteMode;
 import api.requests.skeleton.options.ReadOptions;
 import api.requests.skeleton.requesters.RequesterFactory;
 import api.requests.skeleton.requesters.SuccessfulSearchRequester;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.restassured.response.Response;
 
 public class ObservationSteps extends CrudStepsSupport<
@@ -17,11 +19,17 @@ public class ObservationSteps extends CrudStepsSupport<
             ObservationSearchParams,
             ObservationSearchResponse
             > successfulSearchRequester;
+    private final CrudEndpoint<
+            ObjectNode,
+            ObservationResponse
+            > rawJsonCrud;
 
     public ObservationSteps(RequesterFactory requester) {
         super(requester, ObservationEndpoints.CRUD);
         this.successfulSearchRequester =
                 requester.successfulSearch(ObservationEndpoints.SEARCH);
+        this.rawJsonCrud =
+                requester.rawCrud(ObservationEndpoints.CRUD);
     }
 
     public ObservationResponse createObservation(
@@ -107,5 +115,11 @@ public class ObservationSteps extends CrudStepsSupport<
             ObservationCreateRequest request
     ) {
         return rawCrud.create(request);
+    }
+
+    public Response createObservationRawJson(
+            ObjectNode request
+    ) {
+        return rawJsonCrud.create(request);
     }
 }
