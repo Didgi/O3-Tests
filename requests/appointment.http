@@ -1,0 +1,16 @@
+### Positive: Admin can create appointment
+POST http://localhost/openmrs/ws/rest/v1/appointment
+Accept: application/json
+Content-Type: application/json
+Cookie: JSESSIONID=DA9D2FBF7F1DFB6FBB34A8F7EBFA6075
+
+{
+  "patientUuid": "81b2c55c-822b-431c-8bb5-917ef870df35",
+  "serviceUuid": "4ec5c4fe-cfe0-48ff-9e4d-2f201078feae",
+  "startDateTime": "2026-09-28T10:00:00.000Z",
+  "endDateTime": "2026-09-28T10:30:00.000Z",
+  "appointmentKind": "Scheduled",
+  "locationUuid": "44c3efb0-2583-4c80-a79e-1f756a03c0a1",
+  "serviceUuid": "7ba3aa21-cc56-47ca-bb4d-a60549f666c0",
+  "dateAppointmentScheduled": "2026-09-28T10:00:00.000Z"
+}

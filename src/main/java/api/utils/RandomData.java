@@ -5,6 +5,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import java.time.LocalDateTime;
+
 public class RandomData {
     private RandomData() {
     }
@@ -50,4 +52,12 @@ public class RandomData {
         return value.substring(0, value.length() - 1)
                 + replacement;
     }
+    public static LocalDateTime startDate() {
+        return LocalDateTime.now().plusDays(14);
+    }
+
+    public static LocalDateTime endDate() {
+        return startDate().plusMinutes(30);
+    }
+
 }
