@@ -16,6 +16,15 @@ jobs:
     permissions:
       contents: read
 
+    env:
+      OMRS_DB_NAME: ${{ secrets.OMRS_DB_NAME }}
+      OMRS_DB_USER: ${{ secrets.OMRS_DB_USER }}
+      OMRS_DB_HOST: ${{ secrets.OMRS_DB_HOST }}
+      OMRS_DB_PASSWORD: ${{ secrets.OMRS_DB_PASSWORD }}
+      MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+      OMRS_ENCRYPTION_KEY: ${{ secrets.OMRS_ENCRYPTION_KEY }}
+      OMRS_ENCRYPTION_VECTOR: ${{ secrets.OMRS_ENCRYPTION_VECTOR }}
+
     outputs:
       has_allure_results: ${{ steps.check-allure.outputs.has_results }}
 

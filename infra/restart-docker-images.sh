@@ -2,21 +2,53 @@
 
 set -euo pipefail
 
+: "${OMRS_DB_NAME:?OMRS_DB_NAME is not set}"
+: "${OMRS_DB_USER:?OMRS_DB_USER is not set}"
+: "${OMRS_DB_HOST:?OMRS_DB_HOST is not set}"
+: "${OMRS_DB_PASSWORD:?OMRS_DB_PASSWORD is not set}"
+: "${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is not set}"
+: "${OMRS_ENCRYPTION_KEY:?OMRS_ENCRYPTION_KEY is not set}"
+: "${OMRS_ENCRYPTION_VECTOR:?OMRS_ENCRYPTION_VECTOR is not set}"
+
 COMPOSE_FILE="infra/docker-compose.yaml"
 DB_DUMP="infra/db/openmrs-test.sql"
 BROWSERS_CONFIG="infra/config/browsers.json"
 
-DB_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-openmrs}"
-DB_NAME="openmrs"
+DB_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}"
+DB_NAME="${OMRS_DB_NAME}"
 
 MAX_DB_ATTEMPTS=60
 MAX_BACKEND_ATTEMPTS=60
 
+echo ">>> Создание openmrs-runtime.properties"
+
+mkdir -p infra/openmrs-data
+
+cat > infra/openmrs-data/openmrs-runtime.properties <<EOF
+# Generated for CI
+
+admin.password.locked=false
+auto_update_database=true
+
+connection.driver_class=com.mysql.jdbc.Driver
+connection.password=${OMRS_DB_PASSWORD}
+connection.url=jdbc\\:mysql\\://${OMRS_DB_HOST}\\:3306/${OMRS_DB_NAME}?autoReconnect\\=true&sessionVariables\\=default_storage_engine\\=InnoDB&useUnicode\\=true&characterEncoding\\=UTF-8
+connection.username=${OMRS_DB_USER}
+
+encryption.key=${OMRS_ENCRYPTION_KEY}
+encryption.vector=${OMRS_ENCRYPTION_VECTOR}
+
+hibernate.search.backend.analysis.configurer=luceneConfig
+hibernate.search.backend.discovery.enabled=true
+hibernate.search.backend.type=lucene
+hibernate.search.backend.uris=http\\://es\\:9200
+
+module.allow_web_admin=true
+EOF
 
 echo ">>> Остановка Docker Compose"
 
 docker compose -f "$COMPOSE_FILE" down -v
-
 
 echo ">>> Проверка необходимых файлов"
 
@@ -92,6 +124,7 @@ echo ">>> Восстановление OpenMRS DB snapshot"
 
 docker compose -f "$COMPOSE_FILE" exec -T db \
     mariadb \
+    --max-allowed-packet=256M \
     -uroot \
     -p"$DB_ROOT_PASSWORD" \
     "$DB_NAME" \
