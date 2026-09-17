@@ -1,5 +1,6 @@
 package api.requests.skeleton;
 
+import api.models.auth.request.ChangePasswordCredentials;
 import api.models.auth.request.Credentials;
 import api.models.auth.response.SessionResponse;
 import api.requests.endpoints.CrudOperations;
@@ -87,8 +88,28 @@ class SuccessfulRequesterTest {
             }
 
             @Override
+            public Response getSession(Credentials credentials, String sessionId) {
+                return response(200, "{\"sessionId\":\"session-1\",\"authenticated\":true}");
+            }
+
+            @Override
+            public Response getSession() {
+                return response(200, "{\"sessionId\":\"session-1\",\"authenticated\":true}");
+            }
+
+            @Override
             public Response logout() {
                 return response(204, "");
+            }
+
+            @Override
+            public Response logout(String sessionId) {
+                return response(204, "");
+            }
+
+            @Override
+            public Response changePassword(ChangePasswordCredentials changePasswordCredentials, String sessionId) {
+                return null;
             }
         };
         SuccessfulAuthRequester requester = new SuccessfulAuthRequester(raw, sessionEndpoint());
@@ -109,8 +130,28 @@ class SuccessfulRequesterTest {
             }
 
             @Override
+            public Response getSession(Credentials credentials, String sessionId) {
+                return response(200, "{\"sessionId\":\"session-1\",\"authenticated\":true}");
+            }
+
+            @Override
+            public Response getSession() {
+                return response(200, "{\"authenticated\":false}");
+            }
+
+            @Override
             public Response logout() {
                 return response(204, "");
+            }
+
+            @Override
+            public Response logout(String sessionId) {
+                return response(204, "");
+            }
+
+            @Override
+            public Response changePassword(ChangePasswordCredentials changePasswordCredentials, String sessionId) {
+                return null;
             }
         };
         SuccessfulAuthRequester requester = new SuccessfulAuthRequester(raw, sessionEndpoint());
