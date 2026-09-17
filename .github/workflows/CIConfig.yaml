@@ -23,6 +23,7 @@ jobs:
       MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
       OMRS_ENCRYPTION_KEY: ${{ secrets.OMRS_ENCRYPTION_KEY }}
       OMRS_ENCRYPTION_VECTOR: ${{ secrets.OMRS_ENCRYPTION_VECTOR }}
+      OPENMRS_INTEGRATION_ENABLED: true
 
     outputs:
       has_allure_results: ${{ steps.check-allure.outputs.has_results }}
@@ -45,7 +46,9 @@ jobs:
         run: infra/restart-docker-images.sh
 
       - name: Run tests
-        run: ./mvnw --batch-mode clean verify
+        run: >
+          ./mvnw --batch-mode clean verify
+          -Dopenmrs.integration.enabled=${OPENMRS_INTEGRATION_ENABLED}
 
       - name: Check Allure results
         id: check-allure
