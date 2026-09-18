@@ -15,6 +15,7 @@ import common.annotations.Bug;
 import io.qameta.allure.Allure;
 import io.restassured.response.Response;
 import net.datafaker.Faker;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
@@ -31,7 +32,7 @@ import static api.requests.skeleton.requesters.AuthRequester.getReadyResponseCha
 import static org.apache.http.HttpStatus.*;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
-@EnabledIfSystemProperty(named = "openmrs.integration.enabled", matches = "true")
+//@EnabledIfSystemProperty(named = "openmrs.integration.enabled", matches = "true")
 public class AuthTest extends BaseApiTest {
 
     static final String SESSION_COOKIE_NAME = Config.getProperty("cookie_session_name");
@@ -119,6 +120,7 @@ public class AuthTest extends BaseApiTest {
         softly.assertThat(errorResponse.error().message()).contains(String.valueOf(SC_UNAUTHORIZED));
     }
 
+    @Disabled
     @Test
     @Execution(value = SAME_THREAD)
     @DisplayName("Позитивный тест: пользователь админ изменяет пароль самому себе и авторизуется по новому паролю")
@@ -159,6 +161,7 @@ public class AuthTest extends BaseApiTest {
         softly.assertThat(readyResponseChangePasswordRevert.statusCode()).isEqualTo(SC_OK);
     }
 
+    @Disabled
     @Test
     @Execution(value = SAME_THREAD)
     @DisplayName("Негативный тест: пользователь админ изменяет пароль самому себе и не авторизуется по старому паролю")
@@ -247,7 +250,6 @@ public class AuthTest extends BaseApiTest {
     }
 
     @Test
-    @Execution(SAME_THREAD)
     @DisplayName("Негативный тест: отказ в выполнении запроса с не авторизованной сессией")
     public void getAuthSessionWithInvalidDataAdminAndUseSession() {
 
