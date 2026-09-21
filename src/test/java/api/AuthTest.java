@@ -18,7 +18,6 @@ import net.datafaker.Faker;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -32,7 +31,6 @@ import static api.requests.skeleton.requesters.AuthRequester.getReadyResponseCha
 import static org.apache.http.HttpStatus.*;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
-//@EnabledIfSystemProperty(named = "openmrs.integration.enabled", matches = "true")
 public class AuthTest extends BaseApiTest {
 
     static final String SESSION_COOKIE_NAME = Config.getProperty("cookie_session_name");
