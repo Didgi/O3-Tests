@@ -1,0 +1,110 @@
+<div>Status code 201 </div>
+
+
+<h4>Body</h4>
+<div>
+    <pre class="preformated-text">
+{
+    &quot;uuid&quot;: &quot;9c1be6bd-2cb6-4a12-af26-3ca8a27e898b&quot;,
+    &quot;display&quot;: &quot;Weight (kg): 70.0&quot;,
+    &quot;concept&quot;: {
+        &quot;uuid&quot;: &quot;5089AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+        &quot;display&quot;: &quot;Weight (kg)&quot;,
+        &quot;links&quot;: [
+            {
+                &quot;rel&quot;: &quot;self&quot;,
+                &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/concept/5089AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+                &quot;resourceAlias&quot;: &quot;concept&quot;
+            }
+        ]
+    },
+    &quot;person&quot;: {
+        &quot;uuid&quot;: &quot;dc13b811-d90d-4695-8ff4-558b132a4760&quot;,
+        &quot;display&quot;: &quot;100020W - Auto_6df7f68d Patient_6df7f68d&quot;,
+        &quot;links&quot;: [
+            {
+                &quot;rel&quot;: &quot;self&quot;,
+                &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/patient/dc13b811-d90d-4695-8ff4-558b132a4760&quot;,
+                &quot;resourceAlias&quot;: &quot;patient&quot;
+            }
+        ]
+    },
+    &quot;obsDatetime&quot;: &quot;2026-09-14T14:31:00.000+0000&quot;,
+    &quot;accessionNumber&quot;: null,
+    &quot;obsGroup&quot;: null,
+    &quot;valueCodedName&quot;: null,
+    &quot;groupMembers&quot;: null,
+    &quot;comment&quot;: null,
+    &quot;location&quot;: null,
+    &quot;order&quot;: null,
+    &quot;encounter&quot;: {
+        &quot;uuid&quot;: &quot;59ffddf4-3954-4311-ae54-ca2e28489c60&quot;,
+        &quot;display&quot;: &quot;Consultation 09/22/2026&quot;,
+        &quot;links&quot;: [
+            {
+                &quot;rel&quot;: &quot;self&quot;,
+                &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/encounter/59ffddf4-3954-4311-ae54-ca2e28489c60&quot;,
+                &quot;resourceAlias&quot;: &quot;encounter&quot;
+            }
+        ]
+    },
+    &quot;voided&quot;: false,
+    &quot;value&quot;: 70.0,
+    &quot;valueModifier&quot;: null,
+    &quot;formFieldPath&quot;: null,
+    &quot;formFieldNamespace&quot;: null,
+    &quot;status&quot;: &quot;FINAL&quot;,
+    &quot;interpretation&quot;: null,
+    &quot;referenceRange&quot;: {
+        &quot;display&quot;: &quot;&quot;,
+        &quot;uuid&quot;: &quot;6b4652a0-91d9-412a-9747-1ee17de44910&quot;,
+        &quot;hiNormal&quot;: null,
+        &quot;hiAbsolute&quot;: 250.0,
+        &quot;hiCritical&quot;: null,
+        &quot;lowNormal&quot;: null,
+        &quot;lowAbsolute&quot;: 0.0,
+        &quot;lowCritical&quot;: null,
+        &quot;links&quot;: [
+            {
+                &quot;rel&quot;: &quot;self&quot;,
+                &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/obs/9c1be6bd-2cb6-4a12-af26-3ca8a27e898b/referencerange/6b4652a0-91d9-412a-9747-1ee17de44910&quot;,
+                &quot;resourceAlias&quot;: &quot;referencerange&quot;
+            },
+            {
+                &quot;rel&quot;: &quot;full&quot;,
+                &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/obs/9c1be6bd-2cb6-4a12-af26-3ca8a27e898b/referencerange/6b4652a0-91d9-412a-9747-1ee17de44910?v=full&quot;,
+                &quot;resourceAlias&quot;: &quot;referencerange&quot;
+            }
+        ],
+        &quot;resourceVersion&quot;: &quot;2.7&quot;
+    },
+    &quot;links&quot;: [
+        {
+            &quot;rel&quot;: &quot;self&quot;,
+            &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/obs/9c1be6bd-2cb6-4a12-af26-3ca8a27e898b&quot;,
+            &quot;resourceAlias&quot;: &quot;obs&quot;
+        },
+        {
+            &quot;rel&quot;: &quot;full&quot;,
+            &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/obs/9c1be6bd-2cb6-4a12-af26-3ca8a27e898b?v=full&quot;,
+            &quot;resourceAlias&quot;: &quot;obs&quot;
+        }
+    ],
+    &quot;resourceVersion&quot;: &quot;2.7&quot;
+}    </pre>
+</div>
+
+<h4>Headers</h4>
+<div>
+        <div>Server: nginx/1.31.2</div>
+        <div>X-Content-Type-Options: nosniff</div>
+        <div>Content-Security-Policy: default-src &#39;self&#39; &#39;unsafe-inline&#39; &#39;unsafe-eval&#39; localhost localhost:*; base-uri &#39;self&#39;; font-src &#39;self&#39;; img-src &#39;self&#39; data:; frame-ancestors &#39;self&#39; ;</div>
+        <div>Connection: keep-alive</div>
+        <div>Set-Cookie: JSESSIONID=9E2D006C2CC90355738CDF0092157D0E; Path=/openmrs; HttpOnly</div>
+        <div>Content-Length: 1975</div>
+        <div>X-XSS-Protection: 1; mode=block</div>
+        <div>Date: Tue, 22 Sep 2026 20:37:36 GMT</div>
+        <div>Content-Type: application/json;charset=UTF-8</div>
+</div>
+
+
