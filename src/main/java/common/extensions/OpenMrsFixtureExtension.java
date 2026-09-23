@@ -1,5 +1,6 @@
 package common.extensions;
 
+import api.models.patients.PatientCreateRequest;
 import api.models.patients.PatientResponse;
 import api.models.visit.VisitCreateResponse;
 import api.requests.steps.ApiClient;
@@ -29,9 +30,13 @@ public final class OpenMrsFixtureExtension implements
 
         ExtensionContext.Store store = context.getStore(NAMESPACE);
 
-        PatientResponse patient =
-                admin.patients().createPatient(PatientTestData.validPatient());
+        PatientCreateRequest patientRequest =
+                PatientTestData.validPatient();
 
+        PatientResponse patient =
+                admin.patients().createPatient(patientRequest);
+
+        store.put(PatientCreateRequest.class, patientRequest);
         store.put(PatientResponse.class, patient);
 
         if (hasWithVisit(context)) {
@@ -52,6 +57,8 @@ public final class OpenMrsFixtureExtension implements
     ) throws ParameterResolutionException {
 
         return (parameterContext.getParameter().getType() == PatientResponse.class
+                && hasWithPatient(extensionContext))
+                || (parameterContext.getParameter().getType() == PatientCreateRequest.class
                 && hasWithPatient(extensionContext))
                 || ((parameterContext.getParameter().getType() == VisitCreateResponse.class)
                 && hasWithVisit(extensionContext));

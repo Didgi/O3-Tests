@@ -4,7 +4,7 @@ public class RegexData {
     public static final String USERNAME_TEMPLATE = "^[A-Za-z0-9]{3,15}$";
     public static final String PASSWORD_TEMPLATE = "^[A-Z]{3}[a-z]{3}[0-9]{2}$";
     public static final String NAME_TEMPLATE = "^[A-Z][a-z]{4,10}$";
-    public static final String BIRTHDATE_TEMPLATE = "^19[7-9][0-9]-0[1-9]-[12][0-9]$";
+    public static final String BIRTHDATE_TEMPLATE = "^19[7-9][0-9]-0[1-9]-(1[0-9]|2[0-8])$";
     public static final String GENDER_TEMPLATE = "^[MF]$";
     public static final String ADDRESS_TEMPLATE = "^[0-9]{1,3} [A-Z][a-z]{4,10} Street$";
     public static final String CITY_TEMPLATE = "^[A-Z][a-z]{5,10}$";
