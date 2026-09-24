@@ -31,13 +31,17 @@
         <maven-compiler.version>3.13.0</maven-compiler.version>
         <maven-surefire-report.version>3.2.5</maven-surefire-report.version>
         <datafaker>2.7.0</datafaker>
-
-
+        <dotenv-java>3.2.0</dotenv-java>
         <argLine>
             -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar
         </argLine>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>io.github.cdimascio</groupId>
+            <artifactId>dotenv-java</artifactId>
+            <version>${dotenv-java}</version>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
