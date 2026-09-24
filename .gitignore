@@ -1,0 +1,5 @@
+.idea
+.DS_Store
+infra/openmrs-data/openmrs-runtime.properties
+
+target
