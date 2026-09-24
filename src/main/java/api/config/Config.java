@@ -1,5 +1,7 @@
 package api.config;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -7,6 +9,9 @@ import java.util.Properties;
 public class Config {
     private static final Config INSTANCE = new Config();
     private final Properties properties = new Properties();
+    private final Dotenv dotenv = Dotenv.configure()
+            .ignoreIfMissing()
+            .load();
 
 
     private Config() {
@@ -34,6 +39,12 @@ public class Config {
         }
 
         envValue = System.getenv(key.toUpperCase());
+        if (envValue != null) {
+            return envValue;
+        }
+
+        envValue = INSTANCE.dotenv.get(key.toUpperCase());
+
         if (envValue != null) {
             return envValue;
         }

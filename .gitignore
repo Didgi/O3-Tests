@@ -3,3 +3,4 @@
 infra/openmrs-data/openmrs-runtime.properties
 
 target
+/.env
