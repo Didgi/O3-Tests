@@ -5,6 +5,7 @@ import api.config.ResponseMessages;
 import api.models.auth.request.ChangePasswordCredentials;
 import api.models.auth.request.Credentials;
 import api.models.auth.response.SessionResponse;
+import api.models.user.UserCreateRequest;
 import api.models.user.UserSearchErrorResponse;
 import api.models.user.UserSearchResponse;
 import api.requests.skeleton.interfaces.AuthEndpoint;
@@ -12,13 +13,12 @@ import api.requests.skeleton.requesters.AuthRequester;
 import api.requests.steps.ApiClient;
 import api.specs.RequestSpecs;
 import common.annotations.Bug;
+import common.annotations.WithUser;
 import io.qameta.allure.Allure;
 import io.restassured.response.Response;
 import net.datafaker.Faker;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -29,8 +29,8 @@ import static api.requests.endpoints.AuthEndpoints.SESSION;
 import static api.requests.skeleton.requesters.AuthRequester.getReadyAuthCookie;
 import static api.requests.skeleton.requesters.AuthRequester.getReadyResponseChangePassword;
 import static org.apache.http.HttpStatus.*;
-import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
+//@EnabledIfSystemProperty(named = "openmrs.integration.enabled", matches = "true")
 public class AuthTest extends BaseApiTest {
 
     static final String SESSION_COOKIE_NAME = Config.getProperty("cookie_session_name");
@@ -118,29 +118,28 @@ public class AuthTest extends BaseApiTest {
         softly.assertThat(errorResponse.error().message()).contains(String.valueOf(SC_UNAUTHORIZED));
     }
 
-    @Disabled
     @Test
-    @Execution(value = SAME_THREAD)
-    @DisplayName("Позитивный тест: пользователь админ изменяет пароль самому себе и авторизуется по новому паролю")
-    public void selfServicePasswordChangeAndGetSessionViaNewCredentialsSuccessfully() {
+    @WithUser
+    @DisplayName("Позитивный тест: пользователь изменяет пароль самому себе и авторизуется по новому паролю")
+    public void selfServicePasswordChangeAndGetSessionViaNewCredentialsSuccessfully(UserCreateRequest userCreateRequest) {
+        String username = userCreateRequest.username();
+        String password = userCreateRequest.password();
 
-        Allure.step("Выполняем запрос на авторизацию");
-        final String adminCookie = getReadyAuthCookie(ADMIN_CREDENTIALS);
+        Allure.step("Авторизуемся под пользователем и сохраняем куки");
+        final String userCookie = getReadyAuthCookie(new Credentials(username, password));
 
         String newRandomPassword = new Faker().credentials().password(minPasswordSizeForTest, maxPasswordSizeForTest, true);
 
         Allure.step("Выполняем запрос на изменение пароля");
-        final ChangePasswordCredentials updatePassword = new ChangePasswordCredentials(Config.getProperty("admin_password"), newRandomPassword);
-
-        final Response readyResponseChangePassword = getReadyResponseChangePassword(updatePassword, adminCookie);
+        final ChangePasswordCredentials updatePassword = new ChangePasswordCredentials(password, newRandomPassword);
+        final Response readyResponseChangePassword = getReadyResponseChangePassword(updatePassword, userCookie);
 
         Allure.step("Проверяем, что запрос выполнен успешно");
         softly.assertThat(readyResponseChangePassword.statusCode()).isEqualTo(SC_OK);
 
-        AuthEndpoint rawGetSessionRequester = new AuthRequester(RequestSpecs.baseRequest(), SESSION);
-
         Allure.step("Выполняем запрос на авторизацию с обновлённым паролем");
-        final Response rawResponse = rawGetSessionRequester.getSession(new Credentials(Config.getProperty("admin_username"), newRandomPassword));
+        AuthEndpoint rawGetSessionRequester = new AuthRequester(RequestSpecs.baseRequest(), SESSION);
+        final Response rawResponse = rawGetSessionRequester.getSession(new Credentials(username, newRandomPassword));
 
         Allure.step("Проверяем успешность авторизации");
         softly.assertThat(rawResponse.statusCode()).isEqualTo(SC_OK);
@@ -150,38 +149,30 @@ public class AuthTest extends BaseApiTest {
         softly.assertThat(sessionResponse.authenticated()).isTrue();
         softly.assertThat(sessionResponse.user()).isNotNull();
         softly.assertThat(rawResponse.cookie(SESSION_COOKIE_NAME).isBlank()).isFalse();
-
-        Allure.step("Изменяем пароль обратно на прежний");
-        final ChangePasswordCredentials updatePasswordRevert = new ChangePasswordCredentials(newRandomPassword, Config.getProperty("admin_password"));
-
-        final Response readyResponseChangePasswordRevert = getReadyResponseChangePassword(updatePasswordRevert, rawResponse.cookie(SESSION_COOKIE_NAME));
-
-        softly.assertThat(readyResponseChangePasswordRevert.statusCode()).isEqualTo(SC_OK);
     }
 
-    @Disabled
     @Test
-    @Execution(value = SAME_THREAD)
-    @DisplayName("Негативный тест: пользователь админ изменяет пароль самому себе и не авторизуется по старому паролю")
-    public void selfServicePasswordChangeAndCheckGetSessionViaNewCredentialsNotSuccessfully() {
+    @WithUser
+    @DisplayName("Негативный тест: пользователь изменяет пароль самому себе и не может авторизоваться по старому паролю")
+    public void selfServicePasswordChangeAndCheckGetSessionViaNewCredentialsNotSuccessfully(UserCreateRequest userCreateRequest) {
+        String username = userCreateRequest.username();
+        String password = userCreateRequest.password();
 
-        Allure.step("Выполняем запрос на авторизацию");
-        final String adminCookie = getReadyAuthCookie(ADMIN_CREDENTIALS);
+        Allure.step("Авторизуемся под пользователем и сохраняем куки");
+        final String userCookie = getReadyAuthCookie(new Credentials(username, password));
 
         String newRandomPassword = new Faker().credentials().password(minPasswordSizeForTest, maxPasswordSizeForTest, true);
 
         Allure.step("Выполняем запрос на изменение пароля");
-        final ChangePasswordCredentials updatePassword = new ChangePasswordCredentials(Config.getProperty("admin_password"), newRandomPassword);
-
-        final Response readyResponseChangePassword = getReadyResponseChangePassword(updatePassword, adminCookie);
+        final ChangePasswordCredentials updatePassword = new ChangePasswordCredentials(password, newRandomPassword);
+        final Response readyResponseChangePassword = getReadyResponseChangePassword(updatePassword, userCookie);
 
         Allure.step("Проверяем, что запрос выполнен успешно");
         softly.assertThat(readyResponseChangePassword.statusCode()).isEqualTo(SC_OK);
 
         Allure.step("Выполняем запрос на авторизацию с старым паролем");
         AuthEndpoint rawGetSessionRequester = new AuthRequester(RequestSpecs.baseRequest(), SESSION);
-
-        final Response rawResponse = rawGetSessionRequester.getSession(ADMIN_CREDENTIALS);
+        final Response rawResponse = rawGetSessionRequester.getSession(new Credentials(username, password));
 
         Allure.step("Проверяем, что пользователь не авторизован");
         softly.assertThat(rawResponse.statusCode()).isEqualTo(SC_OK);
@@ -191,14 +182,6 @@ public class AuthTest extends BaseApiTest {
         softly.assertThat(sessionResponse.authenticated()).isFalse();
         softly.assertThat(sessionResponse.user()).isNull();
         softly.assertThat(rawResponse.cookie(SESSION_COOKIE_NAME).isBlank()).isFalse();
-
-        Allure.step("Изменяем пароль обратно на прежний");
-
-        final ChangePasswordCredentials updatePasswordRevert = new ChangePasswordCredentials(newRandomPassword, Config.getProperty("admin_password"));
-
-        final Response readyResponseChangePasswordRevert = getReadyResponseChangePassword(updatePasswordRevert, adminCookie);
-
-        softly.assertThat(readyResponseChangePasswordRevert.statusCode()).isEqualTo(SC_OK);
     }
 
     @Test
@@ -217,7 +200,6 @@ public class AuthTest extends BaseApiTest {
         softly.assertThat(rawResponseAgain.cookie(SESSION_COOKIE_NAME)).isNull();
 
     }
-
 
     private static Stream<Arguments> invalidCredentials() {
         return Stream.of(

@@ -3,7 +3,6 @@ package api.testdata;
 import api.models.patients.*;
 import api.specs.RequestSpecs;
 import api.utils.RandomData;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -63,7 +62,7 @@ public class PatientTestData {
 
         PatientPersonRequest person =
                 new PatientPersonRequest(
-                        List.of(JsonNodeFactory.instance.objectNode()),
+                        List.of(),
                         List.of(),
                         validBirthdate(),
                         false,
