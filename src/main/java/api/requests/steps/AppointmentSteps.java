@@ -7,6 +7,7 @@ import api.models.appointment.AppointmentSearchParams;
 import api.models.appointment.AppointmentStatusChangeRequest;
 import api.requests.endpoints.AppointmentEndpoints;
 import api.requests.skeleton.interfaces.CrudEndpoint;
+import api.requests.skeleton.interfaces.IdPostEndpoint;
 import api.requests.skeleton.requesters.RequesterFactory;
 import api.requests.skeleton.requesters.SuccessfulPostSearchRequester;
 import api.requests.skeleton.requesters.SuccessfulSearchRequester;
@@ -32,10 +33,7 @@ public class AppointmentSteps {
             AppointmentCreateRequest,
             AppointmentCreateRequest
             > rawCrud;
-    private final CrudEndpoint<
-            AppointmentStatusChangeRequest,
-            AppointmentStatusChangeRequest
-            > statusChangeCrud;
+    private final IdPostEndpoint<AppointmentStatusChangeRequest> statusChange;
 
     public AppointmentSteps(RequesterFactory requester) {
         this.successfulSearchRequester =
@@ -45,7 +43,7 @@ public class AppointmentSteps {
         this.searchByPatientRequester =
                 requester.successfulPostSearch(AppointmentEndpoints.SEARCH_BY_PATIENT);
         this.rawCrud = requester.rawCrud(AppointmentEndpoints.CRUD);
-        this.statusChangeCrud = requester.rawCrud(AppointmentEndpoints.STATUS_CHANGE_OPERATIONS);
+        this.statusChange = requester.idPost(AppointmentEndpoints.STATUS_CHANGE);
     }
 
     public AppointmentResponse createAppointment(AppointmentCreateRequest request) {
@@ -77,7 +75,7 @@ public class AppointmentSteps {
             String uuid,
             AppointmentStatusChangeRequest request
     ) {
-        return statusChangeCrud.update(uuid, request)
+        return statusChange.post(uuid, request)
                 .then()
                 .statusCode(SC_OK)
                 .extract()

@@ -5,11 +5,14 @@ import api.models.appointment.AppointmentCreateRequest;
 import api.models.appointment.AppointmentResponse;
 import api.models.appointment.AppointmentStatus;
 import api.models.appointment.AppointmentStatusChangeRequest;
+import api.models.patients.PatientResponse;
 import api.requests.steps.ApiClient;
 import api.testdata.AppointmentTestData;
 import api.testdata.PatientTestData;
-import api.utils.RandomData;
+import api.utils.RandomModelGenerator;
 import api.utils.comparison.ModelAssertions;
+import common.SessionStorage;
+import common.annotations.WithPatient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -22,8 +25,6 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 public class AppointmentTest extends BaseApiTest {
-    LocalDateTime start = RandomData.startDate();
-    LocalDateTime end = RandomData.endDate();
     private ApiClient admin;
 
     @BeforeEach
@@ -33,9 +34,9 @@ public class AppointmentTest extends BaseApiTest {
 
     @Test
     @DisplayName("Создание нового appointment")
-    void adminCanCreateAppointment() {
-        String patientUuid = admin.patients().createPatient(PatientTestData.validPatient()).uuid();
-        AppointmentCreateRequest appointmentCreateRequest = AppointmentTestData.validAppointmentCreateRequest(patientUuid);
+    @WithPatient
+    void adminCanCreateAppointment(PatientResponse patient) {
+        AppointmentCreateRequest appointmentCreateRequest = AppointmentTestData.validAppointmentCreateRequest(patient.uuid());
         AppointmentResponse created = admin.appointments().createAppointment(appointmentCreateRequest);
 
         ModelAssertions.assertThatModels(appointmentCreateRequest, created).match();
@@ -56,12 +57,15 @@ public class AppointmentTest extends BaseApiTest {
     @Test
     @Disabled("Тест стабильно падает")
     @DisplayName("Получение списка Appointment за один день")
-    void getAppointmentsByOneDay() {
-        String patientUuid = admin.patients().createPatient(PatientTestData.validPatient()).uuid();
-        AppointmentCreateRequest appointmentCreateRequest = AppointmentTestData.validAppointmentCreateRequest(patientUuid);
+    @WithPatient
+    void getAppointmentsByOneDay(PatientResponse patient) {
+
+        AppointmentCreateRequest appointmentCreateRequest = AppointmentTestData.validAppointmentCreateRequest(patient.uuid());
 
         AppointmentResponse created = admin.appointments().createAppointment(appointmentCreateRequest);
-        String forDate = start.atZone(ZoneId.of(TIME_ZONE)).format(ON_DATE_FORMAT);
+        String forDate = LocalDateTime.parse(appointmentCreateRequest.startDateTime())
+                .atZone(ZoneId.of(TIME_ZONE))
+                .format(ON_DATE_FORMAT);
         List<AppointmentResponse> appointments =
                 admin.appointments().getAppointmentsForDate(forDate);
 
@@ -73,15 +77,14 @@ public class AppointmentTest extends BaseApiTest {
 
     @Test
     @DisplayName("Получение списка Appointments пациента")
-    void getAppointmentsByPatient() {
-        String patientUuid = admin.patients().createPatient(PatientTestData.validPatient()).uuid();
-
-        AppointmentCreateRequest appointmentCreateRequest = AppointmentTestData.validAppointmentCreateRequest(patientUuid);
+    @WithPatient
+    void getAppointmentsByPatient(PatientResponse patient) {
+        AppointmentCreateRequest appointmentCreateRequest = AppointmentTestData.validAppointmentCreateRequest(patient.uuid());
         AppointmentResponse created = admin.appointments().createAppointment(appointmentCreateRequest);
 
         List<AppointmentResponse> appointments =
                 admin.appointments().searchAppointmentsByPatient(
-                        patientUuid,
+                        patient.uuid(),
                         Instant.now().toString()
                 );
 
@@ -93,9 +96,9 @@ public class AppointmentTest extends BaseApiTest {
 
     @Test
     @DisplayName("Checkout appointment: статус становится Completed")
-    void adminCanCheckoutAppointment() {
-        String patientUuid = admin.patients().createPatient(PatientTestData.validPatient()).uuid();
-        AppointmentCreateRequest appointmentCreateRequest = AppointmentTestData.validAppointmentCreateRequest(patientUuid);
+    @WithPatient
+    void adminCanCheckoutAppointment(PatientResponse patient) {
+        AppointmentCreateRequest appointmentCreateRequest = AppointmentTestData.validAppointmentCreateRequest(patient.uuid());
         AppointmentResponse created = admin.appointments().createAppointment(appointmentCreateRequest);
 
         String onDate = ZonedDateTime.now(ZoneId.of(TIME_ZONE)).format(ON_DATE_FORMAT);

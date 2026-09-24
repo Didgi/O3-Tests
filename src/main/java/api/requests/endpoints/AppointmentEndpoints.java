@@ -66,9 +66,6 @@ public final class AppointmentEndpoints {
                     }
             );
 
-    public static final CrudOperations<AppointmentResponse> STATUS_CHANGE_OPERATIONS =
-            new CrudOperations<>(STATUS_CHANGE, STATUS_CHANGE, STATUS_CHANGE, DELETE);
-
     private AppointmentEndpoints() {
     }
 }
