@@ -5,47 +5,24 @@ import api.models.encounter.EncounterProviderRequest;
 import api.models.encounter.EncounterResponse;
 import api.models.patients.PatientResponse;
 import api.models.visit.VisitCreateResponse;
-import api.models.visit.VisitUpdateRequest;
-import api.requests.steps.ApiClient;
 import api.testdata.EncounterTestData;
 import api.testdata.PatientTestData;
-import api.testdata.VisitTestData;
 import api.utils.RandomData;
 import api.utils.comparison.ModelAssertions;
-import common.annotations.Bug;
 import common.annotations.WithPatient;
 import common.annotations.WithVisit;
 import io.restassured.response.Response;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 
 import static api.helpers.EncounterErrorAssertions.assertBadRequestWithFieldError;
 import static api.helpers.EncounterErrorAssertions.assertBadRequestWithRawMessage;
 import static api.specs.ResponseSpecs.requestReturnsBadRequest;
 import static api.specs.ResponseSpecs.requestReturnsNotFound;
-import static api.testdata.EncounterValidationErrors.DATETIME_OUTSIDE_VISIT_RANGE;
-import static api.testdata.EncounterValidationErrors.ENCOUNTER_DATETIME_FIELD;
-import static api.testdata.EncounterValidationErrors.ENCOUNTER_TYPE_FIELD;
-import static api.testdata.EncounterValidationErrors.ENCOUNTER_TYPE_REQUIRED;
-import static api.testdata.EncounterValidationErrors.FUTURE_DATETIME;
-import static api.testdata.EncounterValidationErrors.PATIENT_FIELD;
-import static api.testdata.EncounterValidationErrors.PATIENT_REQUIRED;
-import static api.testdata.EncounterValidationErrors.PATIENT_VISIT_MISMATCH;
-import static api.testdata.EncounterValidationErrors.VISIT_FIELD;
+import static api.testdata.EncounterValidationErrors.*;
 
 public class EncounterTest extends BaseApiTest {
-
-    private ApiClient admin;
-
-    @BeforeEach
-    void setUp() {
-        admin = ApiClient.admin();
-    }
 
     @Test
     @WithVisit
