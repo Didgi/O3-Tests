@@ -6,14 +6,9 @@ import api.models.appointment.AppointmentResponse;
 import api.models.appointment.AppointmentStatus;
 import api.models.appointment.AppointmentStatusChangeRequest;
 import api.models.patients.PatientResponse;
-import api.requests.steps.ApiClient;
 import api.testdata.AppointmentTestData;
-import api.testdata.PatientTestData;
-import api.utils.RandomModelGenerator;
 import api.utils.comparison.ModelAssertions;
-import common.SessionStorage;
 import common.annotations.WithPatient;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,12 +20,6 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 public class AppointmentTest extends BaseApiTest {
-    private ApiClient admin;
-
-    @BeforeEach
-    void setUp() {
-        admin = ApiClient.admin();
-    }
 
     @Test
     @DisplayName("Создание нового appointment")

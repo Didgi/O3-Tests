@@ -5,10 +5,8 @@ import api.models.patients.PatientResponse;
 import api.models.visit.VisitCreateRequest;
 import api.models.visit.VisitCreateResponse;
 import api.models.visit.VisitUpdateRequest;
-import api.requests.steps.ApiClient;
 import api.testdata.VisitTestData;
 import common.annotations.WithPatient;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,12 +15,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 public class VisitTest extends BaseApiTest {
-    private ApiClient admin;
-
-    @BeforeEach
-    void setUp() {
-        admin = ApiClient.admin();
-    }
 
     @Test
     @DisplayName("Создание нового visit")

@@ -1,23 +1,15 @@
 package api;
 
 import api.models.patients.*;
-import api.requests.steps.ApiClient;
 import api.specs.ResponseSpecs;
 import api.testdata.PatientTestData;
 import api.utils.comparison.ModelAssertions;
 import common.annotations.WithPatient;
 import io.restassured.response.Response;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class PatientTest extends BaseApiTest {
-    private ApiClient admin;
-
-    @BeforeEach
-    void setUp() {
-        admin = ApiClient.admin();
-    }
 
     @Test
     @DisplayName("PAT-P0-01: Создание пациента с валидными минимальными данными")
