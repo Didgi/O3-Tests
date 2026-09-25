@@ -3,6 +3,7 @@ package api.requests.skeleton.requesters;
 import api.requests.endpoints.CrudOperations;
 import api.requests.endpoints.EndpointSpec;
 import api.requests.skeleton.interfaces.CrudEndpoint;
+import api.requests.skeleton.interfaces.IdPostEndpoint;
 import api.requests.skeleton.interfaces.PostSearchEndpoint;
 import api.requests.skeleton.interfaces.SearchEndpoint;
 import api.requests.skeleton.query.QueryParams;
@@ -103,5 +104,9 @@ public final class RequesterFactory {
         );
 
         return new SuccessfulPostSearchRequester<>(rawRequester, endpoint);
+    }
+
+    public <BODY> IdPostEndpoint<BODY> idPost(EndpointSpec<?> endpoint) {
+        return new IdPostRequester<>(specification, endpoint);
     }
 }
