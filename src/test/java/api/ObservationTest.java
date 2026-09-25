@@ -10,12 +10,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import common.annotations.GeneratedObservationRequest;
 import common.annotations.WithPatient;
 import io.restassured.response.Response;
-import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
+import static api.specs.ResponseSpecs.requestReturnsBadRequest;
 import static org.assertj.core.api.Assertions.tuple;
 
 public class ObservationTest extends BaseApiTest {
@@ -67,7 +67,7 @@ public class ObservationTest extends BaseApiTest {
 
         admin.observations().createObservationRaw(incompatibleValueRequest)
                 .then()
-                .statusCode(HttpStatus.SC_BAD_REQUEST);
+                .spec(requestReturnsBadRequest());
 
         ObservationSearchResponse searchObservationResponse =
                 admin.observations().searchObservationByPatientAndConcept(
@@ -300,7 +300,7 @@ public class ObservationTest extends BaseApiTest {
                 observationWithoutField(request, "person")
         );
 
-        response.then().statusCode(HttpStatus.SC_BAD_REQUEST);
+        response.then().spec(requestReturnsBadRequest());
 
     }
 
@@ -314,7 +314,7 @@ public class ObservationTest extends BaseApiTest {
                 observationWithoutField(request, "concept")
         );
 
-        response.then().statusCode(HttpStatus.SC_BAD_REQUEST);
+        response.then().spec(requestReturnsBadRequest());
     }
 
     @DisplayName("OBS-P1-03 Missing obsDatetime → rejected")
@@ -327,7 +327,7 @@ public class ObservationTest extends BaseApiTest {
                 observationWithoutField(request, "obsDatetime")
         );
 
-        response.then().statusCode(HttpStatus.SC_BAD_REQUEST);
+        response.then().spec(requestReturnsBadRequest());
     }
 
     @DisplayName("OBS-P1-04 Invalid/non-existing concept → rejected")
@@ -344,7 +344,7 @@ public class ObservationTest extends BaseApiTest {
         Response response = admin.observations()
                 .createObservationRaw(nonexistingConceptRequest);
 
-        response.then().statusCode(HttpStatus.SC_BAD_REQUEST);
+        response.then().spec(requestReturnsBadRequest());
     }
 
     @DisplayName("OBS-P1-05 Invalid/non-existing person → rejected")
@@ -361,7 +361,7 @@ public class ObservationTest extends BaseApiTest {
 
         Response response = admin.observations().createObservationRaw(unknownPatientRequest);
 
-        response.then().statusCode(HttpStatus.SC_BAD_REQUEST);
+        response.then().spec(requestReturnsBadRequest());
     }
 
     @DisplayName("OBS-P1-06 Create Text observation")
