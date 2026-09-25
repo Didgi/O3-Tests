@@ -5,6 +5,7 @@ import api.requests.steps.ApiClient;
 import api.specs.ResponseSpecs;
 import api.testdata.PatientTestData;
 import api.utils.comparison.ModelAssertions;
+import common.annotations.WithPatient;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -63,6 +64,8 @@ public class PatientTest extends BaseApiTest {
                                         .isEqualTo(
                                                 expectedName.givenName()
                                                         + " "
+                                                        + expectedName.middleName()
+                                                        + " "
                                                         + expectedName.familyName()
                                         );
                             });
@@ -78,14 +81,9 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @WithPatient
     @DisplayName("PAT-P0-02: Получение созданного пациента по UUID")
-    void getCreatedPatientByUuid() {
-        PatientCreateRequest request =
-                PatientTestData.validPatient();
-
-        PatientResponse created =
-                admin.patients().createPatient(request);
-
+    void getCreatedPatientByUuid(PatientCreateRequest request, PatientResponse created) {
         PatientResponse found =
                 admin.patients().getPatient(created.uuid());
 
@@ -121,6 +119,8 @@ public class PatientTest extends BaseApiTest {
                                             .isEqualTo(
                                                     expectedName.givenName()
                                                             + " "
+                                                            + expectedName.middleName()
+                                                            + " "
                                                             + expectedName.familyName()
                                             )
                             );
@@ -128,14 +128,12 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @WithPatient
     @DisplayName("PAT-P0-03: Поиск пациента по идентификатору возвращает созданного пациента")
-    void searchPatientByIdentifierReturnsCreatedPatient() {
-        PatientCreateRequest request =
-                PatientTestData.validPatient();
-
-        PatientResponse created =
-                admin.patients().createPatient(request);
-
+    void searchPatientByIdentifierReturnsCreatedPatient(
+            PatientCreateRequest request,
+            PatientResponse created
+    ) {
         String identifier =
                 request.identifiers()
                         .getFirst()
@@ -154,14 +152,12 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @WithPatient
     @DisplayName("PAT-P0-04: Обновление пациента с сохранением остальных данных")
-    void updatePatientAndPreserveOtherData() {
-        PatientCreateRequest createRequest =
-                PatientTestData.validPatient();
-
-        PatientResponse created =
-                admin.patients().createPatient(createRequest);
-
+    void updatePatientAndPreserveOtherData(
+            PatientCreateRequest createRequest,
+            PatientResponse created
+    ) {
         String newGivenName =
                 PatientTestData.updatedGivenName();
 
@@ -193,6 +189,11 @@ public class PatientTest extends BaseApiTest {
                         + createRequest.person()
                         .names()
                         .getFirst()
+                        .middleName()
+                        + " "
+                        + createRequest.person()
+                        .names()
+                        .getFirst()
                         .familyName();
 
         softly.assertThat(updated.person().preferredName())
@@ -206,13 +207,9 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @WithPatient
     @DisplayName("PAT-P0-05: Отклонение дублирующего идентификатора пациента")
-    void rejectDuplicatePatientIdentifier() {
-        PatientCreateRequest firstRequest =
-                PatientTestData.validPatient();
-
-        admin.patients().createPatient(firstRequest);
-
+    void rejectDuplicatePatientIdentifier(PatientCreateRequest firstRequest) {
         String existingIdentifier =
                 firstRequest.identifiers()
                         .getFirst()
@@ -233,14 +230,12 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @WithPatient
     @DisplayName("PAT-P1-01: Поиск пациента по имени возвращает созданного пациента")
-    void searchPatientByNameReturnsCreatedPatient() {
-        PatientCreateRequest request =
-                PatientTestData.validPatient();
-
-        PatientResponse created =
-                admin.patients().createPatient(request);
-
+    void searchPatientByNameReturnsCreatedPatient(
+            PatientCreateRequest request,
+            PatientResponse created
+    ) {
         String givenName =
                 request.person()
                         .names()
