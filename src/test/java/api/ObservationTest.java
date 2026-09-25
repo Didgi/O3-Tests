@@ -3,7 +3,6 @@ package api;
 import api.models.observations.*;
 import api.models.patients.PatientResponse;
 import api.requests.skeleton.options.ReadOptions;
-import api.requests.steps.ApiClient;
 import api.testdata.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.DecimalNode;
@@ -12,7 +11,6 @@ import common.annotations.GeneratedObservationRequest;
 import common.annotations.WithPatient;
 import io.restassured.response.Response;
 import org.apache.http.HttpStatus;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -26,13 +24,6 @@ public class ObservationTest extends BaseApiTest {
 
     private static final ObjectMapper MAPPER =
             new ObjectMapper().findAndRegisterModules();
-
-    private ApiClient admin;
-
-    @BeforeEach
-    void setUp() {
-        admin = ApiClient.admin();
-    }
 
     @DisplayName("OBS-P0-01 Создание наблюдения с числовым значением")
     @WithPatient
