@@ -39,14 +39,6 @@ import static api.testdata.EncounterValidationErrors.PATIENT_VISIT_MISMATCH;
 import static api.testdata.EncounterValidationErrors.VISIT_FIELD;
 
 public class EncounterTest extends BaseApiTest {
-
-    private ApiClient admin;
-
-    @BeforeEach
-    void setUp() {
-        admin = ApiClient.admin();
-    }
-
     @Test
     @WithVisit
     @DisplayName("Создание Encounter внутри существующего Visit")
