@@ -6,7 +6,6 @@ import api.models.visit.VisitCreateRequest;
 import api.models.visit.VisitCreateResponse;
 import api.models.visit.VisitUpdateRequest;
 import api.requests.steps.ApiClient;
-import api.testdata.PatientTestData;
 import api.testdata.VisitTestData;
 import common.annotations.WithPatient;
 import org.junit.jupiter.api.BeforeEach;
