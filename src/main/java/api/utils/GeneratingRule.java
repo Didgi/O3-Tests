@@ -6,9 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD,
-        ElementType.RECORD_COMPONENT})
+@Target({ElementType.FIELD, ElementType.RECORD_COMPONENT, ElementType.PARAMETER})
 public @interface GeneratingRule {
-    String regex();
+    String regex() default "";
+    String property() default "";
+    boolean nullable() default false;
     BooleanGeneration booleanValue() default BooleanGeneration.RANDOM;
 }

@@ -1,23 +1,15 @@
 package api.testdata;
 
 import api.models.appointment.AppointmentCreateRequest;
-import api.utils.RandomData;
+import api.utils.RandomModelGenerator;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class AppointmentTestData {
-    private static LocalDateTime start = RandomData.startDate();
-    private static LocalDateTime end = RandomData.endDate();
 
     public static AppointmentCreateRequest validAppointmentCreateRequest(String patientUuid) {
-        return new AppointmentCreateRequest(
-                patientUuid,
-                ReferenceTestData.appointmentServiceUuid(),
-                start.toString(),
-                end.toString(),
-                ReferenceTestData.appointmentKind(),
-                ReferenceTestData.locationUuid(),
-                start.toString()
-        );
+        AppointmentCreateRequest generated = RandomModelGenerator.generate(AppointmentCreateRequest.class);
+        return generated.toBuilder().patientUuid(patientUuid).build();
     }
 }

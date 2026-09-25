@@ -3,6 +3,8 @@ package api.utils;
 public class RegexData {
     public static final String USERNAME_TEMPLATE = "^[A-Za-z0-9]{3,15}$";
     public static final String PASSWORD_TEMPLATE = "^[A-Z]{3}[a-z]{3}[0-9]{2}$";
+    public static final String START_DATE = "202[7-9]-0[1-9]-1[0-5]T1[0-6]:[0-5][0-9]:[0-5][0-9]";
+    public static final String END_DATE = "202[7-9]-0[1-9]-1[0-5]T1[7-8]:[0-5][0-9]:[0-5][0-9]";
     public static final String NAME_TEMPLATE = "^[A-Z][a-z]{4,10}$";
     public static final String BIRTHDATE_TEMPLATE = "^19[7-9][0-9]-0[1-9]-(1[0-9]|2[0-8])$";
     public static final String GENDER_TEMPLATE = "^[MF]$";
