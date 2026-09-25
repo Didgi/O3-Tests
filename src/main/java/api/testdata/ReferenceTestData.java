@@ -7,8 +7,12 @@ public final class ReferenceTestData {
         return Config.getProperty("test_location_uuid");
     }
 
-    public static String conceptId() {
+    public static String weightConceptId() {
         return Config.getProperty("weight_concept_id");
+    }
+
+    public static String textConceptId() {
+        return Config.getProperty("text_concept_id");
     }
 
     public static String patientIdentifierSourceUuid() {
