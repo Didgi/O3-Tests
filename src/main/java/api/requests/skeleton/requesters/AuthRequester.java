@@ -113,6 +113,7 @@ public class AuthRequester implements AuthEndpoint {
         return response.cookie(Config.getProperty("cookie_session_name"));
     }
 
+    @Step("Выполняем изменение пароля")
     public static Response getReadyResponseChangePassword(ChangePasswordCredentials changePasswordCredentials, String sessionId) {
         AuthEndpoint rawChangePasswordRequester = new AuthRequester(RequestSpecs.baseRequest(), CHANGE_PASSWORD);
 

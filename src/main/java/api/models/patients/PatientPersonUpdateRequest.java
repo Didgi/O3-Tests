@@ -6,7 +6,7 @@ import java.util.List;
 
 public record PatientPersonUpdateRequest(
         String uuid,
-        List<JsonNode> addresses,
+        List<PatientAddressRequest> addresses,
         List<JsonNode> attributes,
         String birthdate,
         boolean birthdateEstimated,
