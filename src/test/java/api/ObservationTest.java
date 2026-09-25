@@ -1,49 +1,36 @@
 package api;
 
-import api.models.observations.ObservationCreateRequest;
-import api.models.observations.ObservationResponse;
-import api.models.observations.ObservationSearchResponse;
-import api.models.observations.ObservationUpdateRequest;
+import api.models.observations.*;
 import api.models.patients.PatientResponse;
 import api.requests.skeleton.options.ReadOptions;
-import api.requests.steps.ApiClient;
-import api.testdata.EncounterTestData;
-import api.testdata.ObservationTestData;
-import api.testdata.PatientTestData;
-import api.testdata.ReferenceTestData;
-import com.fasterxml.jackson.databind.node.IntNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import api.testdata.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.DecimalNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import common.annotations.GeneratedObservationRequest;
 import common.annotations.WithPatient;
 import io.restassured.response.Response;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
+import static api.specs.ResponseSpecs.requestReturnsBadRequest;
 import static org.assertj.core.api.Assertions.tuple;
 
 public class ObservationTest extends BaseApiTest {
-    private static final String UPDATED_OBSERVATION_STATUS = "AMENDED";
     private static final String UNKNOWN_UUID = "00000000-0000-0000-0000-000000000000";
     private static final String UNKNOWN_CONCEPT = "0000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private static final String TEXT_CONCEPT = "159650AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 
-    private ApiClient admin;
-
-    @BeforeEach
-    void setUp() {
-        admin = ApiClient.admin();
-    }
+    private static final ObjectMapper MAPPER =
+            new ObjectMapper().findAndRegisterModules();
 
     @DisplayName("OBS-P0-01 Создание наблюдения с числовым значением")
     @WithPatient
     @Test
-    void createNumericObservationTest(PatientResponse patient) {
-
-        ObservationCreateRequest request =
-                ObservationTestData.validObservation(
-                        patient.uuid(),
-                        IntNode.valueOf(70)
-                );
+    void createNumericObservationTest(
+            @GeneratedObservationRequest ObservationCreateRequest request
+    ) {
 
         ObservationResponse observationResponse =
                 admin.observations().createObservation(request);
@@ -68,22 +55,24 @@ public class ObservationTest extends BaseApiTest {
     @DisplayName("OBS-P0-02 Отклонение несовместимого значения без создания наблюдения")
     @WithPatient
     @Test
-    void rejectIncompatibleValueWithoutCreatingObservationTest(PatientResponse patient) {
+    void rejectIncompatibleValueWithoutCreatingObservationTest(
+            @GeneratedObservationRequest ObservationCreateRequest request,
+            PatientResponse patient
+    ) {
 
-        ObservationCreateRequest request =
-                ObservationTestData.validObservation(
-                        patient.uuid(),
-                        TextNode.valueOf("abc")
-                );
+        ObservationCreateRequest incompatibleValueRequest =
+                request.toBuilder()
+                        .value(ObservationValueGenerator.alphabeticText(3))
+                        .build();
 
-        admin.observations().createObservationRaw(request)
+        admin.observations().createObservationRaw(incompatibleValueRequest)
                 .then()
-                .statusCode(400);
+                .spec(requestReturnsBadRequest());
 
         ObservationSearchResponse searchObservationResponse =
                 admin.observations().searchObservationByPatientAndConcept(
                         patient.uuid(),
-                        ReferenceTestData.conceptId()
+                        ReferenceTestData.weightConceptId()
                 );
 
         softly.assertThat(searchObservationResponse.results())
@@ -94,16 +83,16 @@ public class ObservationTest extends BaseApiTest {
     @DisplayName("OBS-P0-03 Получение созданного наблюдения по UUID")
     @WithPatient
     @Test
-    void getCreatedObservationByUuid(PatientResponse patient) {
-
-        ObservationCreateRequest request =
-                ObservationTestData.validObservation(patient.uuid());
+    void getCreatedObservationByUuid(
+            @GeneratedObservationRequest ObservationCreateRequest request
+    ) {
 
         ObservationResponse createdObservation =
                 admin.observations().createObservation(request);
 
         ObservationResponse observationResponse =
-                admin.observations().getObservation(createdObservation.uuid());
+                admin.observations()
+                        .getObservation(createdObservation.uuid());
 
         softly.assertThat(observationResponse.uuid())
                 .as("Retrieved observation UUID matches the created observation")
@@ -121,29 +110,30 @@ public class ObservationTest extends BaseApiTest {
     @DisplayName("OBS-P0-04 Фильтрация наблюдений по пациенту и концепту")
     @WithPatient
     @Test
-    void filterObservationByPatientAndConcept(PatientResponse patient) {
+    void filterObservationByPatientAndConcept(
+            @GeneratedObservationRequest ObservationCreateRequest weightRequest,
+            @GeneratedObservationRequest(
+                    concept = SeedObservationConcept.HEIGHT
+            ) ObservationCreateRequest heightRequest
+    ) {
 
         // Arrange
+
+        ObservationResponse patientWeightResponse =
+                admin.observations()
+                        .createObservation(weightRequest);
+
+        ObservationResponse patientHeightResponse =
+                admin.observations()
+                        .createObservation(heightRequest);
 
         PatientResponse anotherPatient =
                 admin.patients().createPatient(PatientTestData.validPatient());
 
-        ObservationCreateRequest patientWeightRequest =
-                ObservationTestData.validObservation(patient.uuid());
-
-        ObservationResponse patientWeightResponse =
-                admin.observations()
-                        .createObservation(patientWeightRequest);
-
-        ObservationCreateRequest patientHeightRequest =
-                ObservationTestData.validHeightObservation(patient.uuid());
-
-        ObservationResponse patientHeightResponse =
-                admin.observations()
-                        .createObservation(patientHeightRequest);
-
         ObservationCreateRequest anotherPatientWeightRequest =
-                ObservationTestData.validObservation(anotherPatient.uuid());
+                weightRequest.toBuilder()
+                        .person(anotherPatient.uuid())
+                        .build();
 
         ObservationResponse anotherPatientWeightResponse =
                 admin.observations()
@@ -154,7 +144,7 @@ public class ObservationTest extends BaseApiTest {
                 admin.observations()
                         .searchObservationByPatientAndConcept(
                                 patientWeightResponse.person().uuid(),
-                                ReferenceTestData.conceptId()
+                                ReferenceTestData.weightConceptId()
                         );
 
         softly.assertThat(searchObservationResponse.results())
@@ -171,21 +161,23 @@ public class ObservationTest extends BaseApiTest {
     @DisplayName("OBS-P0-05 Создание наблюдения, связанного с медицинским контактом")
     @WithPatient
     @Test
-    void createObservationLinkedToEncounter(PatientResponse patient) {
+    void createObservationLinkedToEncounter(
+            @GeneratedObservationRequest ObservationCreateRequest request,
+            PatientResponse patient
+    ) {
 
         String encounterUuid =
                 admin.encounters().createEncounter(
                         EncounterTestData.minimalEncounter(patient.uuid())
                 ).uuid();
 
-        ObservationCreateRequest request =
-                ObservationTestData.validObservationWithEncounter(
-                        patient.uuid(),
-                        encounterUuid
-                );
+        ObservationCreateRequest withEncounterRequest =
+                request.toBuilder()
+                        .encounter(encounterUuid)
+                        .build();
 
         ObservationResponse response =
-                admin.observations().createObservation(request);
+                admin.observations().createObservation(withEncounterRequest);
 
         softly.assertThat(response.encounter().uuid())
                 .as("Created observation references the requested encounter")
@@ -206,17 +198,20 @@ public class ObservationTest extends BaseApiTest {
     @DisplayName("OBS-P0-06 Обновление наблюдения с сохранением истории версий")
     @WithPatient
     @Test
-    void updateObservationPreservingVersionHistory(PatientResponse patient) {
-        ObservationCreateRequest createRequest =
-                ObservationTestData.validObservation(
-                        patient.uuid(),
-                        IntNode.valueOf(80));
+    void updateObservationPreservingVersionHistory(
+            @GeneratedObservationRequest ObservationCreateRequest request
+    ) {
 
         ObservationResponse createdResponse = admin.observations()
-                .createObservation(createRequest);
+                .createObservation(request);
+
+        BigDecimal updatedValue =
+                createdResponse.value()
+                        .decimalValue()
+                        .add(BigDecimal.ONE);
 
         ObservationUpdateRequest updateRequest = ObservationUpdateRequest.builder()
-                .value(IntNode.valueOf(85))
+                .value(DecimalNode.valueOf(updatedValue))
                 .build();
 
         ObservationResponse updatedResponse =
@@ -237,7 +232,7 @@ public class ObservationTest extends BaseApiTest {
                 .isFalse();
         softly.assertThat(updatedResponse.status())
                 .as("Updated observation status indicates an amendment")
-                .isEqualTo(UPDATED_OBSERVATION_STATUS);
+                .isEqualTo(UpdatedObservationStatus.AMENDED.value());
 
         ObservationResponse observationWithHistory =
                 admin.observations().getObservation(
@@ -262,15 +257,16 @@ public class ObservationTest extends BaseApiTest {
                 .isTrue();
         softly.assertThat(oldObservation.value().decimalValue())
                 .as("Previous observation version retains its original numeric value")
-                .isEqualByComparingTo(createRequest.value().decimalValue());
+                .isEqualByComparingTo(createdResponse.value().decimalValue());
     }
 
     @DisplayName("OBS-P0-07 Логическое удаление наблюдения без физического удаления")
     @WithPatient
     @Test
-    void deleteOperationPerformsVoidNotPurge(PatientResponse patient) {
-        ObservationCreateRequest request =
-                ObservationTestData.validObservation(patient.uuid());
+    void deleteOperationPerformsVoidNotPurge(
+            @GeneratedObservationRequest ObservationCreateRequest request,
+            PatientResponse patient
+    ) {
 
         ObservationResponse createdObservation = admin.observations()
                 .createObservation(request);
@@ -297,73 +293,86 @@ public class ObservationTest extends BaseApiTest {
     @DisplayName("OBS-P1-01 Missing person → rejected")
     @WithPatient
     @Test
-    void rejectRequestWithoutRequiredPersonField(PatientResponse patient) {
+    void rejectRequestWithoutRequiredPersonField(
+            @GeneratedObservationRequest ObservationCreateRequest request
+    ) {
         Response response = admin.observations().createObservationRawJson(
-                ObservationTestData.observationWithoutField(patient.uuid(), "person")
+                observationWithoutField(request, "person")
         );
 
-        response.then().statusCode(400);
+        response.then().spec(requestReturnsBadRequest());
 
     }
 
     @DisplayName("OBS-P1-02 Missing concept → rejected")
     @WithPatient
     @Test
-    void rejectRequestWithoutRequiredConceptField(PatientResponse patient) {
+    void rejectRequestWithoutRequiredConceptField(
+            @GeneratedObservationRequest ObservationCreateRequest request
+    ) {
         Response response = admin.observations().createObservationRawJson(
-                ObservationTestData.observationWithoutField(patient.uuid(), "concept")
+                observationWithoutField(request, "concept")
         );
 
-        response.then().statusCode(400);
+        response.then().spec(requestReturnsBadRequest());
     }
 
     @DisplayName("OBS-P1-03 Missing obsDatetime → rejected")
     @WithPatient
     @Test
-    void rejectRequestWithoutRequiredObsDatetimeField(PatientResponse patient) {
+    void rejectRequestWithoutRequiredObsDatetimeField(
+            @GeneratedObservationRequest ObservationCreateRequest request
+    ) {
         Response response = admin.observations().createObservationRawJson(
-                ObservationTestData.observationWithoutField(patient.uuid(), "obsDatetime")
+                observationWithoutField(request, "obsDatetime")
         );
 
-        response.then().statusCode(400);
+        response.then().spec(requestReturnsBadRequest());
     }
 
     @DisplayName("OBS-P1-04 Invalid/non-existing concept → rejected")
     @WithPatient
     @Test
-    void rejectRequestWithNonexistingConcept(PatientResponse patient) {
-        ObservationCreateRequest request =
-                ObservationTestData.validObservation(patient.uuid())
-                        .toBuilder()
+    void rejectRequestWithNonexistingConcept(
+            @GeneratedObservationRequest ObservationCreateRequest request
+    ) {
+        ObservationCreateRequest nonexistingConceptRequest =
+                request.toBuilder()
                         .concept(UNKNOWN_CONCEPT)
                         .build();
 
-        Response response = admin.observations().createObservationRaw(request);
+        Response response = admin.observations()
+                .createObservationRaw(nonexistingConceptRequest);
 
-        response.then().statusCode(400);
+        response.then().spec(requestReturnsBadRequest());
     }
 
     @DisplayName("OBS-P1-05 Invalid/non-existing person → rejected")
+    @WithPatient
     @Test
-    void rejectRequestWithNonexistingPatient() {
-        ObservationCreateRequest request =
-                ObservationTestData.validObservation(UNKNOWN_UUID);
+    void rejectRequestWithNonexistingPatient(
+            @GeneratedObservationRequest ObservationCreateRequest request
+    ) {
+        ObservationCreateRequest unknownPatientRequest =
+                request
+                        .toBuilder()
+                        .person(UNKNOWN_UUID)
+                        .build();
 
-        Response response = admin.observations().createObservationRaw(request);
+        Response response = admin.observations().createObservationRaw(unknownPatientRequest);
 
-        response.then().statusCode(400);
+        response.then().spec(requestReturnsBadRequest());
     }
 
     @DisplayName("OBS-P1-06 Create Text observation")
     @WithPatient
     @Test
-    void createTextObservation(PatientResponse patient) {
-        ObservationCreateRequest request =
-                ObservationTestData.validObservation(patient.uuid())
-                        .toBuilder()
-                        .concept(TEXT_CONCEPT)
-                        .value(TextNode.valueOf("clear and colorless"))
-                        .build();
+    void createTextObservation(
+            @GeneratedObservationRequest(
+                    concept = SeedObservationConcept.TEXT
+            ) ObservationCreateRequest request,
+            PatientResponse patient
+    ) {
 
         ObservationResponse response =
                 admin.observations().createObservation(request);
@@ -374,5 +383,22 @@ public class ObservationTest extends BaseApiTest {
                 .isEqualTo(request.concept());
         softly.assertThat(response.person().uuid())
                 .isEqualTo(patient.uuid());
+    }
+
+
+    private ObjectNode observationWithoutField(
+            ObservationCreateRequest request,
+            String fieldName
+    ) {
+        ObjectNode body = MAPPER.valueToTree(request);
+
+        if (!body.has(fieldName)) {
+            throw new IllegalArgumentException(
+                    "Field is absent from the base request: " + fieldName
+            );
+        }
+
+        body.remove(fieldName);
+        return body;
     }
 }

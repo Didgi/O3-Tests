@@ -1,13 +1,12 @@
 package api.visit;
 
 import api.BaseApiTest;
+import api.models.patients.PatientResponse;
 import api.models.visit.VisitCreateRequest;
 import api.models.visit.VisitCreateResponse;
 import api.models.visit.VisitUpdateRequest;
-import api.requests.steps.ApiClient;
-import api.testdata.PatientTestData;
 import api.testdata.VisitTestData;
-import org.junit.jupiter.api.BeforeEach;
+import common.annotations.WithPatient;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,18 +15,12 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 public class VisitTest extends BaseApiTest {
-    private ApiClient admin;
-
-    @BeforeEach
-    void setUp() {
-        admin = ApiClient.admin();
-    }
 
     @Test
     @DisplayName("Создание нового visit")
-    void adminCanCreateVisit() {
-        String patientUuid = admin.patients().createPatient(PatientTestData.validPatient()).uuid();
-        VisitCreateRequest request = VisitTestData.validVisitCreateRequest(patientUuid);
+    @WithPatient
+    void adminCanCreateVisit(PatientResponse patient) {
+        VisitCreateRequest request = VisitTestData.validVisitCreateRequest(patient.uuid());
 
         VisitCreateResponse created = admin.visits().createVisit(request);
 
@@ -68,9 +61,9 @@ public class VisitTest extends BaseApiTest {
     @Test
     @Disabled("BUG: Запись окончания приема записывается в +0000 зоне")
     @DisplayName("Завершение Visit")
-    void adminCanStopVisit() {
-        String patientUuid = admin.patients().createPatient(PatientTestData.validPatient()).uuid();
-        VisitCreateRequest request = VisitTestData.validVisitCreateRequest(patientUuid);
+    @WithPatient
+    void adminCanStopVisit(PatientResponse patient) {
+        VisitCreateRequest request = VisitTestData.validVisitCreateRequest(patient.uuid());
 
         VisitCreateResponse created = admin.visits().createVisit(request);
 

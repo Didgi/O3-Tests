@@ -1,6 +1,8 @@
 package api.testdata;
 
+import api.models.appointment.AppointmentCreateRequest;
 import api.models.visit.VisitCreateRequest;
+import api.utils.RandomModelGenerator;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -19,12 +21,8 @@ public class VisitTestData {
     public static VisitCreateRequest validVisitCreateRequest(
             String patientUuid
     ) {
-        return new VisitCreateRequest(
-                patientUuid,
-                ReferenceTestData.visitTypeUuid(),
-                null,
-                ReferenceTestData.locationUuid()
-        );
+        VisitCreateRequest generated = RandomModelGenerator.generate(VisitCreateRequest.class);
+        return generated.toBuilder().patient(patientUuid).build();
     }
 
     public static VisitCreateRequest activeVisitCreateRequest(
@@ -36,11 +34,10 @@ public class VisitTestData {
                 .minusMinutes(5)
                 .format(DATE_TIME_FORMAT);
 
-        return new VisitCreateRequest(
-                patientUuid,
-                ReferenceTestData.visitTypeUuid(),
-                startDatetime,
-                ReferenceTestData.locationUuid()
-        );
+        VisitCreateRequest generated = RandomModelGenerator.generate(VisitCreateRequest.class);
+        return generated.toBuilder()
+                .patient(patientUuid)
+                .startDatetime(startDatetime)
+                .build();
     }
 }

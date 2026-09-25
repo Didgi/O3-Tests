@@ -38,4 +38,8 @@ public class EncounterSteps
     public EncounterResponse updateEncounter(String id, EncounterCreateRequest request) {
         return successfulCrud.update(id, request);
     }
+
+    public Response getEncounterRaw(String id) {
+        return rawCrud.get(id);
+    }
 }

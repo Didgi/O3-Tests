@@ -2,6 +2,12 @@
 
 set -euo pipefail
 
+if [[ -f ".env" ]]; then
+    set -a
+    source .env
+    set +a
+fi
+
 : "${OMRS_DB_NAME:?OMRS_DB_NAME is not set}"
 : "${OMRS_DB_USER:?OMRS_DB_USER is not set}"
 : "${OMRS_DB_HOST:?OMRS_DB_HOST is not set}"

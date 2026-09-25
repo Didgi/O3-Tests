@@ -62,4 +62,11 @@ public final class ReferenceTestData {
     public static String clinicianEncounterRoleUuid() {
         return Config.getProperty("clinician_encounter_role_uuid");
     }
+    public static String weightConceptId() {
+        return Config.getProperty("weight_concept_id");
+    }
+
+    public static String textConceptId() {
+        return Config.getProperty("text_concept_id");
+    }
 }

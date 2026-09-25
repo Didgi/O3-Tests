@@ -125,6 +125,12 @@ public final class EncounterTestData {
                 .format(OPEN_MRS_DATE_TIME);
     }
 
+    public static String oneMinuteAfter(String encounterDatetime) {
+        return OffsetDateTime.parse(encounterDatetime, OPEN_MRS_DATE_TIME)
+                .plusMinutes(1)
+                .format(OPEN_MRS_DATE_TIME);
+    }
+
     private static String currentDatetime() {
         return OffsetDateTime.now(ZoneOffset.UTC)
                 .withNano(0)

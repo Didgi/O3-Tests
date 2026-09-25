@@ -3,20 +3,14 @@ package api.testdata;
 import api.models.patients.*;
 import api.specs.RequestSpecs;
 import api.utils.RandomData;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import api.utils.RandomModelGenerator;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
 
 public class PatientTestData {
 
-    private static final String DEFAULT_GENDER = "M";
-
-    private static final String GIVEN_NAME_PREFIX = "Auto_";
-    private static final String FAMILY_NAME_PREFIX = "Patient_";
-    private static final String UPDATED_NAME_PREFIX = "Updated_";
     private static final String NON_EXISTING_QUERY_PREFIX = "NonExisting_";
 
     private static final int TOO_OLD_YEARS = 150;
@@ -43,8 +37,6 @@ public class PatientTestData {
     }
 
     public static PatientCreateRequest validPatient() {
-        String uniqueSuffix = RandomData.uniqueSuffix();
-
         PatientIdentifierRequest identifier =
                 new PatientIdentifierRequest(
                         generateIdentifier(),
@@ -53,24 +45,8 @@ public class PatientTestData {
                         true
                 );
 
-        PatientNameRequest name =
-                new PatientNameRequest(
-                        true,
-                        GIVEN_NAME_PREFIX + uniqueSuffix,
-                        "",
-                        FAMILY_NAME_PREFIX + uniqueSuffix
-                );
-
         PatientPersonRequest person =
-                new PatientPersonRequest(
-                        List.of(JsonNodeFactory.instance.objectNode()),
-                        List.of(),
-                        validBirthdate(),
-                        false,
-                        false,
-                        DEFAULT_GENDER,
-                        List.of(name)
-                );
+                RandomModelGenerator.generate(PatientPersonRequest.class);
 
         return new PatientCreateRequest(
                 List.of(identifier),
@@ -261,7 +237,8 @@ public class PatientTestData {
     }
 
     public static String updatedGivenName() {
-        return RandomData.uniqueValue(UPDATED_NAME_PREFIX);
+        return RandomModelGenerator.generate(PatientNameRequest.class)
+                .givenName();
     }
 
     public static String nonExistingQuery() {
@@ -333,11 +310,5 @@ public class PatientTestData {
                 gender,
                 names
         );
-    }
-
-    private static String validBirthdate() {
-        return LocalDate.now()
-                .minusYears(25)
-                .toString();
     }
 }

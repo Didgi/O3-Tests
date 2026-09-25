@@ -1,14 +1,16 @@
 package api.requests.steps;
 
-import api.models.user.UserSearchErrorResponse;
-import api.models.user.UserSearchParams;
-import api.models.user.UserSearchResponse;
+import api.models.patients.PatientCreateRequest;
+import api.models.patients.PatientResponse;
+import api.models.user.*;
+import api.requests.endpoints.PatientEndpoints;
 import api.requests.endpoints.UserEndpoints;
-import api.requests.skeleton.requesters.ErrorSearchRequester;
-import api.requests.skeleton.requesters.RequesterFactory;
-import api.requests.skeleton.requesters.SuccessfulSearchRequester;
+import api.requests.skeleton.requesters.*;
 
-public class UserSteps {
+public class UserSteps extends CrudStepsSupport<
+        UserCreateRequest,
+        UserUpdateRequest,
+        UserCreateResponse> {
     private SuccessfulSearchRequester<
             UserSearchParams,
             UserSearchResponse
@@ -19,7 +21,13 @@ public class UserSteps {
             UserSearchErrorResponse
             > userErrorSearchRequester;
 
+    private SuccessfulCrudRequester<
+            UserCreateRequest,
+            UserUpdateRequest,
+            UserCreateResponse> userRequester;
+
     public UserSteps(RequesterFactory requester) {
+        super(requester, UserEndpoints.CRUD);
 
         userSearchRequester =
                 requester.successfulSearch(
@@ -30,6 +38,10 @@ public class UserSteps {
                 requester.errorSearch(
                         UserEndpoints.SEARCH_ERROR
                 );
+    }
+
+    public UserCreateResponse createUser(UserCreateRequest request) {
+        return successfulCrud.create(request);
     }
 
     public UserSearchResponse searchUsers(String query) {
