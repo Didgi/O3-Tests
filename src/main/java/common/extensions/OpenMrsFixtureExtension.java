@@ -1,11 +1,14 @@
 package common.extensions;
 
+import api.models.encounter.EncounterResponse;
 import api.models.patients.PatientCreateRequest;
 import api.models.patients.PatientResponse;
 import api.models.visit.VisitCreateResponse;
 import api.requests.steps.ApiClient;
+import api.testdata.EncounterTestData;
 import api.testdata.PatientTestData;
 import api.testdata.VisitTestData;
+import common.annotations.WithEncounter;
 import common.annotations.WithPatient;
 import common.annotations.WithVisit;
 import org.junit.jupiter.api.extension.*;
@@ -41,10 +44,18 @@ public final class OpenMrsFixtureExtension implements
 
         if (hasWithVisit(context)) {
             VisitCreateResponse visit = admin.visits().createVisit(
-                    VisitTestData.validVisitCreateRequest(patient.uuid())
+                    VisitTestData.activeVisitCreateRequest(patient.uuid())
             );
 
             store.put(VisitCreateResponse.class, visit);
+
+            if (hasWithEncounter(context)) {
+                EncounterResponse encounter = admin.encounters().createEncounter(
+                        EncounterTestData.validEncounter(patient.uuid(), visit.uuid())
+                );
+
+                store.put(EncounterResponse.class, encounter);
+            }
         }
 
 
@@ -61,7 +72,9 @@ public final class OpenMrsFixtureExtension implements
                 || (parameterContext.getParameter().getType() == PatientCreateRequest.class
                 && hasWithPatient(extensionContext))
                 || ((parameterContext.getParameter().getType() == VisitCreateResponse.class)
-                && hasWithVisit(extensionContext));
+                && hasWithVisit(extensionContext))
+                || (parameterContext.getParameter().getType() == EncounterResponse.class
+                && hasWithEncounter(extensionContext));
     }
 
     @Override
@@ -97,6 +110,13 @@ public final class OpenMrsFixtureExtension implements
         return AnnotationSupport.isAnnotated(
                 context.getRequiredTestMethod(),
                 WithVisit.class
+        );
+    }
+
+    private boolean hasWithEncounter(ExtensionContext context) {
+        return AnnotationSupport.isAnnotated(
+                context.getRequiredTestMethod(),
+                WithEncounter.class
         );
     }
 }
