@@ -3,9 +3,11 @@ package api.models.user;
 import api.models.patients.PatientPersonRequest;
 import api.utils.GeneratingRule;
 import api.utils.RegexData;
+import lombok.Builder;
 
 import java.util.List;
 
+@Builder(toBuilder = true)
 public record UserCreateRequest(
         @GeneratingRule(regex = RegexData.USERNAME_TEMPLATE)
         String username,

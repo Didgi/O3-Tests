@@ -2,10 +2,13 @@ package ui;
 
 import api.BaseApiTest;
 import api.config.Config;
+import api.config.Roles;
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.logevents.SelenideLogger;
-import common.extensions.AdminSessionExtension;
+import common.annotations.WithUser;
+import common.extensions.BrowserExtension;
+import common.extensions.UiCookieExtension;
 import io.qameta.allure.Step;
 import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.AfterEach;
@@ -16,15 +19,18 @@ import ui.pages.ServiceQueuesPage;
 
 import java.util.Map;
 
-@ExtendWith(AdminSessionExtension.class)
-
+@WithUser(role = Roles.SUPER_ADMIN)
+@ExtendWith({
+        BrowserExtension.class,
+        UiCookieExtension.class
+})
 public class UIBaseTest extends BaseApiTest {
 
     @BeforeAll
     public static void setupSelenoid() {
         Configuration.remote = Config.getProperty("remote_host");
         Configuration.baseUrl = Config.getProperty("ui_baseurl");
-        Configuration.browser = Config.getProperty("browser");
+        Configuration.browser = Config.getProperty("browsers");
         Configuration.browserSize = Config.getProperty("resolution");
         Configuration.browserCapabilities.setCapability("selenoid:options",
                 Map.of("enableVNC", Boolean.parseBoolean(Config.getProperty("enable_vnc")),
