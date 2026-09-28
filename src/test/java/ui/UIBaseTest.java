@@ -6,6 +6,7 @@ import api.config.Roles;
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.logevents.SelenideLogger;
+import common.annotations.UiCookieAnnotation;
 import common.annotations.WithUser;
 import common.extensions.BrowserExtension;
 import common.extensions.UiCookieExtension;
@@ -20,6 +21,7 @@ import ui.pages.ServiceQueuesPage;
 import java.util.Map;
 
 @WithUser(role = Roles.SUPER_ADMIN)
+@UiCookieAnnotation
 @ExtendWith({
         BrowserExtension.class,
         UiCookieExtension.class
