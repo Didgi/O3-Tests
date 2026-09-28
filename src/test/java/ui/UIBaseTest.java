@@ -16,6 +16,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
+import ui.pages.LoginPage;
 import ui.pages.ServiceQueuesPage;
 
 import java.util.Map;
@@ -47,10 +48,13 @@ public class UIBaseTest extends BaseApiTest {
     }
 
     protected ServiceQueuesPage serviceQueuesPage;
+    protected LoginPage loginPage;
 
     @BeforeEach
     public void setUpUiTests() {
+        loginPage = new LoginPage();
         serviceQueuesPage = new ServiceQueuesPage();
+
     }
 
     @AfterEach
