@@ -9,6 +9,7 @@ import api.requests.skeleton.requesters.AuthRequester;
 import api.specs.RequestSpecs;
 import common.annotations.UiCookieAnnotation;
 import io.restassured.response.Response;
+import io.restassured.response.ResponseBody;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionConfigurationException;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -31,71 +32,66 @@ public class UiCookieExtension implements BeforeEachCallback {
             return;
         }
 
-        final UiCookieAnnotation annotation = context.getTestMethod().get().getAnnotation(UiCookieAnnotation.class);
+        final ExtensionContext.Store store = context.getStore(UserExtensions.NAMESPACE);
+        final UserCreateRequest userCreateRequest = store.get(UserCreateRequest.class, UserCreateRequest.class);
 
-        if (annotation == null || annotation.enabled()) {
+        if (userCreateRequest == null) {
+            throw new ExtensionConfigurationException(
+                    "UserCreateRequest отсутствует"
+            );
+        }
 
-            final ExtensionContext.Store store = context.getStore(UserExtensions.NAMESPACE);
-            final UserCreateRequest userCreateRequest = store.get(UserCreateRequest.class, UserCreateRequest.class);
+        AuthEndpoint rawRequester = new AuthRequester(RequestSpecs.withAuth(userCreateRequest.username(), userCreateRequest.password()), SESSION);
 
-            if (userCreateRequest == null) {
-                throw new ExtensionConfigurationException(
-                        "UserCreateRequest отсутствует"
-                );
-            }
+        final Response rawResponse = rawRequester.getSession();
 
-            AuthEndpoint rawRequester = new AuthRequester(RequestSpecs.withAuth(userCreateRequest.username(), userCreateRequest.password()), SESSION);
+        if (rawResponse.statusCode() != SC_OK) {
+            throw new ExtensionConfigurationException(
+                    "Запрос не выполнен успешно. Получен статус код: " + rawResponse.statusCode()
+            );
+        }
 
-            final Response rawResponse = rawRequester.getSession();
+        if (rawResponse.body().as(SessionResponse.class) == null) {
+            throw new ExtensionConfigurationException(
+                    "Получен пустой ответ"
+            );
+        }
 
-            if (rawResponse.statusCode() != SC_OK) {
-                throw new ExtensionConfigurationException(
-                        "Запрос не выполнен успешно. Получен статус код: " + rawResponse.statusCode()
-                );
-            }
+        if (!rawResponse.body().as(SessionResponse.class).authenticated()) {
+            throw new ExtensionConfigurationException(
+                    "Пользователь не авторизован"
+            );
+        }
 
-            if (rawResponse.body().as(SessionResponse.class) == null) {
-                throw new ExtensionConfigurationException(
-                        "Получен пустой ответ"
-                );
-            }
+        final String session = rawResponse.cookie(Config.getProperty("cookie_session_name"));
 
-            if (!rawResponse.body().as(SessionResponse.class).authenticated()) {
-                throw new ExtensionConfigurationException(
-                        "Пользователь не авторизован"
-                );
-            }
+        BasePage.putSessionIntoCookie(session);
 
-            final String session = rawResponse.cookie(Config.getProperty("cookie_session_name"));
+        final String testLocationUuid = Config.getProperty("test_location_uuid");
 
-            BasePage.putSessionIntoCookie(session);
+        final SessionLocation sessionLocation = new SessionLocation(testLocationUuid);
 
-            final String testLocationUuid = Config.getProperty("test_location_uuid");
+        final Response setLocationResponse = rawRequester.postLocation(sessionLocation, session);
 
-            final SessionLocation sessionLocation = new SessionLocation(testLocationUuid);
+        if (setLocationResponse.statusCode() != SC_OK) {
+            throw new ExtensionConfigurationException(
+                    "Запрос на установку дефолтной локации не выполнен успешно. Получен статус код: " + setLocationResponse.statusCode()
+            );
+        }
 
-            final Response setLocationResponse = rawRequester.postLocation(sessionLocation, session);
+        final SessionResponse sessionResponse = setLocationResponse.body().as(SessionResponse.class);
 
-            if (setLocationResponse.statusCode() != SC_OK) {
-                throw new ExtensionConfigurationException(
-                        "Запрос на установку дефолтной локации не выполнен успешно. Получен статус код: " + setLocationResponse.statusCode()
-                );
-            }
+        if (sessionResponse == null || sessionResponse.sessionLocation() == null) {
+            throw new ExtensionConfigurationException(
+                    "Значение sessionLocation не получено из ответа"
+            );
+        }
 
-            final SessionResponse sessionResponse = setLocationResponse.body().as(SessionResponse.class);
-
-            if (sessionResponse == null || sessionResponse.sessionLocation() == null) {
-                throw new ExtensionConfigurationException(
-                        "Значение sessionLocation не получено из ответа"
-                );
-            }
-
-            if (!Objects.equals(sessionResponse.sessionLocation().uuid(),
-                    testLocationUuid)) {
-                throw new ExtensionConfigurationException(
-                        "Значения locationUuid не совпадают"
-                );
-            }
+        if (!Objects.equals(sessionResponse.sessionLocation().uuid(),
+                testLocationUuid)) {
+            throw new ExtensionConfigurationException(
+                    "Значения locationUuid не совпадают"
+            );
         }
     }
 
