@@ -7,10 +7,6 @@ public final class ReferenceTestData {
         return Config.getProperty("test_location_uuid");
     }
 
-    public static String conceptId() {
-        return Config.getProperty("weight_concept_id");
-    }
-
     public static String patientIdentifierSourceUuid() {
         return Config.getProperty("patient_identifier_source_uuid");
     }
@@ -62,11 +58,16 @@ public final class ReferenceTestData {
     public static String clinicianEncounterRoleUuid() {
         return Config.getProperty("clinician_encounter_role_uuid");
     }
+
     public static String weightConceptId() {
         return Config.getProperty("weight_concept_id");
     }
 
     public static String textConceptId() {
         return Config.getProperty("text_concept_id");
+    }
+
+    public static String pulseConceptId() {
+        return Config.getProperty("pulse_concept_id");
     }
 }
