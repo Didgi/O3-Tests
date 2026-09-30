@@ -1,6 +1,7 @@
 package api.requests.endpoints;
 
 import api.models.order.OrderResponse;
+import api.models.order.OrderSearchResponse;
 import io.restassured.common.mapper.TypeRef;
 
 public final class OrderEndpoints {
@@ -23,6 +24,13 @@ public final class OrderEndpoints {
     public static final EndpointSpec<Void> DELETE =
             new EndpointSpec<>(
                     "/order/{id}",
+                    new TypeRef<>() {
+                    }
+            );
+
+    public static final EndpointSpec<OrderSearchResponse> SEARCH =
+            new EndpointSpec<>(
+                    "/order",
                     new TypeRef<>() {
                     }
             );
