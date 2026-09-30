@@ -15,6 +15,8 @@ import static com.codeborne.selenide.Selenide.$;
 public class ServiceQueuesPage extends BasePage<ServiceQueuesPage> {
 
     private final SelenideElement mainTitle = $(Selectors.byText("Service queues"));
+    private final SelenideElement goToAppointmentButton = $(Selectors.byTagAndText("span", "Appointments"));
+
     private final SelenideElement settingsButton = $(Selectors.by("aria-label","My Account"));
     private final SelenideElement logoutButton = $(Selectors.byText("Logout"));
 
@@ -41,6 +43,11 @@ public class ServiceQueuesPage extends BasePage<ServiceQueuesPage> {
     public ServiceQueuesPage clickLogout(){
         logoutButton.click();
         return this;
+    }
+
+    public AppointmentPage goToAppointmentPage() {
+        goToAppointmentButton.click();
+        return new AppointmentPage();
     }
 
     public PatientRegistrationPage clickAddPatient() {
