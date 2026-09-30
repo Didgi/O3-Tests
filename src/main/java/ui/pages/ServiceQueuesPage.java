@@ -14,6 +14,7 @@ import static com.codeborne.selenide.Selenide.$;
 public class ServiceQueuesPage extends BasePage<ServiceQueuesPage> {
 
     private final SelenideElement mainTitle = $(Selectors.byText("Service queues"));
+    private final SelenideElement goToAppointmentButton = $(Selectors.byTagAndText("span", "Appointments"));
 
     @Override
     public String url() {
@@ -24,5 +25,10 @@ public class ServiceQueuesPage extends BasePage<ServiceQueuesPage> {
     public ServiceQueuesPage checkServiceQueuesOpened(){
         mainTitle.shouldBe(visible);
         return this;
+    }
+
+    public AppointmentPage goToAppointmentPage() {
+        goToAppointmentButton.click();
+        return new AppointmentPage();
     }
 }
