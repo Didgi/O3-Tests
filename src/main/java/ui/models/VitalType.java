@@ -1,4 +1,4 @@
-package ui.enums;
+package ui.models;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
