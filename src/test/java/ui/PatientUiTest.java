@@ -6,23 +6,19 @@ import api.models.patients.PatientPersonRequest;
 import api.models.patients.PatientResponse;
 import api.testdata.PatientTestData;
 import common.annotations.WithPatient;
+import common.annotations.WithPatientData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
-import ui.pages.PatientChartPage;
 
 @Execution(ExecutionMode.SAME_THREAD)
 public class PatientUiTest extends UIBaseTest {
-
     @Test
+    @WithPatientData
     @DisplayName("PAT-UI-P0-01 Регистрация пациента с валидными минимальными данными")
-    public void registerPatientWithValidMinimalData() {
-        PatientPersonRequest patient = PatientTestData.validPatientPerson();
-
-        PatientNameRequest patientName = patient.names().getFirst();
-
-        PatientChartPage patientChartPage = serviceQueuesPage
+    public void registerPatientWithValidMinimalData(PatientPersonRequest patient, PatientNameRequest patientName) {
+        serviceQueuesPage
                 .open()
                 .checkServiceQueuesOpened()
                 .clickAddPatient()
@@ -31,12 +27,8 @@ public class PatientUiTest extends UIBaseTest {
                 .inputFamilyName(patientName.familyName())
                 .selectGender(patient.gender())
                 .inputBirthDate(patient.birthdate())
-                .registerPatient();
-
-        patientChartPage.checkPatientName(
-                patientName.givenName(),
-                patientName.familyName()
-        );
+                .registerPatient()
+                .checkPatientName(patientName.givenName(), patientName.familyName());
     }
 
     @Test
@@ -45,14 +37,13 @@ public class PatientUiTest extends UIBaseTest {
     public void searchPatientAndOpenPatientChart(PatientCreateRequest request, PatientResponse created) {
         PatientNameRequest patientName = request.person().names().getFirst();
 
-        PatientChartPage patientChartPage = serviceQueuesPage
+        serviceQueuesPage
                 .open()
                 .checkServiceQueuesOpened()
                 .clickSearchPatient()
                 .searchPatient(patientName.givenName())
-                .openPatient(created.uuid());
-
-        patientChartPage.checkPatientName(patientName.givenName(), patientName.middleName(), patientName.familyName());
+                .openPatient(created.uuid())
+                .checkPatientName(patientName.givenName(), patientName.middleName(), patientName.familyName());
     }
 
     @Test
@@ -62,14 +53,12 @@ public class PatientUiTest extends UIBaseTest {
         PatientNameRequest patientName = request.person().names().getFirst();
         String newGivenName = PatientTestData.updatedGivenName();
 
-        PatientChartPage patientChartPage = serviceQueuesPage
+        serviceQueuesPage
                 .open()
                 .checkServiceQueuesOpened()
                 .clickSearchPatient()
                 .searchPatient(patientName.givenName())
-                .openPatient(created.uuid());
-
-        patientChartPage
+                .openPatient(created.uuid())
                 .openEditPatientDetails()
                 .inputGivenName(newGivenName)
                 .updatePatient()
@@ -78,11 +67,9 @@ public class PatientUiTest extends UIBaseTest {
     }
 
     @Test
+    @WithPatientData
     @DisplayName("PAT-UI-P1-01 Регистрация без имени невозможна")
-    public void registrationWithoutGivenName() {
-        PatientPersonRequest patient = PatientTestData.validPatientPerson();
-        PatientNameRequest patientName = patient.names().getFirst();
-
+    public void registrationWithoutGivenName(PatientPersonRequest patient, PatientNameRequest patientName) {
         serviceQueuesPage
                 .open()
                 .checkServiceQueuesOpened()
@@ -96,11 +83,9 @@ public class PatientUiTest extends UIBaseTest {
     }
 
     @Test
+    @WithPatientData
     @DisplayName("PAT-UI-P1-02 Регистрация без пола невозможна")
-    public void registrationWithoutGender() {
-        PatientPersonRequest patient = PatientTestData.validPatientPerson();
-        PatientNameRequest patientName = patient.names().getFirst();
-
+    public void registrationWithoutGender(PatientPersonRequest patient, PatientNameRequest patientName) {
         serviceQueuesPage
                 .open()
                 .checkServiceQueuesOpened()
@@ -115,11 +100,9 @@ public class PatientUiTest extends UIBaseTest {
     }
 
     @Test
+    @WithPatientData
     @DisplayName("PAT-UI-P1-03 Регистрация без даты рождения невозможна")
-    public void registrationWithoutBirthDate() {
-        PatientPersonRequest patient = PatientTestData.validPatientPerson();
-        PatientNameRequest patientName = patient.names().getFirst();
-
+    public void registrationWithoutBirthDate(PatientPersonRequest patient, PatientNameRequest patientName) {
         serviceQueuesPage
                 .open()
                 .checkServiceQueuesOpened()
@@ -134,12 +117,11 @@ public class PatientUiTest extends UIBaseTest {
     }
 
     @Test
+    @WithPatientData
     @DisplayName("PAT-UI-P1-04 Регистрация пациента с неизвестным именем")
-    public void registerPatientWithUnknownName() {
-        PatientPersonRequest patient = PatientTestData.validPatientPerson();
+    public void registerPatientWithUnknownName(PatientPersonRequest patient) {
         String unknownName = PatientTestData.unknownName();
-
-        PatientChartPage patientChartPage = serviceQueuesPage
+        serviceQueuesPage
                 .open()
                 .checkServiceQueuesOpened()
                 .clickAddPatient()
@@ -147,18 +129,15 @@ public class PatientUiTest extends UIBaseTest {
                 .selectUnknownName()
                 .selectGender(patient.gender())
                 .inputBirthDate(patient.birthdate())
-                .registerPatient();
-
-        patientChartPage.checkPatientName(unknownName,unknownName);
+                .registerPatient()
+                .checkPatientName(unknownName,unknownName);
     }
 
     @Test
+    @WithPatientData
     @DisplayName("PAT-UI-P1-05 Регистрация пациента с приблизительным возрастом")
-    public void registerPatientWithEstimatedAge() {
-        PatientPersonRequest patient = PatientTestData.validPatientPerson();
-        PatientNameRequest patientName = patient.names().getFirst();
-
-        PatientChartPage patientChartPage = serviceQueuesPage
+    public void registerPatientWithEstimatedAge(PatientPersonRequest patient, PatientNameRequest patientName) {
+        serviceQueuesPage
                 .open()
                 .checkServiceQueuesOpened()
                 .clickAddPatient()
@@ -168,9 +147,8 @@ public class PatientUiTest extends UIBaseTest {
                 .selectGender(patient.gender())
                 .selectBirthDateUnknown()
                 .inputEstimatedAge(patient.birthdate())
-                .registerPatient();
-
-        patientChartPage.checkPatientName(patientName.givenName(), patientName.familyName());
+                .registerPatient()
+                .checkPatientName(patientName.givenName(), patientName.familyName());
     }
 
     @Test
@@ -180,14 +158,12 @@ public class PatientUiTest extends UIBaseTest {
         PatientNameRequest patientName = request.person().names().getFirst();
         String newGivenName = PatientTestData.updatedGivenName();
 
-        PatientChartPage patientChartPage = serviceQueuesPage
+        serviceQueuesPage
                 .open()
                 .checkServiceQueuesOpened()
                 .clickSearchPatient()
                 .searchPatient(patientName.givenName())
-                .openPatient(created.uuid());
-
-        patientChartPage
+                .openPatient(created.uuid())
                 .openEditPatientDetails()
                 .inputGivenName(newGivenName)
                 .cancelEditing()

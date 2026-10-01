@@ -6,10 +6,9 @@ import io.qameta.allure.Step;
 import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
+import static ui.pages.UiPath.PATIENT_CHART;
 
 public class PatientChartPage extends BasePage<PatientChartPage> {
-
-    private static final String PATH = "/patient/%s/chart";
 
     private final String patientUuid;
 
@@ -32,7 +31,7 @@ public class PatientChartPage extends BasePage<PatientChartPage> {
             throw new IllegalStateException("Patient UUID is required to open Patient Chart directly");
         }
 
-        return PATH.formatted(patientUuid);
+        return PATIENT_CHART.formatted(patientUuid);
     }
 
     @Step("Проверяем, что открыта карточка пациента")
