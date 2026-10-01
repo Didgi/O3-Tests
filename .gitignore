@@ -5,3 +5,4 @@ infra/openmrs-data/openmrs-runtime.properties
 target
 build
 /.env
+.playwright-mcp

@@ -1,9 +1,6 @@
 package api.requests.steps;
 
-import api.models.order.OrderCreateRequest;
-import api.models.order.OrderResponse;
-import api.models.order.OrderSearchParams;
-import api.models.order.OrderSearchResponse;
+import api.models.order.*;
 import api.requests.endpoints.OrderEndpoints;
 import api.requests.skeleton.interfaces.CreateReadDeleteEndpoint;
 import api.requests.skeleton.requesters.RequesterFactory;
@@ -16,6 +13,10 @@ public class OrderSteps {
             OrderCreateRequest,
             OrderResponse
             > successfulRequester;
+    private final SuccessfulCreateReadDeleteRequester<
+            DrugOrderCreateRequest,
+            DrugOrderResponse
+            > drugSuccessfulRequester;
     private final CreateReadDeleteEndpoint<
             OrderCreateRequest
             > rawRequester;
@@ -35,6 +36,9 @@ public class OrderSteps {
         this.searchRequester = factory.successfulSearch(
                 OrderEndpoints.SEARCH
         );
+        this.drugSuccessfulRequester = factory.successfulCreateReadDelete(
+                OrderEndpoints.DRUG_OPERATIONS
+        );
     }
 
     public OrderResponse createOrder(
@@ -42,8 +46,6 @@ public class OrderSteps {
     ) {
         return successfulRequester.create(request);
     }
-
-
 
     public OrderResponse getOrder(String uuid) {
         return successfulRequester.get(uuid);
@@ -62,5 +64,15 @@ public class OrderSteps {
     public OrderSearchResponse searchOrderByPatient(String patientUuid) {
         return searchRequester
                 .search(new OrderSearchParams(patientUuid));
+    }
+
+    public DrugOrderResponse createDrugOrder(
+            DrugOrderCreateRequest request
+    ) {
+        return drugSuccessfulRequester.create(request);
+    }
+
+    public DrugOrderResponse getDrugOrder(String uuid) {
+        return drugSuccessfulRequester.get(uuid);
     }
 }

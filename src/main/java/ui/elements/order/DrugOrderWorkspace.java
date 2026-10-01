@@ -19,6 +19,7 @@ public class DrugOrderWorkspace extends BaseElement {
                     "[role='search'][aria-label^='Search for a drug or orderset'] " +
                             "input[type='search']"
             );
+    // TODO: Scope list items to the drug search results container.
     private final ElementsCollection searchResults =
             findAll("[role='listitem']");
 
@@ -27,10 +28,12 @@ public class DrugOrderWorkspace extends BaseElement {
         return searchResults.findBy(text(drugName));
     }
 
-    public DrugOrderForm addDrugToOrderForm(String drugName) {
+    public DrugOrderForm<OrderBasketWorkspace> addDrugToOrderForm(
+            String drugName
+    ) {
         findDrug(drugName)
                 .find(byTagAndText("button", "Order form"))
                 .click();
-        return new DrugOrderForm();
+        return new DrugOrderForm<>(OrderBasketWorkspace::new);
     }
 }

@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum OrderAction {
-    NEW("new");
+    NEW("new"),
+    REVISE("revise");
     private final String value;
 
     public String value() {

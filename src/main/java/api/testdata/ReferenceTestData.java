@@ -70,4 +70,32 @@ public final class ReferenceTestData {
     public static String pulseConceptId() {
         return Config.getProperty("pulse_concept_id");
     }
+
+    public static String drugOrderTypeUuid() {
+        return Config.getProperty("drug_order_type_uuid");
+    }
+
+    public static String amlodipineConceptUuid() {
+        return Config.getProperty("amlodipine_concept_uuid");
+    }
+
+    public static String amlodipine5MgDrugUuid() {
+        return Config.getProperty("amlodipine_5_mg_drug_uuid");
+    }
+
+    public static String tabletConceptUuid() {
+        return Config.getProperty("tablet_concept_uuid");
+    }
+
+    public static String oralRouteConceptUuid() {
+        return Config.getProperty("oral_route_concept_uuid");
+    }
+
+    public static String onceDailyFrequencyUuid() {
+        return Config.getProperty("once_daily_frequency_uuid");
+    }
+
+    public static String daysDurationUnitConceptUuid() {
+        return Config.getProperty("days_duration_unit_concept_uuid");
+    }
 }
