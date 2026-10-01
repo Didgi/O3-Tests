@@ -25,7 +25,10 @@ public abstract class BasePage<T extends BasePage> {
 
 
     public T open() {
-        return StepLogger.log("Открываем сайт", () -> Selenide.open(url(), (Class<T>) this.getClass()));
+        return StepLogger.log("Открываем сайт", () -> {
+            Selenide.open(url());
+            return (T) this;
+        });
     }
 
     public <T extends BasePage> T getPage(Class<T> classPage) {

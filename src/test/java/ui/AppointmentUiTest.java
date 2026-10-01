@@ -1,5 +1,6 @@
 package ui;
 
+import api.models.appointment.AppointmentResponse;
 import api.models.patients.PatientResponse;
 import api.utils.RandomData;
 import common.annotations.WithPatient;
@@ -7,6 +8,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ui.pages.AppointmentPage;
 import ui.pages.ServiceQueuesPage;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import static com.codeborne.selenide.Condition.visible;
 
@@ -20,8 +24,19 @@ public class AppointmentUiTest extends UIBaseTest {
     @Test
     @DisplayName("Создание appointment")
     @WithPatient
-    public void searchPatientInCreateAppointmentPanelUiTest(PatientResponse patient) {
+    public void createAppointmentPanelUiTest(PatientResponse patient) {
         String personName = patient.person().preferredName().display();
+        String service = "General Medicine service";
+        LocalDate date = RandomData.randomFutureDate();
+        String time = RandomData.generateRandomTime();
+        String duration = "30";
+        String note = "Test";
+
+
+        String parsedDate = date.atStartOfDay().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+        System.out.println("ДАТА ЗАПИСИ: " + date);
+
 
         new AppointmentPage()
                 .open()
@@ -31,13 +46,25 @@ public class AppointmentUiTest extends UIBaseTest {
                 .patientShouldBeFound(personName)
                 .selectPatient(personName)
                 .fillForm(
-                        "General Medicine service",
-                        RandomData.randomFutureDate(),
-                        RandomData.generateRandomTime(),
-                        "30",
-                        "Test"
+                        service,
+                        date,
+                        time,
+                        duration,
+                        note
                 )
-                .saveAndClose();
+                .saveAndClose()
+                .appointmentScheduledShouldAppear();
+
+        AppointmentResponse createdAppointment =
+                admin.appointments().getAppointmentsForDate(parsedDate)
+                        .stream()
+                        .filter(ap -> ap.patient().name().equals(personName))
+                        .toList()
+                        .getFirst();
+
+        softly.assertThat(createdAppointment.comments()).isEqualTo(note);
     }
+
+
 
 }

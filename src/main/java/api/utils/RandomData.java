@@ -1,8 +1,10 @@
 package api.utils;
 
+import api.testdata.ReferenceTestData;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -56,14 +58,15 @@ public class RandomData {
         LocalDate start = LocalDate.now();
         LocalDate end = start.plusMonths(3);
         long randomEpochDay = ThreadLocalRandom.current().nextLong(start.toEpochDay(), end.toEpochDay() + 1);
-
         return LocalDate.ofEpochDay(randomEpochDay);
     }
 
     public static String generateRandomTime() {
         int hour = ThreadLocalRandom.current().nextInt(1, 13);
         int minute = ThreadLocalRandom.current().nextInt(0, 6) * 10;
-
+        DateTimeFormatter.ofPattern(
+                ReferenceTestData.dateTimeFormat()
+        );
         return String.format("%02d:%02d", hour, minute);
     }
 }

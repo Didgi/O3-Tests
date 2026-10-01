@@ -6,4 +6,5 @@ public class UiPath {
     public final static String LOCATION = "/location";
     public final static String SERVICE_QUEUES = "/home/service-queues";
     public final static String APPOINTMENTS = "/home/appointments";
+    public final static String PATIENT = "/patient/%s/chart";
 }
