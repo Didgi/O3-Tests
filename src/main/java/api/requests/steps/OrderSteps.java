@@ -84,4 +84,14 @@ public class OrderSteps {
     public DrugOrderResponse getDrugOrder(String uuid) {
         return drugSuccessfulRequester.get(uuid);
     }
+
+    public DrugOrderResponse createDrugOrder(
+            DrugOrderCreateRequest request
+    ) {
+        return drugSuccessfulRequester.create(request);
+    }
+
+    public DrugOrderResponse getDrugOrder(String uuid) {
+        return drugSuccessfulRequester.get(uuid);
+    }
 }
