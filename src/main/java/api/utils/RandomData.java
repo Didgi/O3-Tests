@@ -5,6 +5,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -12,7 +13,7 @@ public class RandomData {
     private RandomData() {
     }
 
-    public static String randomName(int length) {
+    public static String randomString(int length) {
         final String randomed = RandomStringUtils.secure().nextAlphabetic(length).toLowerCase();
         return randomed + " " + randomed;
     }
@@ -68,5 +69,9 @@ public class RandomData {
                 ReferenceTestData.dateTimeFormat()
         );
         return String.format("%02d:%02d", hour, minute);
+    }
+
+    public static String generateRandomDuration() {
+        return String.valueOf((new Random().nextInt(12) + 1) * 10);
     }
 }

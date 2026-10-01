@@ -23,6 +23,10 @@ public final class ReferenceTestData {
         return Config.getProperty("test_appointment_service_uuid");
     }
 
+    public static String appointmentServiceName() {
+        return Config.getProperty("test_appointment_service_name");
+    }
+
     public static String appointmentKind() {
         return Config.getProperty("test_appointment_kind");
     }
