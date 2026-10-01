@@ -2,6 +2,7 @@ package ui;
 
 import api.models.appointment.AppointmentResponse;
 import api.models.patients.PatientResponse;
+import api.testdata.ReferenceTestData;
 import api.utils.RandomData;
 import common.annotations.WithPatient;
 import org.junit.jupiter.api.DisplayName;
@@ -10,6 +11,8 @@ import ui.pages.AppointmentPage;
 import ui.pages.ServiceQueuesPage;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 import static com.codeborne.selenide.Condition.visible;
@@ -26,11 +29,11 @@ public class AppointmentUiTest extends UIBaseTest {
     @WithPatient
     public void createAppointmentPanelUiTest(PatientResponse patient) {
         String personName = patient.person().preferredName().display();
-        String service = "General Medicine service";
+        String service = ReferenceTestData.appointmentServiceName(); 
         LocalDate date = RandomData.randomFutureDate();
         String time = RandomData.generateRandomTime();
-        String duration = "30";
-        String note = "Test";
+        String duration = RandomData.generateRandomDuration();
+        String note = RandomData.randomString(10);
 
 
         String parsedDate = date.atStartOfDay().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -62,7 +65,14 @@ public class AppointmentUiTest extends UIBaseTest {
                         .toList()
                         .getFirst();
 
-        softly.assertThat(createdAppointment.comments()).isEqualTo(note);
+        softly.assertThat(createdAppointment.patient().name()).isEqualTo(personName);
+        softly.assertThat(createdAppointment.service().name()).isEqualTo(service);
+        softly.assertThat(createdAppointment.startDateTime()).isEqualTo(
+                date.atTime(LocalTime.parse(time))
+                        .atZone(ZoneId.of(ReferenceTestData.timeZone()))
+                        .toInstant()
+                        .toEpochMilli()
+        );
     }
 
 
