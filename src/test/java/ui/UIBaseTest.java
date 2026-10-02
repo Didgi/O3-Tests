@@ -30,5 +30,6 @@ public class UIBaseTest extends BaseApiTest {
     public void setUpUiTests() {
         loginPage = new LoginPage();
         serviceQueuesPage = new ServiceQueuesPage();
+
     }
 }
