@@ -8,14 +8,22 @@ import api.testdata.EncounterTestData;
 import api.testdata.ReferenceTestData;
 import common.annotations.WithEncounter;
 import common.retry.RetryUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ui.elements.VisitDetailOverviewElement;
 import ui.models.EncounterType;
+import ui.pages.VisitPage;
 
 import static com.codeborne.selenide.Selenide.open;
 
 public class EncounterUiTest extends UIBaseTest {
+    private VisitDetailOverviewElement visitDetailOverview;
+
+    @BeforeEach
+    void setUp() {
+        visitDetailOverview = new VisitDetailOverviewElement();
+    }
 
     @Test
     @WithEncounter
@@ -24,9 +32,9 @@ public class EncounterUiTest extends UIBaseTest {
             PatientResponse patient,
             EncounterResponse encounter
     ) {
-        open("/patient/" + patient.uuid() + "/chart/visits");
+        new VisitPage(patient.uuid()).open();
 
-        new VisitDetailOverviewElement()
+        visitDetailOverview
                 .openAllEncounters()
                 .getEncountersTable()
                 .getEncounter(EncounterType.CONSULTATION)
@@ -49,9 +57,9 @@ public class EncounterUiTest extends UIBaseTest {
             PatientResponse patient,
             EncounterResponse encounter
     ) {
-        open("/patient/" + patient.uuid() + "/chart/visits");
+        new VisitPage(patient.uuid()).open();
 
-        new VisitDetailOverviewElement()
+        visitDetailOverview
                 .openAllEncounters()
                 .getEncountersTable()
                 .getEncounter(EncounterType.CONSULTATION)
@@ -84,9 +92,9 @@ public class EncounterUiTest extends UIBaseTest {
         EncounterResponse vitalsEncounter =
                 admin.encounters().createEncounter(vitalsRequest);
 
-        open("/patient/" + patient.uuid() + "/chart/visits");
+        new VisitPage(patient.uuid()).open();
 
-        new VisitDetailOverviewElement()
+        visitDetailOverview
                 .openAllEncounters()
                 .getEncountersTable()
                 .getEncounter(EncounterType.CONSULTATION)

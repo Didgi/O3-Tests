@@ -7,13 +7,19 @@ import api.testdata.SeedObservationConcept;
 import api.testdata.VisitTestData;
 import common.annotations.GeneratedObservationRequest;
 import common.annotations.WithPatient;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ui.elements.PatientAsideElement;
-
-import static com.codeborne.selenide.Selenide.open;
+import ui.pages.PatientChartPage;
 
 public class VitalsAndBiometricsTest extends UIBaseTest {
+    private PatientAsideElement patientAside;
+
+    @BeforeEach
+    void setUp() {
+        patientAside = new PatientAsideElement();
+    }
 
     @Test
     @WithPatient
@@ -29,9 +35,9 @@ public class VitalsAndBiometricsTest extends UIBaseTest {
                 VisitTestData.activeVisitCreateRequest(patient.uuid())
         );
 
-        open("/patient/" + patient.uuid() + "/chart/patient-summary");
+        new PatientChartPage(patient.uuid()).open();
 
-        new PatientAsideElement()
+        patientAside
                 .getVitalsAndBiometrics()
                 .openRecordVitals()
                 .recordWeightAndHeight(
