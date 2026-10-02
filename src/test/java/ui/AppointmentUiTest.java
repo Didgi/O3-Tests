@@ -12,7 +12,7 @@ import ui.pages.ServiceQueuesPage;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
 import static com.codeborne.selenide.Condition.visible;
@@ -34,12 +34,7 @@ public class AppointmentUiTest extends UIBaseTest {
         String time = RandomData.generateRandomTime();
         String duration = RandomData.generateRandomDuration();
         String note = RandomData.randomString(10);
-
-
         String parsedDate = date.atStartOfDay().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-
-        System.out.println("ДАТА ЗАПИСИ: " + date);
-
 
         new AppointmentPage()
                 .open()
@@ -67,14 +62,15 @@ public class AppointmentUiTest extends UIBaseTest {
 
         softly.assertThat(createdAppointment.patient().name()).isEqualTo(personName);
         softly.assertThat(createdAppointment.service().name()).isEqualTo(service);
-        softly.assertThat(createdAppointment.startDateTime()).isEqualTo(
-                date.atTime(LocalTime.parse(time))
-                        .atZone(ZoneId.of(ReferenceTestData.timeZone()))
-                        .toInstant()
-                        .toEpochMilli()
+
+        long actualTimestamp = Long.parseLong(
+                createdAppointment.startDateTime()
         );
+        long expectedTimestamp = date
+                .atTime(LocalTime.parse(time))
+                .toInstant(ZoneOffset.UTC)
+                .toEpochMilli();
+        softly.assertThat(actualTimestamp)
+                .isEqualTo(expectedTimestamp);
     }
-
-
-
 }
