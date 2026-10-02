@@ -15,6 +15,9 @@ import static com.codeborne.selenide.Selenide.$;
 public class ServiceQueuesPage extends BasePage<ServiceQueuesPage> {
 
     private final SelenideElement mainTitle = $(Selectors.byText("Service queues"));
+    private final SelenideElement settingsButton = $(Selectors.by("aria-label","My Account"));
+    private final SelenideElement logoutButton = $(Selectors.byText("Logout"));
+
     private final SelenideElement addPatientButton = $("button[data-tutorial-target='add-patient']");
     private final SelenideElement searchPatientButton = $("[data-testid='searchPatientIcon']");
     @Override
@@ -25,6 +28,18 @@ public class ServiceQueuesPage extends BasePage<ServiceQueuesPage> {
     @Step("Проверяем, что открыта страница Service Queues")
     public ServiceQueuesPage checkServiceQueuesOpened(){
         mainTitle.shouldBe(visible);
+        return this;
+    }
+
+    @Step("Открываем выпадающий список настроек пользователя")
+    public ServiceQueuesPage openSettings(){
+        settingsButton.click();
+        return this;
+    }
+
+    @Step("Кликаем по кнопке Logout")
+    public ServiceQueuesPage clickLogout(){
+        logoutButton.click();
         return this;
     }
 
