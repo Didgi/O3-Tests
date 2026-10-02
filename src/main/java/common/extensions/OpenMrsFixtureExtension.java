@@ -2,6 +2,8 @@ package common.extensions;
 
 import api.models.encounter.EncounterResponse;
 import api.models.patients.PatientCreateRequest;
+import api.models.patients.PatientNameRequest;
+import api.models.patients.PatientPersonRequest;
 import api.models.patients.PatientResponse;
 import api.models.visit.VisitCreateResponse;
 import api.requests.steps.ApiClient;
@@ -10,6 +12,7 @@ import api.testdata.PatientTestData;
 import api.testdata.VisitTestData;
 import common.annotations.WithEncounter;
 import common.annotations.WithPatient;
+import common.annotations.WithPatientData;
 import common.annotations.WithVisit;
 import org.junit.jupiter.api.extension.*;
 import org.junit.platform.commons.support.AnnotationSupport;
@@ -28,6 +31,19 @@ public final class OpenMrsFixtureExtension implements
     ) throws Exception {
 
         if (!hasWithPatient(context)) {
+            if (hasWithPatientData(context)) {
+                ExtensionContext.Store store = context.getStore(NAMESPACE);
+
+                PatientPersonRequest person =
+                        PatientTestData.validPatientPerson();
+
+                store.put(PatientPersonRequest.class, person);
+                store.put(
+                        PatientNameRequest.class,
+                        person.names().getFirst()
+                );
+            }
+
             return;
         }
 
@@ -41,6 +57,9 @@ public final class OpenMrsFixtureExtension implements
 
         store.put(PatientCreateRequest.class, patientRequest);
         store.put(PatientResponse.class, patient);
+
+        store.put(PatientPersonRequest.class, patientRequest.person());
+        store.put(PatientNameRequest.class, patientRequest.person().names().getFirst());
 
         if (hasWithVisit(context)) {
             VisitCreateResponse visit = admin.visits().createVisit(
@@ -62,6 +81,7 @@ public final class OpenMrsFixtureExtension implements
             }
         }
 
+
     }
 
     @Override
@@ -77,8 +97,11 @@ public final class OpenMrsFixtureExtension implements
                 || ((parameterContext.getParameter().getType() == VisitCreateResponse.class)
                 && hasWithVisit(extensionContext))
                 || (parameterContext.getParameter().getType() == EncounterResponse.class
-                && hasWithEncounter(extensionContext));
-
+                && hasWithEncounter(extensionContext))
+                || ((parameterContext.getParameter().getType() == PatientPersonRequest.class
+                || parameterContext.getParameter().getType() == PatientNameRequest.class)
+                && (hasWithPatient(extensionContext)
+                || hasWithPatientData(extensionContext)));
     }
 
     @Override
@@ -121,6 +144,13 @@ public final class OpenMrsFixtureExtension implements
         return AnnotationSupport.isAnnotated(
                 context.getRequiredTestMethod(),
                 WithEncounter.class
+        );
+    }
+
+    private boolean hasWithPatientData(ExtensionContext context) {
+        return AnnotationSupport.isAnnotated(
+                context.getRequiredTestMethod(),
+                WithPatientData.class
         );
     }
 }

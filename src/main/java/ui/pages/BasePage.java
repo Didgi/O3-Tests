@@ -19,17 +19,25 @@ import static ui.pages.UiPath.COOKIE_PATH;
 
 @Getter
 @NoArgsConstructor
-public abstract class BasePage<T extends BasePage> {
+public abstract class BasePage<T extends BasePage<T>> {
 
     public abstract String url();
 
-
     public T open() {
-        return StepLogger.log("Открываем сайт", () -> Selenide.open(url(), (Class<T>) this.getClass()));
+        return StepLogger.log(
+                "Открываем сайт", () -> {
+                    Selenide.open(url());
+                    return self();
+                }
+        );
     }
 
-    public <T extends BasePage> T getPage(Class<T> classPage) {
+    @SuppressWarnings("unchecked")
+    private T self() {
+        return (T) this;
+    }
 
+    public <T extends BasePage<T>> T getPage(Class<T> classPage) {
         return StepLogger.log("Переходим на страницу", () -> Selenide.page(classPage));
     }
 
