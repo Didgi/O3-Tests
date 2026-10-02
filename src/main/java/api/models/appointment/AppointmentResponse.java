@@ -8,6 +8,7 @@ import java.util.List;
 public record AppointmentResponse(
         String uuid,
         ResourceReference patient,
+        String comments,
         ResourceReference service,
         String startDateTime,
         String endDateTime,

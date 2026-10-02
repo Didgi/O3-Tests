@@ -23,6 +23,10 @@ public final class ReferenceTestData {
         return Config.getProperty("test_appointment_service_uuid");
     }
 
+    public static String appointmentServiceName() {
+        return Config.getProperty("test_appointment_service_name");
+    }
+
     public static String appointmentKind() {
         return Config.getProperty("test_appointment_kind");
     }
@@ -97,5 +101,8 @@ public final class ReferenceTestData {
 
     public static String daysDurationUnitConceptUuid() {
         return Config.getProperty("days_duration_unit_concept_uuid");
+    }
+    public static String appointmentTimePeriod() {
+        return "PM";
     }
 }

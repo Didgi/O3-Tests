@@ -11,7 +11,11 @@ import api.requests.skeleton.interfaces.IdPostEndpoint;
 import api.requests.skeleton.requesters.RequesterFactory;
 import api.requests.skeleton.requesters.SuccessfulPostSearchRequester;
 import api.requests.skeleton.requesters.SuccessfulSearchRequester;
+import api.testdata.ReferenceTestData;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.apache.http.HttpStatus.SC_OK;
@@ -59,7 +63,10 @@ public class AppointmentSteps {
     }
 
     public List<AppointmentResponse> getAppointmentsForDate(String forDate) {
-        return searchByDateRequester.search(new AppointmentSearchParams(null, forDate));
+        String parsedDate = LocalDateTime.parse(forDate)
+                .atZone(ZoneId.of(ReferenceTestData.timeZone()))
+                .format(DateTimeFormatter.ofPattern(ReferenceTestData.dateTimeFormat()));
+        return searchByDateRequester.search(new AppointmentSearchParams(null, parsedDate));
     }
 
     public List<AppointmentResponse> searchAppointmentsByPatient(
