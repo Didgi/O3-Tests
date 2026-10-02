@@ -1,7 +1,6 @@
 package api.models.auth.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +12,7 @@ public record SessionResponse(
         User user,
         String locale,
         List<String> allowedLocales,
-        JsonNode sessionLocation
+        SessionLocation sessionLocation
 ) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -46,6 +45,21 @@ public record SessionResponse(
     public record Role(
             String uuid,
             String name
+    ) {
+    }
+
+    public record SessionLocation(
+            String uuid,
+            String display,
+            List<SessionLocationLinks> links
+    ) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record SessionLocationLinks(
+            String rel,
+            String uri,
+            String resourceAlias
     ) {
     }
 }

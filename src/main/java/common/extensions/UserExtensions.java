@@ -42,7 +42,7 @@ public final class UserExtensions implements
 
                 store.put(UserCreateRequest.class, request);
             }
-
+            //TODO в будущем учесть создание пользователя на основе переданной роли в аргументе
             default -> {
                 UserCreateRequest request =
                         RandomModelGenerator.generate(

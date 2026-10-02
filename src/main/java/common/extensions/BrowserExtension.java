@@ -18,7 +18,6 @@ public class BrowserExtension implements ExecutionCondition {
             ExtensionContext context
     ) {
         if (context.getTestMethod().isEmpty()) {
-            System.out.println("из baseTest");
             return ConditionEvaluationResult.enabled(
                     "Проверка выполняется на уровне метода"
             );
@@ -31,7 +30,6 @@ public class BrowserExtension implements ExecutionCondition {
                 );
 
         if (annotation.isEmpty()) {
-            System.out.println("из теста");
             return ConditionEvaluationResult.enabled(
                     "Ограничений по браузеру нет"
             );
