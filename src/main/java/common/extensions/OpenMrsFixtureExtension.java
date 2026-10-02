@@ -63,15 +63,19 @@ public final class OpenMrsFixtureExtension implements
 
         if (hasWithVisit(context)) {
             VisitCreateResponse visit = admin.visits().createVisit(
-                    VisitTestData.activeVisitCreateRequest(patient.uuid())
+                    VisitTestData.validVisitCreateRequest(patient.uuid())
             );
 
             store.put(VisitCreateResponse.class, visit);
 
             if (hasWithEncounter(context)) {
-                EncounterResponse encounter = admin.encounters().createEncounter(
-                        EncounterTestData.validEncounter(patient.uuid(), visit.uuid())
-                );
+                EncounterResponse encounter =
+                        admin.encounters().createEncounter(
+                                EncounterTestData.validEncounter(
+                                        patient.uuid(),
+                                        visit.uuid()
+                                )
+                        );
 
                 store.put(EncounterResponse.class, encounter);
             }
