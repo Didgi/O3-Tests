@@ -5,6 +5,7 @@ import api.models.order.DrugOrderCreateRequest;
 import api.models.order.DrugOrderResponse;
 import api.models.order.OrderAction;
 import api.models.order.OrderSearchResponse;
+import api.requests.skeleton.options.ReadOptions;
 import api.testdata.OrderTestData;
 import common.annotations.WithEncounter;
 import org.junit.jupiter.api.Test;
@@ -13,8 +14,6 @@ import ui.models.DrugOrderData;
 import ui.models.ExpectedOrderRow;
 import ui.pages.PatientOrderPage;
 import ui.testdata.DrugOrderTestData;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,7 +37,7 @@ public class PatientOrderTest extends UIBaseTest {
                 .shouldHaveCorrectDrug(order.drugName())
                 .fillAndSubmit(order)
                 .shouldHaveDrugOrder(order, OrderStatus.NEW)
-                .submitOrder();
+                .signAndClose();
 
         OrderSearchResponse orderSearch =
                 admin.orders().searchOrderByPatient(encounter.patient().uuid());
@@ -92,31 +91,75 @@ public class PatientOrderTest extends UIBaseTest {
 
         OrderSearchResponse modifiedOrderSearch =
                 admin.orders().searchOrderByPatient(
-                        encounter.patient().uuid()
+                        encounter.patient().uuid(),
+                        ReadOptions.custom(
+                                "uuid,action,previousOrder:(uuid),numRefills"
+                        )
                 );
 
-        List<DrugOrderResponse> revisions = modifiedOrderSearch.results()
-                .stream()
-                .map(orderItem ->
-                        admin.orders().getDrugOrder(orderItem.uuid())
-                )
-                .filter(order ->
-                        OrderAction.REVISE.name().equals(order.action())
-                )
-                .filter(order -> order.previousOrder() != null)
-                .filter(order -> response.uuid().equals(
-                        order.previousOrder().uuid()
-                ))
-                .toList();
-
-        assertThat(revisions)
+        assertThat(modifiedOrderSearch.results())
                 .as("revision of order %s", response.uuid())
+                .filteredOn(order ->
+                        order.previousOrder() != null
+                                && response.uuid().equals(
+                                order.previousOrder().uuid()
+                        )
+                )
                 .singleElement()
-                .satisfies(modifiedOrder -> {
-                    softly.assertThat(modifiedOrder.numRefills())
-                            .isEqualTo(expectedRefills);
-                    softly.assertThat(modifiedOrder.previousOrder().uuid())
-                            .isEqualTo(response.uuid());
-                });
+                .extracting(
+                        OrderSearchResponse.OrderItem::action,
+                        OrderSearchResponse.OrderItem::numRefills
+                )
+                .containsExactly(
+                        OrderAction.REVISE.name(),
+                        expectedRefills
+                );
+    }
+
+    @Test
+    @WithEncounter
+    void shouldCancelExistingOrder(EncounterResponse encounter) {
+        DrugOrderCreateRequest request =
+                OrderTestData.validFullDrugOrder(encounter);
+        DrugOrderResponse response =
+                admin.orders().createDrugOrder(request);
+
+        new PatientOrderPage(encounter.patient().uuid())
+                .open()
+                .startOrderCancellation(response.orderNumber())
+                .shouldHaveDrugOrder(
+                        response.drug().display(),
+                        OrderStatus.DISCONTINUE
+                )
+                .signAndClose();
+
+        OrderSearchResponse cancelledOrderSearch =
+                admin.orders().searchOrderByPatient(
+                        encounter.patient().uuid(),
+                        ReadOptions.custom(
+                                "uuid,action,previousOrder:(uuid),dateStopped"
+                        )
+                );
+
+        assertThat(cancelledOrderSearch.results())
+                .as("discontinuation of order %s", response.uuid())
+                .filteredOn(order ->
+                        order.previousOrder() != null
+                                && response.uuid().equals(
+                                order.previousOrder().uuid()
+                        )
+                )
+                .singleElement()
+                .extracting(OrderSearchResponse.OrderItem::action)
+                .isEqualTo(OrderAction.DISCONTINUE.name());
+
+        assertThat(cancelledOrderSearch.results())
+                .as("stopped original order %s", response.uuid())
+                .filteredOn(order ->
+                        response.uuid().equals(order.uuid())
+                )
+                .singleElement()
+                .extracting(OrderSearchResponse.OrderItem::dateStopped)
+                .isNotNull();
     }
 }

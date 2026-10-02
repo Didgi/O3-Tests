@@ -3,6 +3,7 @@ package api.requests.steps;
 import api.models.order.*;
 import api.requests.endpoints.OrderEndpoints;
 import api.requests.skeleton.interfaces.CreateReadDeleteEndpoint;
+import api.requests.skeleton.options.ReadOptions;
 import api.requests.skeleton.requesters.RequesterFactory;
 import api.requests.skeleton.requesters.SuccessfulCreateReadDeleteRequester;
 import api.requests.skeleton.requesters.SuccessfulSearchRequester;
@@ -23,8 +24,8 @@ public class OrderSteps {
 
     private final SuccessfulSearchRequester<
             OrderSearchParams,
-                OrderSearchResponse
-                > searchRequester;
+            OrderSearchResponse
+            > searchRequester;
 
     public OrderSteps(RequesterFactory factory) {
         this.successfulRequester = factory.successfulCreateReadDelete(
@@ -62,8 +63,16 @@ public class OrderSteps {
     }
 
     public OrderSearchResponse searchOrderByPatient(String patientUuid) {
-        return searchRequester
-                .search(new OrderSearchParams(patientUuid));
+        return searchOrderByPatient(patientUuid, ReadOptions.defaults());
+    }
+
+    public OrderSearchResponse searchOrderByPatient(
+            String patientUuid,
+            ReadOptions options
+    ) {
+        return searchRequester.search(
+                new OrderSearchParams(patientUuid, options)
+        );
     }
 
     public DrugOrderResponse createDrugOrder(

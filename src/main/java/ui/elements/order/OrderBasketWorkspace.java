@@ -15,8 +15,8 @@ public class OrderBasketWorkspace extends BaseElement {
             find("[data-extension-id='drug-order-panel']");
     private final SelenideElement addDrugOrderButton =
             drugOrderPanel.find(byTagAndText("button", "Add"));
-    private final ElementsCollection addedDrugOrdersList =
-            drugOrderPanel.$$("[role='listitem']");
+    private final ElementsCollection drugOrderItems =
+            drugOrderPanel.$$("[class*='__orderBasketItemTile___']");
     private final SelenideElement submitButton =
             findAll("button")
                     .findBy(exactText("Sign and close"));
@@ -35,7 +35,7 @@ public class OrderBasketWorkspace extends BaseElement {
     }
 
     public DrugOrderBasketItem findDrugOrderByName(String drugName) {
-        SelenideElement item = addedDrugOrdersList
+        SelenideElement item = drugOrderItems
                 .findBy(text(drugName))
                 .shouldBe(visible);
         return new DrugOrderBasketItem(item);
@@ -57,7 +57,17 @@ public class OrderBasketWorkspace extends BaseElement {
         return this;
     }
 
-    public void submitOrder() {
+    public OrderBasketWorkspace shouldHaveDrugOrder(
+            String drugName,
+            OrderStatus status
+    ) {
+        findDrugOrderByName(drugName)
+                .shouldHaveStatus(status);
+
+        return this;
+    }
+
+    public void signAndClose() {
         submitButton.click();
         element.should(disappear);
     }

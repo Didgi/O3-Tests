@@ -3,12 +3,11 @@ package ui.pages;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import ui.conditions.ContainsOrder;
+import ui.elements.PatientWorkspaceMenu;
+import ui.elements.ToastMessages;
 import ui.elements.order.DrugOrderForm;
 import ui.elements.order.OrderBasketWorkspace;
-import ui.elements.PatientWorkspaceMenu;
 import ui.models.ExpectedOrderRow;
-
-import java.time.Duration;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$;
@@ -16,18 +15,13 @@ import static com.codeborne.selenide.Selenide.$$;
 
 public class PatientOrderPage extends BasePage<PatientOrderPage> {
     private final String patientUuid;
-    private static final String PATH = "/patient/%s/chart/orders";
 
     private final SelenideElement orderDashboard =
             $("[data-extension-id='patient-orders-dashboard']");
-    private final SelenideElement recordOrderBtn =
-            orderDashboard.$$("button").findBy(exactText("Record orders"));
     private final SelenideElement ordersTable =
             orderDashboard.$("table");
     private final ElementsCollection tableRows =
             ordersTable.$$("tbody > tr[data-parent-row='true']");
-    private final ElementsCollection snackbars =
-            $$(".omrs-snackbars-container [role='alertdialog']");
 
     private final PatientWorkspaceMenu workspaceMenu = new PatientWorkspaceMenu();
 
@@ -37,7 +31,7 @@ public class PatientOrderPage extends BasePage<PatientOrderPage> {
 
     @Override
     public String url() {
-        return PATH.formatted(patientUuid);
+        return UiPath.PATIENT_ORDER_PAGE.formatted(patientUuid);
     }
 
     public PatientOrderPage checkPatientOrderOpen() {
@@ -46,8 +40,7 @@ public class PatientOrderPage extends BasePage<PatientOrderPage> {
     }
 
     public OrderBasketWorkspace openOrderBasket() {
-        workspaceMenu.openOrderBasket();
-        return new OrderBasketWorkspace();
+        return workspaceMenu.openOrderBasket();
     }
 
     public PatientOrderPage shouldContainExistingOrder(ExpectedOrderRow expected) {
@@ -69,26 +62,7 @@ public class PatientOrderPage extends BasePage<PatientOrderPage> {
                 .checkBasketFormIsOpened();
     }
 
-    public PatientOrderPage shouldShowOrderUpdated(String drugName) {
-        SelenideElement snackbar = snackbars
-                .findBy(text("Order updated"))
-                .shouldBe(visible, Duration.ofSeconds(5));
-
-        snackbar
-                .$(".cds--actionable-notification__title")
-                .shouldHave(exactText("Order updated"));
-
-        snackbar
-                .$(".cds--actionable-notification__subtitle")
-                .shouldHave(exactText("Updated " + drugName + "."));
-
-        snackbar.shouldHave(
-                cssClass("cds--actionable-notification--success"));
-
-        return this;
-    }
-
-    public DrugOrderForm<PatientOrderPage> openOrderForEditing(
+    public DrugOrderForm<ToastMessages> openOrderForEditing(
             String orderNumber
     ) {
         SelenideElement menu = openActionsMenuForOrder(orderNumber);
@@ -97,7 +71,7 @@ public class PatientOrderPage extends BasePage<PatientOrderPage> {
                 .findBy(exactText("Modify order"))
                 .click();
 
-        return new DrugOrderForm<>(() -> this);
+        return new DrugOrderForm<>(ToastMessages::new);
     }
 
     private SelenideElement openActionsMenuForOrder(String orderNumber) {

@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum OrderStatus {
-    NEW("New");
+    NEW("New"),
+    DISCONTINUE("Discontinue");
     private final String value;
 
     public String value() {
