@@ -16,6 +16,7 @@ public class CreateAppointmentPanel extends BaseElement {
     private final SelenideElement timeField = find("#time-picker");
     private final SelenideElement appointmentNoteField = find("#appointmentNote");
     private final SelenideElement saveAndCloseButton = $(Selectors.byTagAndText("button", "Save and close"));
+    private final SelenideElement selectFormatTime = $("#time-picker-select-1");
     private final static SelenideElement createAppointmentPanel = $("#omrs-workspaces-container");
 
 
@@ -59,6 +60,11 @@ public class CreateAppointmentPanel extends BaseElement {
     public CreateAppointmentPanel enterTime(String time) {
         timeField.click();
         timeField.setValue(time);
+        return this;
+    }
+
+    public CreateAppointmentPanel selectFormat() {
+        selectFormatTime.selectOption("PM");
         return this;
     }
 

@@ -102,4 +102,7 @@ public final class ReferenceTestData {
     public static String daysDurationUnitConceptUuid() {
         return Config.getProperty("days_duration_unit_concept_uuid");
     }
+    public static String appointmentTimePeriod() {
+        return "PM";
+    }
 }

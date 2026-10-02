@@ -36,6 +36,7 @@ public class AppointmentUiTest extends UIBaseTest {
         String note = RandomData.randomString(10);
         String parsedDate = date.atStartOfDay().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
+
         new AppointmentPage()
                 .open()
                 .openCreateAppointmentPanel()
@@ -50,6 +51,7 @@ public class AppointmentUiTest extends UIBaseTest {
                         duration,
                         note
                 )
+                .selectFormat()
                 .saveAndClose()
                 .appointmentScheduledShouldAppear();
 
@@ -63,11 +65,14 @@ public class AppointmentUiTest extends UIBaseTest {
         softly.assertThat(createdAppointment.patient().name()).isEqualTo(personName);
         softly.assertThat(createdAppointment.service().name()).isEqualTo(service);
 
+        String period = ReferenceTestData.appointmentTimePeriod();
+        LocalTime localTime = RandomData.to24HourTime(time, period);
+
         long actualTimestamp = Long.parseLong(
                 createdAppointment.startDateTime()
         );
         long expectedTimestamp = date
-                .atTime(LocalTime.parse(time))
+                .atTime(localTime)
                 .toInstant(ZoneOffset.UTC)
                 .toEpochMilli();
         softly.assertThat(actualTimestamp)
