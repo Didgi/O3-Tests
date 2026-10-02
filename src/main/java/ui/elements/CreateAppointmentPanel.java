@@ -16,11 +16,12 @@ public class CreateAppointmentPanel extends BaseElement {
     private final SelenideElement timeField = find("#time-picker");
     private final SelenideElement appointmentNoteField = find("#appointmentNote");
     private final SelenideElement saveAndCloseButton = $(Selectors.byTagAndText("button", "Save and close"));
+    private final static SelenideElement createAppointmentPanel = $("#omrs-workspaces-container");
 
 
 
     public CreateAppointmentPanel() {
-        super($("#omrs-workspaces-container"));
+        super(createAppointmentPanel);
     }
 
     public CreateAppointmentPanel shouldBeOpened() {
