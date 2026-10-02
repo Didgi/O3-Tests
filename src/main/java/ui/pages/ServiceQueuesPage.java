@@ -5,6 +5,7 @@ import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import ui.elements.PatientSearchWorkspace;
 
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
@@ -14,7 +15,8 @@ import static com.codeborne.selenide.Selenide.$;
 public class ServiceQueuesPage extends BasePage<ServiceQueuesPage> {
 
     private final SelenideElement mainTitle = $(Selectors.byText("Service queues"));
-
+    private final SelenideElement addPatientButton = $("button[data-tutorial-target='add-patient']");
+    private final SelenideElement searchPatientButton = $("[data-testid='searchPatientIcon']");
     @Override
     public String url() {
         return UiPath.SERVICE_QUEUES;
@@ -24,5 +26,16 @@ public class ServiceQueuesPage extends BasePage<ServiceQueuesPage> {
     public ServiceQueuesPage checkServiceQueuesOpened(){
         mainTitle.shouldBe(visible);
         return this;
+    }
+
+    public PatientRegistrationPage clickAddPatient() {
+        addPatientButton.click();
+        return getPage(PatientRegistrationPage.class).checkPatientRegistrationOpened();
+    }
+
+    @Step("Открываем поиск пациента")
+    public PatientSearchWorkspace clickSearchPatient() {
+        searchPatientButton.click();
+        return new PatientSearchWorkspace().checkPatientSearchOpened();
     }
 }

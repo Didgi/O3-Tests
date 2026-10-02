@@ -5,7 +5,7 @@ import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.By;
 
 public abstract class BaseElement {
-    private final SelenideElement element;
+    protected final SelenideElement element;
 
     public BaseElement(SelenideElement element) {
         this.element = element;
