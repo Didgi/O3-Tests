@@ -31,6 +31,7 @@ jobs:
       OMRS_ENCRYPTION_VECTOR: ${{ secrets.OMRS_ENCRYPTION_VECTOR }}
       ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      HEADLESS_MODE: 'true'
 
     outputs:
       has_allure_results: ${{ steps.check-allure.outputs.has_results }}
