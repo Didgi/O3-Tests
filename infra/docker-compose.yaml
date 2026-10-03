@@ -7,6 +7,8 @@ services:
       - backend
     ports:
       - "80:80"
+    networks:
+      - o3-network
 
   frontend:
     image: openmrs/openmrs-reference-application-3-frontend:3.7.1
@@ -24,6 +26,8 @@ services:
       start_period: 60s
     depends_on:
       - backend
+    networks:
+      - o3-network
 
   backend:
     image: openmrs/openmrs-reference-application-3-backend:3.7.1
@@ -46,6 +50,8 @@ services:
       start_period: 60s
     volumes:
       - ./openmrs-data:/openmrs/data
+    networks:
+      - o3-network
 
   # MariaDB
   db:
@@ -75,6 +81,46 @@ services:
 
     volumes:
       - db-data:/var/lib/mysql
+    networks:
+      - o3-network
+
+  selenoid:
+    image: adtechqatools/selenoid:latest-release
+    container_name: selenoid
+    ports:
+      - "4444:4444"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config:/etc/selenoid:ro
+      - ./video:/opt/selenoid/video
+    environment:
+      - OVERRIDE_VIDEO_OUTPUT_DIR=/Users/alekseikokarev/Projects/video
+    command:
+      - "-video-output-dir"
+      - "/opt/selenoid/video"
+      - "-container-network"
+      - "o3-network"
+    depends_on:
+      - frontend
+    networks:
+      - o3-network
+
+  selenoid-ui:
+    image: aerokube/selenoid-ui
+    container_name: selenoid-ui
+    depends_on:
+      - selenoid
+    command:
+      - "--selenoid-uri=http://selenoid:4444"
+    ports:
+      - "8080:8080"
+    networks:
+      - o3-network
 
 volumes:
   db-data: ~
+
+networks:
+  o3-network:
+    name: o3-network
+    driver: bridge
