@@ -52,4 +52,17 @@ public class Config {
         return INSTANCE.properties.getProperty(key);
     }
 
+    public static String getRequiredProperty(String key) {
+        String value = getProperty(key);
+
+        if(value == null || value.isBlank()) {
+            throw new IllegalStateException(
+                    "Required configuration property '" + key
+                            + "' is missing or blank. "
+                            + "Set it via -D, environment variables or .env."
+            );
+        }
+
+        return value;
+    }
 }
