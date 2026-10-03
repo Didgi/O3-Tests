@@ -2,6 +2,7 @@ package api.requests.skeleton.interfaces;
 
 import api.models.auth.request.ChangePasswordCredentials;
 import api.models.auth.request.Credentials;
+import api.models.auth.request.SessionLocation;
 import io.restassured.response.Response;
 
 public interface AuthEndpoint {
@@ -17,4 +18,6 @@ public interface AuthEndpoint {
     Response logout(String sessionId);
 
     Response changePassword(ChangePasswordCredentials changePasswordCredentials, String sessionId);
+
+    Response postLocation(SessionLocation sessionLocation, String sessionId);
 }
