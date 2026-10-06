@@ -1,0 +1,98 @@
+<div>POST to http://localhost:80/openmrs/ws/rest/v1/patient/84d413c6-1b7f-4ae2-8db9-8f0f479487a6</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;uuid&quot;: &quot;84d413c6-1b7f-4ae2-8db9-8f0f479487a6&quot;,
+    &quot;identifiers&quot;: [
+        {
+            &quot;uuid&quot;: &quot;590ec24d-f6be-4a78-a634-d5971faf66de&quot;,
+            &quot;identifier&quot;: &quot;100028C&quot;,
+            &quot;identifierType&quot;: &quot;05a29f94-c0ed-11e2-94be-8c13b969e334&quot;,
+            &quot;location&quot;: &quot;44c3efb0-2583-4c80-a79e-1f756a03c0a1&quot;,
+            &quot;preferred&quot;: true
+        }
+    ],
+    &quot;person&quot;: {
+        &quot;uuid&quot;: &quot;84d413c6-1b7f-4ae2-8db9-8f0f479487a6&quot;,
+        &quot;addresses&quot;: [
+            {
+                &quot;address1&quot;: &quot;59 Orugi Street&quot;,
+                &quot;cityVillage&quot;: &quot;Zhbvfv&quot;,
+                &quot;country&quot;: &quot;Awaylv&quot;,
+                &quot;postalCode&quot;: &quot;165951&quot;
+            }
+        ],
+        &quot;attributes&quot;: [
+            
+        ],
+        &quot;birthdate&quot;: &quot;1971-03-16&quot;,
+        &quot;birthdateEstimated&quot;: false,
+        &quot;dead&quot;: false,
+        &quot;gender&quot;: &quot;F&quot;,
+        &quot;names&quot;: [
+            {
+                &quot;uuid&quot;: &quot;3959fd66-3365-46c2-87e0-fe52a4e914c3&quot;,
+                &quot;preferred&quot;: true,
+                &quot;givenName&quot;: &quot;Fvwybkgw&quot;,
+                &quot;middleName&quot;: &quot;Ksdgp&quot;,
+                &quot;familyName&quot;: &quot;Fvcon&quot;
+            }
+        ]
+    }
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Basic YWRtaW46QWRtaW4xMjM=</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://localhost:80/openmrs/ws/rest/v1/patient/84d413c6-1b7f-4ae2-8db9-8f0f479487a6&#39; -H &#39;Authorization: Basic YWRtaW46QWRtaW4xMjM=&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;uuid&quot;: &quot;84d413c6-1b7f-4ae2-8db9-8f0f479487a6&quot;,
+    &quot;identifiers&quot;: [
+        {
+            &quot;uuid&quot;: &quot;590ec24d-f6be-4a78-a634-d5971faf66de&quot;,
+            &quot;identifier&quot;: &quot;100028C&quot;,
+            &quot;identifierType&quot;: &quot;05a29f94-c0ed-11e2-94be-8c13b969e334&quot;,
+            &quot;location&quot;: &quot;44c3efb0-2583-4c80-a79e-1f756a03c0a1&quot;,
+            &quot;preferred&quot;: true
+        }
+    ],
+    &quot;person&quot;: {
+        &quot;uuid&quot;: &quot;84d413c6-1b7f-4ae2-8db9-8f0f479487a6&quot;,
+        &quot;addresses&quot;: [
+            {
+                &quot;address1&quot;: &quot;59 Orugi Street&quot;,
+                &quot;cityVillage&quot;: &quot;Zhbvfv&quot;,
+                &quot;country&quot;: &quot;Awaylv&quot;,
+                &quot;postalCode&quot;: &quot;165951&quot;
+            }
+        ],
+        &quot;attributes&quot;: [
+            
+        ],
+        &quot;birthdate&quot;: &quot;1971-03-16&quot;,
+        &quot;birthdateEstimated&quot;: false,
+        &quot;dead&quot;: false,
+        &quot;gender&quot;: &quot;F&quot;,
+        &quot;names&quot;: [
+            {
+                &quot;uuid&quot;: &quot;3959fd66-3365-46c2-87e0-fe52a4e914c3&quot;,
+                &quot;preferred&quot;: true,
+                &quot;givenName&quot;: &quot;Fvwybkgw&quot;,
+                &quot;middleName&quot;: &quot;Ksdgp&quot;,
+                &quot;familyName&quot;: &quot;Fvcon&quot;
+            }
+        ]
+    }
+}&#39;
+    </div>
+
