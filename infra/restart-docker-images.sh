@@ -138,11 +138,15 @@ docker compose -f "$COMPOSE_FILE" exec -T db \
 
 echo ">>> ✅ Database восстановлена"
 
+echo ">>> Скачивание образа для записи видео UI тестов"
+
+export SELENOID_VIDEO_OUTPUT_DIR="$(pwd)/infra/video"
+mkdir -p "$SELENOID_VIDEO_OUTPUT_DIR"
+docker pull selenoid/video-recorder:latest-release
 
 echo ">>> Запуск OpenMRS и остальных сервисов"
 
 docker compose -f "$COMPOSE_FILE" up -d
-
 
 echo ">>> Ожидание OpenMRS backend"
 

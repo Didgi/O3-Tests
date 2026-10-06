@@ -94,7 +94,7 @@ services:
       - ./config:/etc/selenoid:ro
       - ./video:/opt/selenoid/video
     environment:
-      - OVERRIDE_VIDEO_OUTPUT_DIR=/Users/alekseikokarev/Projects/video
+     OVERRIDE_VIDEO_OUTPUT_DIR: ${SELENOID_VIDEO_OUTPUT_DIR}
     command:
       - "-video-output-dir"
       - "/opt/selenoid/video"
