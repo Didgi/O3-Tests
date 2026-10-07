@@ -35,6 +35,7 @@ public class UIBaseTest extends BaseApiTest {
         Configuration.baseUrl = Config.getProperty("ui_baseurl");
         Configuration.browser = Config.getProperty("browsers");
         Configuration.browserSize = Config.getProperty("resolution");
+        Configuration.timeout = 10_000;
         Configuration.browserCapabilities.setCapability("selenoid:options",
                 Map.of("enableVNC", Boolean.parseBoolean(Config.getProperty("enable_vnc")),
                         "enableLog", Boolean.parseBoolean(Config.getProperty("enable_log")),
