@@ -138,6 +138,21 @@ docker compose -f "$COMPOSE_FILE" exec -T db \
 
 echo ">>> ✅ Database восстановлена"
 
+echo ">>> Сброс версии Lucene Search Index"
+
+docker compose -f "$COMPOSE_FILE" exec -T db \
+    mariadb \
+    -uroot \
+    -p"$DB_ROOT_PASSWORD" \
+    "$DB_NAME" \
+    -e "
+        UPDATE global_property
+        SET property_value = NULL
+        WHERE property = 'search.indexVersion';
+    "
+
+echo ">>> ✅ search.indexVersion сброшен"
+
 echo ">>> Скачивание образа для записи видео UI тестов"
 
 export SELENOID_VIDEO_OUTPUT_DIR="$(pwd)/infra/video"
