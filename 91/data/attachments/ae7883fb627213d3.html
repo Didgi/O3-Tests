@@ -1,0 +1,62 @@
+<div>POST to http://localhost:80/openmrs/ws/rest/v1/order</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;patient&quot;: &quot;aade976a-f2c9-4597-b796-b5ee001ef0f2&quot;,
+    &quot;concept&quot;: &quot;71137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+    &quot;orderType&quot;: &quot;131168f4-15f5-102d-96e4-000c29c2a5d7&quot;,
+    &quot;type&quot;: &quot;drugorder&quot;,
+    &quot;action&quot;: &quot;NEW&quot;,
+    &quot;urgency&quot;: &quot;ROUTINE&quot;,
+    &quot;dateActivated&quot;: &quot;2026-10-08T19:30:43.000+0000&quot;,
+    &quot;careSetting&quot;: &quot;OUTPATIENT&quot;,
+    &quot;encounter&quot;: &quot;eef275ba-e76d-40ec-b6b6-a1038cfb3939&quot;,
+    &quot;orderer&quot;: &quot;705f5791-07a7-44b8-932f-a81f3526fc98&quot;,
+    &quot;drug&quot;: &quot;00a789ff-da44-42b9-b929-3a069d98d3e1&quot;,
+    &quot;dosingType&quot;: &quot;org.openmrs.SimpleDosingInstructions&quot;,
+    &quot;dose&quot;: 1.0,
+    &quot;doseUnits&quot;: &quot;1513AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+    &quot;route&quot;: &quot;160240AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+    &quot;frequency&quot;: &quot;136ebdb7-e989-47cf-8ec2-4e8b2ffe0ab3&quot;,
+    &quot;quantity&quot;: 1.0,
+    &quot;quantityUnits&quot;: &quot;1513AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+    &quot;numRefills&quot;: 0
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Basic YWRtaW46QWRtaW4xMjM=</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://localhost:80/openmrs/ws/rest/v1/order&#39; -H &#39;Authorization: Basic YWRtaW46QWRtaW4xMjM=&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;patient&quot;: &quot;aade976a-f2c9-4597-b796-b5ee001ef0f2&quot;,
+    &quot;concept&quot;: &quot;71137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+    &quot;orderType&quot;: &quot;131168f4-15f5-102d-96e4-000c29c2a5d7&quot;,
+    &quot;type&quot;: &quot;drugorder&quot;,
+    &quot;action&quot;: &quot;NEW&quot;,
+    &quot;urgency&quot;: &quot;ROUTINE&quot;,
+    &quot;dateActivated&quot;: &quot;2026-10-08T19:30:43.000+0000&quot;,
+    &quot;careSetting&quot;: &quot;OUTPATIENT&quot;,
+    &quot;encounter&quot;: &quot;eef275ba-e76d-40ec-b6b6-a1038cfb3939&quot;,
+    &quot;orderer&quot;: &quot;705f5791-07a7-44b8-932f-a81f3526fc98&quot;,
+    &quot;drug&quot;: &quot;00a789ff-da44-42b9-b929-3a069d98d3e1&quot;,
+    &quot;dosingType&quot;: &quot;org.openmrs.SimpleDosingInstructions&quot;,
+    &quot;dose&quot;: 1.0,
+    &quot;doseUnits&quot;: &quot;1513AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+    &quot;route&quot;: &quot;160240AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+    &quot;frequency&quot;: &quot;136ebdb7-e989-47cf-8ec2-4e8b2ffe0ab3&quot;,
+    &quot;quantity&quot;: 1.0,
+    &quot;quantityUnits&quot;: &quot;1513AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+    &quot;numRefills&quot;: 0
+}&#39;
+    </div>
+
