@@ -5,13 +5,20 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class RandomData {
+    private static final int MIN_PAST_DAYS_AGO = 1;
+    private static final int MAX_PAST_DAYS_AGO = 30;
+
     private RandomData() {
     }
 
@@ -62,6 +69,20 @@ public class RandomData {
         LocalDate end = start.plusMonths(3);
         long randomEpochDay = ThreadLocalRandom.current().nextLong(start.toEpochDay(), end.toEpochDay() + 1);
         return LocalDate.ofEpochDay(randomEpochDay);
+    }
+
+    /**
+     * Generates a timestamp on one of the previous 30 days, excluding today,
+     * in the configured time zone with second precision.
+     */
+    public static OffsetDateTime randomPastDateTime() {
+        int daysAgo = ThreadLocalRandom.current()
+                .nextInt(MIN_PAST_DAYS_AGO, MAX_PAST_DAYS_AGO + 1);
+
+        return ZonedDateTime.now(ZoneId.of(ReferenceTestData.timeZone()))
+                .minusDays(daysAgo)
+                .truncatedTo(ChronoUnit.SECONDS)
+                .toOffsetDateTime();
     }
 
     public static String generateRandomTime() {

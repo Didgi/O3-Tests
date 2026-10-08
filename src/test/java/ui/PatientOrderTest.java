@@ -13,6 +13,7 @@ import api.requests.skeleton.options.ReadOptions;
 import api.testdata.EncounterTestData;
 import api.testdata.OrderTestData;
 import api.testdata.VisitTestData;
+import api.utils.RandomData;
 import common.annotations.WithEncounter;
 import common.annotations.WithPatient;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,6 @@ import ui.pages.PatientOrderPage;
 import ui.testdata.DrugOrderTestData;
 
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -65,11 +65,9 @@ public class PatientOrderTest extends UIBaseTest {
     @Test
     void shouldDisplayExistingDrugOrder(PatientResponse patient) {
 
-        OffsetDateTime date = OffsetDateTime.now(ZoneId.of(TIME_ZONE))
-                .minusDays(3)
-                .withNano(0);
+        OffsetDateTime orderDateTime = RandomData.randomPastDateTime();
 
-        String apiDate = date.format(ON_DATE_FORMAT);
+        String apiDate = orderDateTime.format(ON_DATE_FORMAT);
 
         VisitCreateRequest visitRequest =
                 VisitTestData.validVisitCreateRequest(patient.uuid()).toBuilder()
@@ -102,7 +100,7 @@ public class PatientOrderTest extends UIBaseTest {
         new PatientOrderPage(encounter.patient().uuid())
                 .open()
                 .waitUntilLoaded()
-                .setFilterStartDate(date)
+                .setFilterStartDate(orderDateTime)
                 .shouldContainExistingOrder(expected, response.dateActivated());
     }
 
