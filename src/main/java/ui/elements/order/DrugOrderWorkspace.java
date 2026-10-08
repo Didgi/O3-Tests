@@ -19,9 +19,10 @@ public class DrugOrderWorkspace extends BaseElement {
                     "[role='search'][aria-label^='Search for a drug or orderset'] " +
                             "input[type='search']"
             );
-    // TODO: Scope list items to the drug search results container.
+    private final SelenideElement searchResultContainer =
+            find("[class*='__order-basket-search-results__resultsContainer___']");
     private final ElementsCollection searchResults =
-            findAll("[role='listitem']");
+            searchResultContainer.$$("[role='listitem']");
 
     public SelenideElement findDrug(String drugName) {
         drugSearchInput.setValue(drugName);

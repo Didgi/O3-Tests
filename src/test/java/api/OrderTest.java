@@ -40,7 +40,7 @@ public class OrderTest extends BaseApiTest {
                 .isEqualTo(request.type());
         softly.assertThat(response.action())
                 .isEqualTo(request.action());
-        softly.assertThat(response.urgency())
+        softly.assertThat(response.urgency().name())
                 .isEqualTo(request.urgency());
         softly.assertThat(response.dateActivated())
                 .isEqualTo(request.dateActivated());

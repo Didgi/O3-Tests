@@ -29,7 +29,7 @@ public record DrugOrderResponse(
         OrderResponse.ResourceReference orderReason,
         String orderReasonNonCoded,
         OrderResponse.OrderType orderType,
-        String urgency,
+        OrderUrgency urgency,
         String instructions,
         String commentToFulfiller,
         String display,
