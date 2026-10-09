@@ -1,0 +1,42 @@
+<div>POST to http://localhost:80/openmrs/ws/rest/v1/order</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;patient&quot;: &quot;15d34bc5-37f6-4dd9-ac14-bf20e54791cf&quot;,
+    &quot;concept&quot;: &quot;5087AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+    &quot;type&quot;: &quot;testorder&quot;,
+    &quot;action&quot;: &quot;NEW&quot;,
+    &quot;urgency&quot;: &quot;ROUTINE&quot;,
+    &quot;dateActivated&quot;: &quot;2026-10-09T14:23:10.000+0000&quot;,
+    &quot;careSetting&quot;: &quot;OUTPATIENT&quot;,
+    &quot;encounter&quot;: &quot;2e3c068d-3f6b-4c5d-80ca-7ceac9d93ac3&quot;,
+    &quot;orderer&quot;: &quot;705f5791-07a7-44b8-932f-a81f3526fc98&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Basic YWRtaW46QWRtaW4xMjM=</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://localhost:80/openmrs/ws/rest/v1/order&#39; -H &#39;Authorization: Basic YWRtaW46QWRtaW4xMjM=&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;patient&quot;: &quot;15d34bc5-37f6-4dd9-ac14-bf20e54791cf&quot;,
+    &quot;concept&quot;: &quot;5087AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+    &quot;type&quot;: &quot;testorder&quot;,
+    &quot;action&quot;: &quot;NEW&quot;,
+    &quot;urgency&quot;: &quot;ROUTINE&quot;,
+    &quot;dateActivated&quot;: &quot;2026-10-09T14:23:10.000+0000&quot;,
+    &quot;careSetting&quot;: &quot;OUTPATIENT&quot;,
+    &quot;encounter&quot;: &quot;2e3c068d-3f6b-4c5d-80ca-7ceac9d93ac3&quot;,
+    &quot;orderer&quot;: &quot;705f5791-07a7-44b8-932f-a81f3526fc98&quot;
+}&#39;
+    </div>
+

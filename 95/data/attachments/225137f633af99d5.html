@@ -1,0 +1,210 @@
+<div>Status code 201 </div>
+
+
+<h4>Body</h4>
+<div>
+    <pre class="preformated-text">
+{
+    &quot;uuid&quot;: &quot;bc1e6341-d8c8-4ac4-9313-b2178502c2cf&quot;,
+    &quot;orderNumber&quot;: &quot;ORD-325&quot;,
+    &quot;accessionNumber&quot;: null,
+    &quot;patient&quot;: {
+        &quot;uuid&quot;: &quot;f0a1e941-80c8-4e2c-9a87-34b1e5d1c252&quot;,
+        &quot;display&quot;: &quot;10002V4 - Xjkiayzlopo Rjerfyamq Qpxklk&quot;,
+        &quot;links&quot;: [
+            {
+                &quot;rel&quot;: &quot;self&quot;,
+                &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/patient/f0a1e941-80c8-4e2c-9a87-34b1e5d1c252&quot;,
+                &quot;resourceAlias&quot;: &quot;patient&quot;
+            }
+        ]
+    },
+    &quot;concept&quot;: {
+        &quot;uuid&quot;: &quot;71137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+        &quot;display&quot;: &quot;Amlodipine&quot;,
+        &quot;links&quot;: [
+            {
+                &quot;rel&quot;: &quot;self&quot;,
+                &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/concept/71137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+                &quot;resourceAlias&quot;: &quot;concept&quot;
+            }
+        ]
+    },
+    &quot;action&quot;: &quot;NEW&quot;,
+    &quot;careSetting&quot;: {
+        &quot;uuid&quot;: &quot;6f0c9a92-6f24-11e3-af88-005056821db0&quot;,
+        &quot;display&quot;: &quot;Outpatient&quot;,
+        &quot;links&quot;: [
+            {
+                &quot;rel&quot;: &quot;self&quot;,
+                &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/caresetting/6f0c9a92-6f24-11e3-af88-005056821db0&quot;,
+                &quot;resourceAlias&quot;: &quot;caresetting&quot;
+            }
+        ]
+    },
+    &quot;previousOrder&quot;: null,
+    &quot;dateActivated&quot;: &quot;2026-10-09T14:22:42.000+0000&quot;,
+    &quot;scheduledDate&quot;: null,
+    &quot;dateStopped&quot;: null,
+    &quot;autoExpireDate&quot;: &quot;2026-11-08T14:22:41.000+0000&quot;,
+    &quot;encounter&quot;: {
+        &quot;uuid&quot;: &quot;36aba65c-7639-45fd-89ec-4fb66a6908c4&quot;,
+        &quot;display&quot;: &quot;Consultation 10/09/2026&quot;,
+        &quot;links&quot;: [
+            {
+                &quot;rel&quot;: &quot;self&quot;,
+                &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/encounter/36aba65c-7639-45fd-89ec-4fb66a6908c4&quot;,
+                &quot;resourceAlias&quot;: &quot;encounter&quot;
+            }
+        ]
+    },
+    &quot;orderer&quot;: {
+        &quot;uuid&quot;: &quot;705f5791-07a7-44b8-932f-a81f3526fc98&quot;,
+        &quot;display&quot;: &quot;doctor - Jake Doctor&quot;,
+        &quot;links&quot;: [
+            {
+                &quot;rel&quot;: &quot;self&quot;,
+                &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/provider/705f5791-07a7-44b8-932f-a81f3526fc98&quot;,
+                &quot;resourceAlias&quot;: &quot;provider&quot;
+            }
+        ]
+    },
+    &quot;orderReason&quot;: null,
+    &quot;orderReasonNonCoded&quot;: &quot;Hypertension&quot;,
+    &quot;orderType&quot;: {
+        &quot;uuid&quot;: &quot;131168f4-15f5-102d-96e4-000c29c2a5d7&quot;,
+        &quot;display&quot;: &quot;Drug Order&quot;,
+        &quot;name&quot;: &quot;Drug Order&quot;,
+        &quot;javaClassName&quot;: &quot;org.openmrs.DrugOrder&quot;,
+        &quot;retired&quot;: false,
+        &quot;description&quot;: &quot;An order for a medication to be given to the patient&quot;,
+        &quot;conceptClasses&quot;: [
+            
+        ],
+        &quot;parent&quot;: null,
+        &quot;links&quot;: [
+            {
+                &quot;rel&quot;: &quot;self&quot;,
+                &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/ordertype/131168f4-15f5-102d-96e4-000c29c2a5d7&quot;,
+                &quot;resourceAlias&quot;: &quot;ordertype&quot;
+            },
+            {
+                &quot;rel&quot;: &quot;full&quot;,
+                &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/ordertype/131168f4-15f5-102d-96e4-000c29c2a5d7?v=full&quot;,
+                &quot;resourceAlias&quot;: &quot;ordertype&quot;
+            }
+        ],
+        &quot;resourceVersion&quot;: &quot;1.10&quot;
+    },
+    &quot;urgency&quot;: &quot;ROUTINE&quot;,
+    &quot;instructions&quot;: &quot;Take at the same time every day&quot;,
+    &quot;commentToFulfiller&quot;: &quot;Created by API test&quot;,
+    &quot;display&quot;: &quot;(NEW) Amlodipine 5mg: 1.0 Tablet Oral Once daily 30 Days&quot;,
+    &quot;drug&quot;: {
+        &quot;uuid&quot;: &quot;00a789ff-da44-42b9-b929-3a069d98d3e1&quot;,
+        &quot;display&quot;: &quot;Amlodipine 5mg&quot;,
+        &quot;links&quot;: [
+            {
+                &quot;rel&quot;: &quot;self&quot;,
+                &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/drug/00a789ff-da44-42b9-b929-3a069d98d3e1&quot;,
+                &quot;resourceAlias&quot;: &quot;drug&quot;
+            }
+        ]
+    },
+    &quot;dosingType&quot;: &quot;org.openmrs.SimpleDosingInstructions&quot;,
+    &quot;dose&quot;: 1.0,
+    &quot;doseUnits&quot;: {
+        &quot;uuid&quot;: &quot;1513AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+        &quot;display&quot;: &quot;Tablet&quot;,
+        &quot;links&quot;: [
+            {
+                &quot;rel&quot;: &quot;self&quot;,
+                &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/concept/1513AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+                &quot;resourceAlias&quot;: &quot;concept&quot;
+            }
+        ]
+    },
+    &quot;frequency&quot;: {
+        &quot;uuid&quot;: &quot;136ebdb7-e989-47cf-8ec2-4e8b2ffe0ab3&quot;,
+        &quot;display&quot;: &quot;Once daily&quot;,
+        &quot;links&quot;: [
+            {
+                &quot;rel&quot;: &quot;self&quot;,
+                &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/orderfrequency/136ebdb7-e989-47cf-8ec2-4e8b2ffe0ab3&quot;,
+                &quot;resourceAlias&quot;: &quot;orderfrequency&quot;
+            }
+        ]
+    },
+    &quot;asNeeded&quot;: false,
+    &quot;asNeededCondition&quot;: null,
+    &quot;quantity&quot;: 30.0,
+    &quot;quantityUnits&quot;: {
+        &quot;uuid&quot;: &quot;1513AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+        &quot;display&quot;: &quot;Tablet&quot;,
+        &quot;links&quot;: [
+            {
+                &quot;rel&quot;: &quot;self&quot;,
+                &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/concept/1513AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+                &quot;resourceAlias&quot;: &quot;concept&quot;
+            }
+        ]
+    },
+    &quot;numRefills&quot;: 2,
+    &quot;dosingInstructions&quot;: null,
+    &quot;duration&quot;: 30,
+    &quot;durationUnits&quot;: {
+        &quot;uuid&quot;: &quot;1072AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+        &quot;display&quot;: &quot;Days&quot;,
+        &quot;links&quot;: [
+            {
+                &quot;rel&quot;: &quot;self&quot;,
+                &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/concept/1072AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+                &quot;resourceAlias&quot;: &quot;concept&quot;
+            }
+        ]
+    },
+    &quot;route&quot;: {
+        &quot;uuid&quot;: &quot;160240AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+        &quot;display&quot;: &quot;Oral&quot;,
+        &quot;links&quot;: [
+            {
+                &quot;rel&quot;: &quot;self&quot;,
+                &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/concept/160240AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;,
+                &quot;resourceAlias&quot;: &quot;concept&quot;
+            }
+        ]
+    },
+    &quot;brandName&quot;: null,
+    &quot;dispenseAsWritten&quot;: false,
+    &quot;drugNonCoded&quot;: null,
+    &quot;links&quot;: [
+        {
+            &quot;rel&quot;: &quot;self&quot;,
+            &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/order/bc1e6341-d8c8-4ac4-9313-b2178502c2cf&quot;,
+            &quot;resourceAlias&quot;: &quot;order&quot;
+        },
+        {
+            &quot;rel&quot;: &quot;full&quot;,
+            &quot;uri&quot;: &quot;http://localhost/openmrs/ws/rest/v1/order/bc1e6341-d8c8-4ac4-9313-b2178502c2cf?v=full&quot;,
+            &quot;resourceAlias&quot;: &quot;order&quot;
+        }
+    ],
+    &quot;type&quot;: &quot;drugorder&quot;,
+    &quot;resourceVersion&quot;: &quot;1.10&quot;
+}    </pre>
+</div>
+
+<h4>Headers</h4>
+<div>
+        <div>Server: nginx/1.31.2</div>
+        <div>X-Content-Type-Options: nosniff</div>
+        <div>Content-Security-Policy: default-src &#39;self&#39; &#39;unsafe-inline&#39; &#39;unsafe-eval&#39; localhost localhost:*; base-uri &#39;self&#39;; font-src &#39;self&#39;; img-src &#39;self&#39; data:; frame-ancestors &#39;self&#39; ;</div>
+        <div>Connection: keep-alive</div>
+        <div>Set-Cookie: JSESSIONID=1629FA97D65497547E79B6FB3EDC3B14; Path=/openmrs; HttpOnly</div>
+        <div>Content-Length: 4131</div>
+        <div>X-XSS-Protection: 1; mode=block</div>
+        <div>Date: Fri, 09 Oct 2026 14:22:43 GMT</div>
+        <div>Content-Type: application/json;charset=UTF-8</div>
+</div>
+
+
