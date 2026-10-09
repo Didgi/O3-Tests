@@ -1,0 +1,46 @@
+<div>POST to http://localhost:80/openmrs/ws/rest/v1/encounter</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;encounterDatetime&quot;: &quot;2026-10-09T11:14:35.000+0000&quot;,
+    &quot;patient&quot;: &quot;58b991f5-d9f8-4b77-90ca-cd83dd0d0f5f&quot;,
+    &quot;encounterType&quot;: &quot;67a71486-1a54-468f-ac3e-7091a9a79584&quot;,
+    &quot;location&quot;: &quot;44c3efb0-2583-4c80-a79e-1f756a03c0a1&quot;,
+    &quot;encounterProviders&quot;: [
+        {
+            &quot;provider&quot;: &quot;705f5791-07a7-44b8-932f-a81f3526fc98&quot;,
+            &quot;encounterRole&quot;: &quot;240b26f9-dd88-4172-823d-4a8bfeb7841f&quot;
+        }
+    ],
+    &quot;visit&quot;: &quot;de2c6994-c316-4b39-b99c-a6a1ef0c4f94&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Basic YWRtaW46QWRtaW4xMjM=</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://localhost:80/openmrs/ws/rest/v1/encounter&#39; -H &#39;Authorization: Basic YWRtaW46QWRtaW4xMjM=&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;encounterDatetime&quot;: &quot;2026-10-09T11:14:35.000+0000&quot;,
+    &quot;patient&quot;: &quot;58b991f5-d9f8-4b77-90ca-cd83dd0d0f5f&quot;,
+    &quot;encounterType&quot;: &quot;67a71486-1a54-468f-ac3e-7091a9a79584&quot;,
+    &quot;location&quot;: &quot;44c3efb0-2583-4c80-a79e-1f756a03c0a1&quot;,
+    &quot;encounterProviders&quot;: [
+        {
+            &quot;provider&quot;: &quot;705f5791-07a7-44b8-932f-a81f3526fc98&quot;,
+            &quot;encounterRole&quot;: &quot;240b26f9-dd88-4172-823d-4a8bfeb7841f&quot;
+        }
+    ],
+    &quot;visit&quot;: &quot;de2c6994-c316-4b39-b99c-a6a1ef0c4f94&quot;
+}&#39;
+    </div>
+
