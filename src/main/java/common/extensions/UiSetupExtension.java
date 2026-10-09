@@ -26,6 +26,7 @@ public class UiSetupExtension implements BeforeAllCallback, AfterEachCallback {
 
         Configuration.browser = Config.getProperty("browsers");
         Configuration.browserSize = Config.getProperty("resolution");
+        Configuration.timeout = 10_000;
         Configuration.browserCapabilities.setCapability("selenoid:options",
                 Map.of("enableVNC", Boolean.parseBoolean(Config.getProperty("enable_vnc")),
                         "enableLog", Boolean.parseBoolean(Config.getProperty("enable_log")),

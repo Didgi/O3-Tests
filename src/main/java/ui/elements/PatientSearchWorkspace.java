@@ -38,13 +38,10 @@ public class PatientSearchWorkspace extends BaseElement {
 
     @Step("Открываем найденного пациента")
     public PatientChartPage openPatient(String patientUuid) {
-        String patientLink =
-                "a[href*='/patient/%s/chart']".formatted(patientUuid);
-
+        String patientLink = "a[href*='/patient/%s/chart']".formatted(patientUuid);
         $(patientLink)
                 .shouldBe(visible)
                 .click();
-
         return new PatientChartPage()
                 .checkPatientChartOpened();
     }
