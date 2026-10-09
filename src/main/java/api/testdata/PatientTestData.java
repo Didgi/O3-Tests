@@ -12,6 +12,7 @@ import static io.restassured.RestAssured.given;
 public class PatientTestData {
 
     private static final String NON_EXISTING_QUERY_PREFIX = "NonExisting_";
+    private static final String UNKNOWN_NAME = "UNKNOWN";
 
     private static final int TOO_OLD_YEARS = 150;
 
@@ -74,6 +75,10 @@ public class PatientTestData {
                 List.of(duplicateIdentifier),
                 validRequest.person()
         );
+    }
+
+    public static PatientPersonRequest validPatientPerson() {
+        return RandomModelGenerator.generate(PatientPersonRequest.class);
     }
 
     public static PatientCreateRequest patientWithoutName() {
@@ -310,5 +315,9 @@ public class PatientTestData {
                 gender,
                 names
         );
+    }
+
+    public static String unknownName() {
+        return UNKNOWN_NAME;
     }
 }

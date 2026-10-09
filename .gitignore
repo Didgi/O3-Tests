@@ -3,4 +3,17 @@
 infra/openmrs-data/openmrs-runtime.properties
 
 target
+build
 /.env
+.playwright-mcp
+
+# OpenMRS runtime data
+infra/openmrs-data/.openmrs-lib-cache/
+infra/openmrs-data/activemq-data/
+infra/openmrs-data/configuration/
+infra/openmrs-data/lucene/
+infra/openmrs-data/modules/
+infra/openmrs-data/ocl/
+infra/openmrs-data/owa/
+infra/openmrs-data/person_images/
+infra/openmrs-data/*.log
