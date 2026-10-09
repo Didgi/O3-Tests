@@ -19,6 +19,10 @@ public final class ReferenceTestData {
         return Config.getProperty("test_visit_type_uuid");
     }
 
+    public static String visitTypeName() {
+        return Config.getProperty("test_visit_type_name");
+    }
+
     public static String appointmentServiceUuid() {
         return Config.getProperty("test_appointment_service_uuid");
     }
