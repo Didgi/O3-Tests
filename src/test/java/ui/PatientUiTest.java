@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 
-@Execution(ExecutionMode.SAME_THREAD)
 public class PatientUiTest extends UIBaseTest {
     @Test
     @WithPatientData
@@ -28,6 +27,8 @@ public class PatientUiTest extends UIBaseTest {
                 .selectGender(patient.gender())
                 .inputBirthDate(patient.birthdate())
                 .registerPatient()
+                .getPatientAside()
+                .getPatientBanner()
                 .checkPatientName(patientName.givenName(), patientName.familyName());
     }
 
@@ -43,6 +44,8 @@ public class PatientUiTest extends UIBaseTest {
                 .clickSearchPatient()
                 .searchPatient(patientName.givenName())
                 .openPatient(created.uuid())
+                .getPatientAside()
+                .getPatientBanner()
                 .checkPatientName(patientName.givenName(), patientName.middleName(), patientName.familyName());
     }
 
@@ -59,10 +62,14 @@ public class PatientUiTest extends UIBaseTest {
                 .clickSearchPatient()
                 .searchPatient(patientName.givenName())
                 .openPatient(created.uuid())
+                .getPatientAside()
+                .getPatientBanner()
                 .openEditPatientDetails()
                 .inputGivenName(newGivenName)
                 .updatePatient()
                 .refreshPage()
+                .getPatientAside()
+                .getPatientBanner()
                 .checkPatientName(newGivenName, patientName.middleName(), patientName.familyName());
     }
 
@@ -121,6 +128,7 @@ public class PatientUiTest extends UIBaseTest {
     @DisplayName("PAT-UI-P1-04 Регистрация пациента с неизвестным именем")
     public void registerPatientWithUnknownName(PatientPersonRequest patient) {
         String unknownName = PatientTestData.unknownName();
+
         serviceQueuesPage
                 .open()
                 .checkServiceQueuesOpened()
@@ -130,7 +138,9 @@ public class PatientUiTest extends UIBaseTest {
                 .selectGender(patient.gender())
                 .inputBirthDate(patient.birthdate())
                 .registerPatient()
-                .checkPatientName(unknownName,unknownName);
+                .getPatientAside()
+                .getPatientBanner()
+                .checkPatientName(unknownName, unknownName);
     }
 
     @Test
@@ -148,6 +158,8 @@ public class PatientUiTest extends UIBaseTest {
                 .selectBirthDateUnknown()
                 .inputEstimatedAge(patient.birthdate())
                 .registerPatient()
+                .getPatientAside()
+                .getPatientBanner()
                 .checkPatientName(patientName.givenName(), patientName.familyName());
     }
 
@@ -164,11 +176,15 @@ public class PatientUiTest extends UIBaseTest {
                 .clickSearchPatient()
                 .searchPatient(patientName.givenName())
                 .openPatient(created.uuid())
+                .getPatientAside()
+                .getPatientBanner()
                 .openEditPatientDetails()
                 .inputGivenName(newGivenName)
                 .cancelEditing()
                 .checkDiscardChangesModal()
                 .discardChanges()
+                .getPatientAside()
+                .getPatientBanner()
                 .checkPatientName(patientName.givenName(), patientName.middleName(), patientName.familyName());
     }
 
