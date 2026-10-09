@@ -3,6 +3,10 @@ package ui.elements;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+
+import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Condition.exactValue;
 
 public abstract class BaseElement {
     protected final SelenideElement element;
@@ -25,5 +29,19 @@ public abstract class BaseElement {
 
     public ElementsCollection findAll(String cssSelector){
         return element.findAll(cssSelector);
+    }
+
+    protected void replaceInputValue(SelenideElement input, String newValue) {
+        input.shouldBe(visible, enabled).click();
+        String currentValue = input.getValue();
+
+        input.press(Keys.END);
+        for (int i = 0; i < currentValue.length(); i++) {
+            input.press(Keys.BACK_SPACE);
+        }
+
+        input.shouldHave(exactValue(""))
+                .press(newValue)
+                .shouldHave(exactValue(newValue));
     }
 }

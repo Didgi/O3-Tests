@@ -1,10 +1,16 @@
 package ui.models;
 
+import lombok.Builder;
+
+@Builder(toBuilder = true)
 public record ExpectedOrderRow(
         String orderNumber,
-        String priority,
+        String dateOfOrder,
+        String orderType,
         String displayName,
-        String dateOfOrder
+        String priority,
+        String orderer
+
 ) {
     public ExpectedOrderRow {
         if (orderNumber == null) {
@@ -18,13 +24,23 @@ public record ExpectedOrderRow(
         if (displayName == null) {
             throw new IllegalArgumentException("displayName cannot be null");
         }
+
+        if (orderType == null) {
+            throw new IllegalArgumentException("orderType cannot be null");
+        }
+
+        if (orderer == null) {
+            throw new IllegalArgumentException("orderer cannot be null");
+        }
     }
 
     public ExpectedOrderRow(
             String orderNumber,
+            String orderType,
+            String displayName,
             String priority,
-            String displayName
+            String orderer
     ) {
-        this(orderNumber, priority, displayName, null);
+        this(orderNumber, null, orderType, displayName, priority, orderer);
     }
 }

@@ -1,19 +1,29 @@
 package ui;
 
+import api.models.encounter.EncounterCreateRequest;
 import api.models.encounter.EncounterResponse;
 import api.models.order.DrugOrderCreateRequest;
 import api.models.order.DrugOrderResponse;
 import api.models.order.OrderAction;
 import api.models.order.OrderSearchResponse;
+import api.models.patients.PatientResponse;
+import api.models.visit.VisitCreateRequest;
+import api.models.visit.VisitCreateResponse;
 import api.requests.skeleton.options.ReadOptions;
+import api.testdata.EncounterTestData;
 import api.testdata.OrderTestData;
+import api.testdata.VisitTestData;
+import api.utils.RandomData;
 import common.annotations.WithEncounter;
+import common.annotations.WithPatient;
 import org.junit.jupiter.api.Test;
 import ui.elements.order.OrderStatus;
 import ui.models.DrugOrderData;
 import ui.models.ExpectedOrderRow;
 import ui.pages.PatientOrderPage;
 import ui.testdata.DrugOrderTestData;
+
+import java.time.OffsetDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,9 +39,8 @@ public class PatientOrderTest extends UIBaseTest {
 
         new PatientOrderPage(encounter.patient().uuid())
                 .open()
-                .checkPatientOrderOpen()
+                .waitUntilLoaded()
                 .openOrderBasket()
-                .checkBasketFormIsOpened()
                 .clickAddDrugOrder()
                 .addDrugToOrderForm(order.drugName())
                 .shouldHaveCorrectDrug(order.drugName())
@@ -52,9 +61,28 @@ public class PatientOrderTest extends UIBaseTest {
 
     }
 
-    @WithEncounter
+    @WithPatient
     @Test
-    void shouldDisplayExistingDrugOrder(EncounterResponse encounter) {
+    void shouldDisplayExistingDrugOrder(PatientResponse patient) {
+
+        OffsetDateTime orderDateTime = RandomData.randomPastDateTime();
+
+        String apiDate = orderDateTime.format(ON_DATE_FORMAT);
+
+        VisitCreateRequest visitRequest =
+                VisitTestData.validVisitCreateRequest(patient.uuid()).toBuilder()
+                        .startDatetime(apiDate)
+                        .build();
+        VisitCreateResponse visit = admin.visits().createVisit(visitRequest);
+
+        EncounterCreateRequest encounterRequest =
+                EncounterTestData.withEncounterDatetime(
+                        EncounterTestData.validEncounter(patient.uuid(), visit.uuid()),
+                        apiDate
+                );
+        EncounterResponse encounter =
+                admin.encounters().createEncounter(encounterRequest);
+
 
         DrugOrderCreateRequest request =
                 OrderTestData.validMinimalDrugOrder(encounter);
@@ -63,14 +91,17 @@ public class PatientOrderTest extends UIBaseTest {
 
         ExpectedOrderRow expected = new ExpectedOrderRow(
                 response.orderNumber(),
-                response.urgency(),
-                response.display()
+                response.orderType().display(),
+                response.display(),
+                response.urgency().name(),
+                response.orderer().display()
         );
 
         new PatientOrderPage(encounter.patient().uuid())
                 .open()
-                .shouldContainExistingOrder(expected);
-
+                .waitUntilLoaded()
+                .setFilterStartDate(orderDateTime)
+                .shouldContainExistingOrder(expected, response.dateActivated());
     }
 
     @WithEncounter
@@ -84,6 +115,7 @@ public class PatientOrderTest extends UIBaseTest {
 
         new PatientOrderPage(encounter.patient().uuid())
                 .open()
+                .waitUntilLoaded()
                 .openOrderForEditing(response.orderNumber())
                 .setPrescriptionRefills(String.valueOf(expectedRefills))
                 .saveOrder()
@@ -126,6 +158,7 @@ public class PatientOrderTest extends UIBaseTest {
 
         new PatientOrderPage(encounter.patient().uuid())
                 .open()
+                .waitUntilLoaded()
                 .startOrderCancellation(response.orderNumber())
                 .shouldHaveDrugOrder(
                         response.drug().display(),

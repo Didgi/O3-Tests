@@ -3,6 +3,7 @@ package ui.pages;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 import ui.elements.CreateVisitPanel;
+import ui.elements.PatientAsideElement;
 
 import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.visible;
@@ -32,7 +33,9 @@ public class PatientChartPage extends BasePage<PatientChartPage> {
     @Override
     public String url() {
         if (patientUuid == null) {
-            throw new IllegalStateException("Patient UUID is required to open Patient Chart directly");
+            throw new IllegalStateException(
+                    "Patient UUID is required to open Patient Chart directly"
+            );
         }
 
         return PATIENT_CHART.formatted(patientUuid);
@@ -40,39 +43,15 @@ public class PatientChartPage extends BasePage<PatientChartPage> {
 
     @Step("Проверяем, что открыта карточка пациента")
     public PatientChartPage checkPatientChartOpened() {
-        patientBanner.shouldBe(visible);
-        return this;
-    }
-
-    @Step("Проверяем имя пациента: {givenName} {familyName}")
-    public PatientChartPage checkPatientName(String givenName, String familyName) {
-        String fullName = "%s %s".formatted(givenName, familyName);
-
-        patientBanner
-                .$$("span")
-                .findBy(exactText(fullName))
-                .shouldBe(visible);
+        getPatientAside()
+                .getPatientBanner()
+                .checkPatientBannerVisible();
 
         return this;
     }
 
-    @Step("Проверяем имя пациента: {givenName} {middleName} {familyName}")
-    public PatientChartPage checkPatientName(String givenName, String middleName, String familyName) {
-        String fullName = "%s %s %s".formatted(givenName, middleName, familyName);
-
-        patientBanner
-                .$$("span")
-                .findBy(exactText(fullName))
-                .shouldBe(visible);
-
-        return this;
-    }
-
-    @Step("Переходим к редактированию данных пациента")
-    public PatientEditPage openEditPatientDetails() {
-        actionsButton.click();
-        editPatientDetailsButton.shouldBe(visible).click();
-        return getPage(PatientEditPage.class).checkPatientEditOpened();
+    public PatientAsideElement getPatientAside() {
+        return new PatientAsideElement();
     }
 
     @Step("Переходим к созданию visit")
@@ -80,12 +59,6 @@ public class PatientChartPage extends BasePage<PatientChartPage> {
         actionsButton.click();
         addVisitButton.click();
         return new CreateVisitPanel();
-    }
-
-    @Step("Открываем форму записи жизненных показателей")
-    public PatientChartPage clickRecordVitals() {
-        recordVitalsButton.shouldBe(visible).click();
-        return this;
     }
 
     @Step("Проверяем, что визит активен")
