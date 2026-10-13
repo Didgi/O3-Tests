@@ -2,11 +2,12 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+
+#    branches:
+#      - main
+#  pull_request:
+#    branches:
+#      - main
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -54,9 +55,60 @@ jobs:
       - name: Prepare test environment
         run: infra/restart-docker-images.sh
 
-      - name: Run tests
-        run: >
+      - name: Run tests and measure duration
+        id: run_tests
+        shell: bash
+        run: |
+          set +e
+
+          started=$(date +%s%3N)
+
           ./mvnw --batch-mode clean verify
+          result=$?
+
+          finished=$(date +%s%3N)
+
+          mkdir -p target/metrics
+
+          jq -n \
+            --arg id "$GITHUB_RUN_ID" \
+            --arg attempt "$GITHUB_RUN_ATTEMPT" \
+            --arg completed "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --argjson ms "$((finished - started))" \
+            '{
+              workflowRunId: $id,
+              workflowRunAttempt: $attempt,
+              completedAt: $completed,
+              testRunDurationMs: $ms
+            }' > target/metrics/test-step-duration.json
+
+          exit "$result"
+
+      - name: Collect test inventory
+        if: always()
+        run: |
+          ./mvnw --batch-mode test-compile exec:java \
+            -Dexec.classpathScope=test \
+            -Dexec.mainClass=metrics.TestInventoryCollector
+
+      - name: Collect test execution
+        if: always()
+        run: |
+          ./mvnw --batch-mode test-compile exec:java \
+            -Dexec.classpathScope=test \
+            -Dexec.mainClass=metrics.TestExecutionCollector
+
+      - name: Upload test metrics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-metrics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            target/metrics/test-inventory.json
+            target/metrics/test-run.json
+            target/metrics/test-step-duration.json
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Run Swagger coverage
         if: always()
@@ -68,6 +120,15 @@ jobs:
       - name: Show api coverage
         if: always()
         run: infra/check-api-coverage.sh
+
+      - name: Upload API coverage metrics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: api-coverage-${{ github.run_id }}-${{ github.run_attempt }}
+          path: target/metrics/api-coverage.json
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Upload Swagger coverage report
         if: always()
@@ -105,6 +166,10 @@ jobs:
 
   publish-report:
     name: Publish Allure report
+
+    concurrency:
+      group: gh-pages-publishing
+      cancel-in-progress: false
 
     needs:
       - run-tests
@@ -182,60 +247,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: allure-history
-  notify-telegram:
-    name: Send Telegram notification
-
-    needs:
-      - run-tests
-      - publish-report
-
-    if: always()
-
-    runs-on: ubuntu-latest
-
-    environment: Test
-
-    steps:
-      - name: Send Telegram notification
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          if [ "${{ needs.run-tests.result }}" = "success" ]; then
-            STATUS="RUN STATUS: ✅ PASSED"
-          else
-            STATUS="RUN STATUS: ❌ FAILED"
-          fi
-
-          ALLURE_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ github.run_number }}/"
-
-          SWAGGER_URL="${ALLURE_URL}swagger-coverage-report.html"
-
-          ACTIONS_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
-          MESSAGE=$(cat <<EOF
-          🧪 OpenMRS O3 Tests
-
-          ${STATUS}
-
-          🔢 Run: #${{ github.run_number }}
-          🌿 Branch: ${{ github.ref_name }}
-          👤 Author: ${{ github.actor }}
-          📝 Commit: ${{ github.sha }}
-
-          📊 Allure Report:
-          ${ALLURE_URL}
-
-          📋 Swagger Coverage:
-          ${SWAGGER_URL}
-
-          🔗 GitHub Actions:
-          ${ACTIONS_URL}
-          EOF
-          )
-
-          curl --fail-with-body \
-            --request POST \
-            "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
-            --data-urlencode "text=${MESSAGE}"
+          keep_files: true

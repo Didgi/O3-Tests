@@ -11,6 +11,9 @@ import api.utils.RandomData;
 import api.utils.comparison.ModelAssertions;
 import common.annotations.WithPatient;
 import common.annotations.WithVisit;
+import io.qameta.allure.Issue;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -25,6 +28,8 @@ import static api.testdata.EncounterValidationErrors.*;
 public class EncounterTest extends BaseApiTest {
 
     @Test
+    @Issue("TRACK-005")
+    @Severity(SeverityLevel.CRITICAL)
     @WithVisit
     @DisplayName("Создание Encounter внутри существующего Visit")
     void createEncounterInsideExistingVisit(PatientResponse patient, VisitCreateResponse visit) {
@@ -47,6 +52,8 @@ public class EncounterTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-005")
+    @Severity(SeverityLevel.CRITICAL)
     @WithPatient
     @DisplayName("Создание Encounter с минимальным набором обязательных данных")
     void createEncounterWithRequiredFieldsOnly(PatientResponse patient) {
@@ -63,6 +70,8 @@ public class EncounterTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-005")
+    @Severity(SeverityLevel.CRITICAL)
     @WithVisit
     @DisplayName("Encounter создаётся с датой, равной началу Visit")
     void createEncounterAtVisitStart(PatientResponse patient, VisitCreateResponse visit) {
@@ -77,6 +86,8 @@ public class EncounterTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-005")
+    @Severity(SeverityLevel.CRITICAL)
     @WithVisit
     @DisplayName("Изменение Encounter сохраняется")
     void updateEncounter(PatientResponse patient, VisitCreateResponse visit) {
@@ -104,6 +115,8 @@ public class EncounterTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-005")
+    @Severity(SeverityLevel.CRITICAL)
     @WithPatient
     @DisplayName("Encounter не создаётся без Encounter Type")
     void encounterIsNotCreatedWithoutEncounterType(PatientResponse patient) {
@@ -118,6 +131,8 @@ public class EncounterTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-005")
+    @Severity(SeverityLevel.NORMAL)
     @WithPatient
     @DisplayName("Encounter не создаётся с датой в будущем")
     void encounterIsNotCreatedWithFutureDatetime(PatientResponse patient) {
@@ -136,6 +151,8 @@ public class EncounterTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-005")
+    @Severity(SeverityLevel.CRITICAL)
     @DisplayName("Encounter не создаётся без Patient")
     void encounterIsNotCreatedWithoutPatient() {
         EncounterCreateRequest request = EncounterTestData.minimalEncounter(null);
@@ -146,6 +163,8 @@ public class EncounterTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-005")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("Encounter не создаётся с несуществующим Patient")
     void encounterIsNotCreatedWithUnknownPatient() {
         EncounterCreateRequest request = EncounterTestData.minimalEncounter(RandomData.randomUuid());
@@ -160,6 +179,8 @@ public class EncounterTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-005")
+    @Severity(SeverityLevel.CRITICAL)
     @WithVisit
     @DisplayName("Encounter не создаётся, если Patient не совпадает с Patient Visit")
     void encounterIsNotCreatedWhenPatientDoesNotMatchVisitPatient(VisitCreateResponse visit) {
@@ -176,6 +197,8 @@ public class EncounterTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-005")
+    @Severity(SeverityLevel.NORMAL)
     @WithVisit
     @DisplayName("Encounter не создаётся раньше начала Visit")
     void encounterIsNotCreatedBeforeVisitStart(PatientResponse patient, VisitCreateResponse visit) {
@@ -193,6 +216,8 @@ public class EncounterTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-005")
+    @Severity(SeverityLevel.NORMAL)
     @WithPatient
     @DisplayName("Encounter не создаётся с несуществующим Encounter Type")
     void encounterIsNotCreatedWithUnknownEncounterType(PatientResponse patient) {
@@ -211,6 +236,8 @@ public class EncounterTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-005")
+    @Severity(SeverityLevel.NORMAL)
     @WithPatient
     @Disabled("BUG: API создаёт Encounter с несуществующим Visit вместо возврата 400")
     @DisplayName("Encounter не создаётся с несуществующим Visit")
@@ -223,6 +250,8 @@ public class EncounterTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-005")
+    @Severity(SeverityLevel.NORMAL)
     @WithVisit
     @Disabled("BUG: API создаёт Encounter с несуществующим Location вместо возврата 400")
     @DisplayName("Encounter не создаётся с несуществующим Location")
@@ -236,6 +265,8 @@ public class EncounterTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-005")
+    @Severity(SeverityLevel.NORMAL)
     @WithVisit
     @Disabled("BUG: API возвращает 500 для несуществующего Provider вместо клиентской ошибки")
     @DisplayName("Encounter не создаётся с несуществующим Provider")
@@ -249,6 +280,8 @@ public class EncounterTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-005")
+    @Severity(SeverityLevel.NORMAL)
     @WithVisit
     @Disabled("BUG: API возвращает 500 для несуществующего Encounter Role вместо клиентской ошибки")
     @DisplayName("Encounter не создаётся с несуществующим Encounter Role")
@@ -262,6 +295,8 @@ public class EncounterTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-005")
+    @Severity(SeverityLevel.CRITICAL)
     @WithVisit
     @DisplayName("Физическое удаление Encounter")
     void purgeEncounter(PatientResponse patient, VisitCreateResponse visit) {

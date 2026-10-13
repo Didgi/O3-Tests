@@ -7,11 +7,19 @@ import api.models.order.OrderCreateRequest;
 import api.models.order.OrderResponse;
 import api.testdata.OrderTestData;
 import common.annotations.WithEncounter;
+import io.qameta.allure.Issue;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class OrderTest extends BaseApiTest {
-    @WithEncounter
+
     @Test
+    @Issue("TRACK-008")
+    @Severity(SeverityLevel.CRITICAL)
+    @WithEncounter
+    @DisplayName("Создание заказа")
     void createOrderTest(EncounterResponse encounter) {
         OrderCreateRequest request = OrderTestData.validOrder(encounter);
         OrderResponse response = admin.orders().createOrder(request);
@@ -24,8 +32,11 @@ public class OrderTest extends BaseApiTest {
                 .isEqualTo(encounter.uuid());
     }
 
-    @WithEncounter
     @Test
+    @Issue("TRACK-008")
+    @Severity(SeverityLevel.CRITICAL)
+    @WithEncounter
+    @DisplayName("Создание заказа на лекарство")
     void createDrugOrderTest(
             EncounterResponse encounter
     ) {

@@ -3,6 +3,9 @@ package ui;
 import api.config.Config;
 import common.Locations;
 import common.annotations.UiCookieAnnotation;
+import io.qameta.allure.Issue;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import net.datafaker.Faker;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +21,8 @@ import java.util.stream.Stream;
 public class UIAuthTest extends UIBaseTest {
 
     @Test
+    @Issue("TRACK-004")
+    @Severity(SeverityLevel.CRITICAL)
     @UiCookieAnnotation(enabled = false)
     @DisplayName("Позитивный тест: админ может авторизоваться с валидными данными без сохранения локации")
     public void adminCanLoginWithValidDataWithoutSaveChosenLocation() {
@@ -46,6 +51,8 @@ public class UIAuthTest extends UIBaseTest {
     }
 
     @Test
+    @Issue("TRACK-004")
+    @Severity(SeverityLevel.CRITICAL)
     @DisplayName("Позитивный тест: админ может выполнить логаут")
     public void adminCanLogoutWithValidData() {
 
@@ -72,6 +79,8 @@ public class UIAuthTest extends UIBaseTest {
 
     @MethodSource("invalidCredentials")
     @ParameterizedTest
+    @Issue("TRACK-004")
+    @Severity(SeverityLevel.CRITICAL)
     @UiCookieAnnotation(enabled = false)
     @DisplayName("Негативный тест: админ не может авторизоваться с не валидными данными")
     public void adminCannotLoginWithInvalidData(String username, String password) {
