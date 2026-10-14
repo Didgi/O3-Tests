@@ -1,0 +1,111 @@
+name: Test Metrics
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  collect-metrics:
+    name: Validate test metrics
+    if: >
+      github.event.workflow_run.event == 'push'
+#      && github.event.workflow_run.head_branch == 'main'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout tested revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Download test metrics
+        uses: actions/download-artifact@v4
+        with:
+          name: test-metrics-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: target/metrics
+
+      - name: Compile metrics collectors
+        run: ./mvnw --batch-mode test-compile -DskipTests
+
+      - name: Seal run context
+        env:
+          TEST_SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+          TEST_WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+          TEST_WORKFLOW_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+          TEST_WORKFLOW_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          TEST_WORKFLOW_COMPLETED: 'true'
+        run: |
+          ./mvnw --batch-mode exec:java \
+            -Dexec.classpathScope=test \
+            -Dexec.mainClass=metrics.ReleaseReadinessCollector \
+            -Dexec.args=seal
+
+      - name: Calculate Release Readiness
+        run: |
+          ./mvnw --batch-mode exec:java \
+            -Dexec.classpathScope=test \
+            -Dexec.mainClass=metrics.ReleaseReadinessCollector
+      - name: Update run history
+        shell: bash
+        run: |
+          bash infra/update_history.sh \
+            target/metrics/history.json \
+            target/metrics/test-step-duration.json
+
+      - name: Generate HTML Dashboard
+        run: |
+          ./mvnw --batch-mode exec:java \
+            -Dexec.classpathScope=test \
+            -Dexec.mainClass=metrics.MetricsDashboardGenerator
+      
+          echo "Generated HTML files:"
+          find target/metrics -type f -name "*.html" -print
+
+      - name: Verify Dashboard output
+        shell: bash
+        run: |
+          echo "Files in target/metrics:"
+          find target/metrics -maxdepth 3 -type f | sort
+      
+          DASHBOARD="target/metrics/dashboard/index.html"
+      
+          if [[ ! -s "$DASHBOARD" ]]; then
+            echo "::error::Dashboard is missing or empty: $DASHBOARD"
+            exit 1
+          fi
+      
+          echo "Dashboard generated successfully"
+          ls -lh "$DASHBOARD"
+
+      - name: Upload validated metrics
+        if: success()
+        uses: actions/upload-artifact@v7
+        with:
+          name: validated-metrics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            target/metrics/test-inventory.json
+            target/metrics/test-run.json
+            target/metrics/run-context.json
+            target/metrics/release-readiness.json
+            target/metrics/history.json
+            target/metrics/dashboard/index.html
+          if-no-files-found: error
+          retention-days: 30
