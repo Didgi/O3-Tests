@@ -1,4 +1,4 @@
-name: Test Metrics
+name: Build Test Metrics
 
 on:
   workflow_run:
@@ -38,6 +38,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: test-metrics-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: target/metrics
+
+      - name: Download API coverage metrics
+        uses: actions/download-artifact@v7
+        with:
+          name: api-coverage-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: target/metrics
@@ -107,5 +115,6 @@ jobs:
             target/metrics/release-readiness.json
             target/metrics/history.json
             target/metrics/dashboard/index.html
+            target/metrics/api-coverage.json
           if-no-files-found: error
           retention-days: 30
