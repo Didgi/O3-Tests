@@ -1,0 +1,92 @@
+<div>POST to http://localhost:80/openmrs/ws/rest/v1/user</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;username&quot;: &quot;VCL&quot;,
+    &quot;password&quot;: &quot;JGQdme07&quot;,
+    &quot;person&quot;: {
+        &quot;addresses&quot;: [
+            {
+                &quot;address1&quot;: &quot;960 Xhgpfbs Street&quot;,
+                &quot;cityVillage&quot;: &quot;Hrzrnnelpdv&quot;,
+                &quot;country&quot;: &quot;Rndicbigqx&quot;,
+                &quot;postalCode&quot;: &quot;305069&quot;
+            }
+        ],
+        &quot;attributes&quot;: [
+            
+        ],
+        &quot;birthdate&quot;: &quot;1989-01-27&quot;,
+        &quot;birthdateEstimated&quot;: false,
+        &quot;dead&quot;: false,
+        &quot;gender&quot;: &quot;F&quot;,
+        &quot;names&quot;: [
+            {
+                &quot;preferred&quot;: true,
+                &quot;givenName&quot;: &quot;Nmeas&quot;,
+                &quot;middleName&quot;: &quot;Hexboln&quot;,
+                &quot;familyName&quot;: &quot;Vwcpzknc&quot;
+            }
+        ]
+    },
+    &quot;roles&quot;: [
+        {
+            &quot;name&quot;: &quot;Configures Forms&quot;,
+            &quot;description&quot;: &quot;Manages forms and attaches them to the UI&quot;
+        }
+    ],
+    &quot;systemId&quot;: &quot;systemId37048&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Basic YWRtaW46QWRtaW4xMjM=</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://localhost:80/openmrs/ws/rest/v1/user&#39; -H &#39;Authorization: Basic YWRtaW46QWRtaW4xMjM=&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;username&quot;: &quot;VCL&quot;,
+    &quot;password&quot;: &quot;JGQdme07&quot;,
+    &quot;person&quot;: {
+        &quot;addresses&quot;: [
+            {
+                &quot;address1&quot;: &quot;960 Xhgpfbs Street&quot;,
+                &quot;cityVillage&quot;: &quot;Hrzrnnelpdv&quot;,
+                &quot;country&quot;: &quot;Rndicbigqx&quot;,
+                &quot;postalCode&quot;: &quot;305069&quot;
+            }
+        ],
+        &quot;attributes&quot;: [
+            
+        ],
+        &quot;birthdate&quot;: &quot;1989-01-27&quot;,
+        &quot;birthdateEstimated&quot;: false,
+        &quot;dead&quot;: false,
+        &quot;gender&quot;: &quot;F&quot;,
+        &quot;names&quot;: [
+            {
+                &quot;preferred&quot;: true,
+                &quot;givenName&quot;: &quot;Nmeas&quot;,
+                &quot;middleName&quot;: &quot;Hexboln&quot;,
+                &quot;familyName&quot;: &quot;Vwcpzknc&quot;
+            }
+        ]
+    },
+    &quot;roles&quot;: [
+        {
+            &quot;name&quot;: &quot;Configures Forms&quot;,
+            &quot;description&quot;: &quot;Manages forms and attaches them to the UI&quot;
+        }
+    ],
+    &quot;systemId&quot;: &quot;systemId37048&quot;
+}&#39;
+    </div>
+
