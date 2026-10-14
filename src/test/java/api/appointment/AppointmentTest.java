@@ -7,6 +7,7 @@ import api.models.appointment.AppointmentStatus;
 import api.models.appointment.AppointmentStatusChangeRequest;
 import api.models.patients.PatientResponse;
 import api.testdata.AppointmentTestData;
+import api.testdata.ReferenceTestData;
 import api.utils.comparison.ModelAssertions;
 import common.annotations.WithPatient;
 import org.junit.jupiter.api.Disabled;
@@ -17,6 +18,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class AppointmentTest extends BaseApiTest {
@@ -52,11 +54,8 @@ public class AppointmentTest extends BaseApiTest {
         AppointmentCreateRequest appointmentCreateRequest = AppointmentTestData.validAppointmentCreateRequest(patient.uuid());
 
         AppointmentResponse created = admin.appointments().createAppointment(appointmentCreateRequest);
-        String forDate = LocalDateTime.parse(appointmentCreateRequest.startDateTime())
-                .atZone(ZoneId.of(TIME_ZONE))
-                .format(ON_DATE_FORMAT);
         List<AppointmentResponse> appointments =
-                admin.appointments().getAppointmentsForDate(forDate);
+                admin.appointments().getAppointmentsForDate(appointmentCreateRequest.startDateTime());
 
         softly.assertThat(appointments)
                 .as("Search by date contains the created appointment")

@@ -12,6 +12,7 @@ public final class ApiClient {
     private final AppointmentSteps appointments;
     private final PatientSteps patients;
     private final EncounterSteps encounters;
+    private final OrderSteps orders;
 
     private ApiClient(
             RequestSpecification specification
@@ -25,6 +26,7 @@ public final class ApiClient {
         appointments = new AppointmentSteps(requesters);
         patients = new PatientSteps(requesters);
         encounters = new EncounterSteps(requesters);
+        orders = new OrderSteps(requesters);
     }
 
     public static ApiClient authenticatedAs(
@@ -70,5 +72,9 @@ public final class ApiClient {
 
     public EncounterSteps encounters() {
         return encounters;
+    }
+
+    public OrderSteps orders() {
+        return orders;
     }
 }

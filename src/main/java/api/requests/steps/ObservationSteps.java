@@ -122,4 +122,20 @@ public class ObservationSteps extends CrudStepsSupport<
     ) {
         return rawJsonCrud.create(request);
     }
+
+    public ObservationResponse getObservationByPatientAndConcept(
+            String patientUuid,
+            String conceptUuid
+    ) {
+        String observationUuid =
+                searchObservationByPatientAndConcept(
+                        patientUuid,
+                        conceptUuid
+                )
+                        .results()
+                        .getFirst()
+                        .uuid();
+
+        return getObservation(observationUuid);
+    }
 }

@@ -1,11 +1,20 @@
 package common.annotations;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import api.config.Roles;
+import common.extensions.UserExtensions;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@Target(ElementType.METHOD)
+import java.lang.annotation.*;
+
+@Inherited
 @Retention(RetentionPolicy.RUNTIME)
+@Target({
+        ElementType.TYPE,
+        ElementType.METHOD,
+        ElementType.ANNOTATION_TYPE
+})
+@ExtendWith(UserExtensions.class)
 public @interface WithUser {
+
+    Roles role() default Roles.APP_CONFIG_FORMS;
 }

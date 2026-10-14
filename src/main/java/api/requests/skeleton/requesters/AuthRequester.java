@@ -3,6 +3,7 @@ package api.requests.skeleton.requesters;
 import api.config.Config;
 import api.models.auth.request.ChangePasswordCredentials;
 import api.models.auth.request.Credentials;
+import api.models.auth.request.SessionLocation;
 import api.requests.endpoints.EndpointSpec;
 import api.requests.skeleton.interfaces.AuthEndpoint;
 import api.specs.RequestSpecs;
@@ -103,6 +104,16 @@ public class AuthRequester implements AuthEndpoint {
                 .body(changePasswordCredentials)
                 .post(sessionEndpoint.pathTemplate());
     }
+
+    @Override
+    public Response postLocation(SessionLocation sessionLocation, String sessionId) {
+        return given()
+                .spec(requestSpecification)
+                .cookie(Config.getProperty("cookie_session_name"), sessionId)
+                .body(sessionLocation)
+                .post(sessionEndpoint.pathTemplate());
+    }
+
 
     @Step("Авторизация и получение готовой куки сессии")
     public static String getReadyAuthCookie(Credentials credentials) {

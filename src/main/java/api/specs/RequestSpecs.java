@@ -42,8 +42,8 @@ public final class RequestSpecs {
 
     public static RequestSpecification withAdminBasicAuth() {
         return withBasicAuth(
-                Config.getProperty("admin_username"),
-                Config.getProperty("admin_password")
+                Config.getRequiredProperty("admin_username"),
+                Config.getRequiredProperty("admin_password")
         );
     }
 

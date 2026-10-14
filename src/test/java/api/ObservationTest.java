@@ -1,13 +1,18 @@
 package api;
 
+import api.models.encounter.EncounterResponse;
 import api.models.observations.*;
 import api.models.patients.PatientResponse;
 import api.requests.skeleton.options.ReadOptions;
-import api.testdata.*;
+import api.testdata.ObservationValueGenerator;
+import api.testdata.PatientTestData;
+import api.testdata.ReferenceTestData;
+import api.testdata.SeedObservationConcept;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.DecimalNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import common.annotations.GeneratedObservationRequest;
+import common.annotations.WithEncounter;
 import common.annotations.WithPatient;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
@@ -159,21 +164,17 @@ public class ObservationTest extends BaseApiTest {
     }
 
     @DisplayName("OBS-P0-05 Создание наблюдения, связанного с медицинским контактом")
-    @WithPatient
+    @WithEncounter
     @Test
     void createObservationLinkedToEncounter(
             @GeneratedObservationRequest ObservationCreateRequest request,
-            PatientResponse patient
+            PatientResponse patient,
+            EncounterResponse encounter
     ) {
-
-        String encounterUuid =
-                admin.encounters().createEncounter(
-                        EncounterTestData.minimalEncounter(patient.uuid())
-                ).uuid();
 
         ObservationCreateRequest withEncounterRequest =
                 request.toBuilder()
-                        .encounter(encounterUuid)
+                        .encounter(encounter.uuid())
                         .build();
 
         ObservationResponse response =
@@ -181,13 +182,13 @@ public class ObservationTest extends BaseApiTest {
 
         softly.assertThat(response.encounter().uuid())
                 .as("Created observation references the requested encounter")
-                .isEqualTo(encounterUuid);
+                .isEqualTo(encounter.uuid());
         softly.assertThat(response.person().uuid())
                 .as("Observation linked to an encounter references the fixture patient")
                 .isEqualTo(patient.uuid());
 
         ObservationSearchResponse searchResponse =
-                admin.observations().searchObservationByEncounter(encounterUuid);
+                admin.observations().searchObservationByEncounter(encounter.uuid());
 
         softly.assertThat(searchResponse.results())
                 .as("Search by encounter includes the observation linked to that encounter")

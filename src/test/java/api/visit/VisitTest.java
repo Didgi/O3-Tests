@@ -4,6 +4,7 @@ import api.BaseApiTest;
 import api.models.patients.PatientResponse;
 import api.models.visit.VisitCreateRequest;
 import api.models.visit.VisitCreateResponse;
+import api.models.visit.VisitSearchResponse;
 import api.models.visit.VisitUpdateRequest;
 import api.testdata.VisitTestData;
 import common.annotations.WithPatient;
@@ -54,6 +55,23 @@ public class VisitTest extends BaseApiTest {
                         request.patient(),
                         request.visitType(),
                         request.location());
+
+        admin.visits().deleteVisit(created.uuid());
+    }
+
+    @Test
+    @DisplayName("Поиск визитов пациента")
+    @WithPatient
+    void adminCanSearchVisitsByPatient(PatientResponse patient) {
+        VisitCreateRequest request = VisitTestData.validVisitCreateRequest(patient.uuid());
+        VisitCreateResponse created = admin.visits().createVisit(request);
+
+        VisitSearchResponse searchResponse = admin.visits().searchVisitsByPatient(patient.uuid());
+
+        softly.assertThat(searchResponse.results())
+                .as("Active visits of the patient")
+                .extracting(VisitCreateResponse::uuid)
+                .contains(created.uuid());
 
         admin.visits().deleteVisit(created.uuid());
     }

@@ -2,6 +2,7 @@ package api.requests.skeleton;
 
 import api.models.auth.request.ChangePasswordCredentials;
 import api.models.auth.request.Credentials;
+import api.models.auth.request.SessionLocation;
 import api.models.auth.response.SessionResponse;
 import api.requests.endpoints.CrudOperations;
 import api.requests.endpoints.EndpointSpec;
@@ -111,6 +112,11 @@ class SuccessfulRequesterTest {
             public Response changePassword(ChangePasswordCredentials changePasswordCredentials, String sessionId) {
                 return null;
             }
+
+            @Override
+            public Response postLocation(SessionLocation sessionLocation, String sessionId) {
+                return null;
+            }
         };
         SuccessfulAuthRequester requester = new SuccessfulAuthRequester(raw, sessionEndpoint());
 
@@ -151,6 +157,11 @@ class SuccessfulRequesterTest {
 
             @Override
             public Response changePassword(ChangePasswordCredentials changePasswordCredentials, String sessionId) {
+                return null;
+            }
+
+            @Override
+            public Response postLocation(SessionLocation sessionLocation, String sessionId) {
                 return null;
             }
         };
