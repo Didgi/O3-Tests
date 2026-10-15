@@ -58,5 +58,13 @@
     "testRunDurationMs": 166285,
     "branch": "custom_report",
     "passRate": 92.5
+  },
+  {
+    "workflowRunId": "38768048206",
+    "workflowRunAttempt": "1",
+    "completedAt": "2026-10-15T16:25:38Z",
+    "testRunDurationMs": 210507,
+    "branch": "custom_report",
+    "passRate": 86.41975308641975
   }
 ]
