@@ -99,7 +99,7 @@ public class DrugOrderForm<NEXT> extends BaseElement {
         return saveOrder();
     }
 
-    private void replaceInputValue(
+    public void replaceInputValue(
             SelenideElement input,
             String newValue
     ) {
