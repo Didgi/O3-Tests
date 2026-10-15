@@ -1,0 +1,28 @@
+<div>POST to http://localhost:80/openmrs/ws/rest/v1/encounter</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;patient&quot;: &quot;be926fa5-2734-4ada-9e74-12676a2f0cd7&quot;,
+    &quot;encounterType&quot;: &quot;06e256f2-9a85-4317-91b2-4846bf11b27b&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Basic YWRtaW46QWRtaW4xMjM=</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://localhost:80/openmrs/ws/rest/v1/encounter&#39; -H &#39;Authorization: Basic YWRtaW46QWRtaW4xMjM=&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;patient&quot;: &quot;be926fa5-2734-4ada-9e74-12676a2f0cd7&quot;,
+    &quot;encounterType&quot;: &quot;06e256f2-9a85-4317-91b2-4846bf11b27b&quot;
+}&#39;
+    </div>
+
