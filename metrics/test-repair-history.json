@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "cycles": [
+    {
+      "testId": "api.AuthTest#logoutUserEndsSession()",
+      "reason": "Logout не завершает сессию",
+      "status": "OPEN",
+      "detectedAt": "2026-10-15T15:56:52Z",
+      "detectedRun": "38763717090/1",
+      "branch": "custom_report"
+    },
+    {
+      "testId": "api.EncounterTest#encounterIsNotCreatedWithUnknownEncounterRole(api.models.patients.PatientResponse,api.models.visit.VisitCreateResponse)",
+      "reason": "API возвращает 500 для несуществующего Encounter Role вместо клиентской ошибки",
+      "status": "OPEN",
+      "detectedAt": "2026-10-15T15:56:52Z",
+      "detectedRun": "38763717090/1",
+      "branch": "custom_report"
+    },
+    {
+      "testId": "api.EncounterTest#encounterIsNotCreatedWithUnknownLocation(api.models.patients.PatientResponse,api.models.visit.VisitCreateResponse)",
+      "reason": "API создаёт Encounter с несуществующим Location вместо возврата 400",
+      "status": "OPEN",
+      "detectedAt": "2026-10-15T15:56:52Z",
+      "detectedRun": "38763717090/1",
+      "branch": "custom_report"
+    },
+    {
+      "testId": "api.EncounterTest#encounterIsNotCreatedWithUnknownProvider(api.models.patients.PatientResponse,api.models.visit.VisitCreateResponse)",
+      "reason": "API возвращает 500 для несуществующего Provider вместо клиентской ошибки",
+      "status": "OPEN",
+      "detectedAt": "2026-10-15T15:56:52Z",
+      "detectedRun": "38763717090/1",
+      "branch": "custom_report"
+    },
+    {
+      "testId": "api.EncounterTest#encounterIsNotCreatedWithUnknownVisit(api.models.patients.PatientResponse)",
+      "reason": "API создаёт Encounter с несуществующим Visit вместо возврата 400",
+      "status": "OPEN",
+      "detectedAt": "2026-10-15T15:56:52Z",
+      "detectedRun": "38763717090/1",
+      "branch": "custom_report"
+    },
+    {
+      "testId": "api.visit.VisitTest#adminCanStopVisit(api.models.patients.PatientResponse)",
+      "reason": "Запись окончания приема записывается в +0000 зоне",
+      "status": "OPEN",
+      "detectedAt": "2026-10-15T15:56:52Z",
+      "detectedRun": "38763717090/1",
+      "branch": "custom_report"
+    }
+  ],
+  "processedRuns": [
+    "38763717090/1"
+  ]
+}
