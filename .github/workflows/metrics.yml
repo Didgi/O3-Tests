@@ -10,12 +10,13 @@ on:
 permissions:
   contents: write
   actions: read
+  pull-requests: read
+  issues: read
 
 jobs:
   collect-metrics:
     name: Validate test metrics
 
-    # Same group as CI publish-report. The history is loaded only after the lock is acquired.
     concurrency:
       group: gh-pages-publishing
       cancel-in-progress: false
@@ -101,6 +102,13 @@ jobs:
             echo "No previous test history; starting a new one"
           fi
 
+      - name: Restore test repair history
+        shell: bash
+        run: |
+          if [[ -f pages-history/metrics/test-repair-history.json ]]; then
+            cp pages-history/metrics/test-repair-history.json target/metrics/test-repair-history.json
+          fi
+
       - name: Update run history
         shell: bash
         env:
@@ -129,6 +137,31 @@ jobs:
             --attempt "$TEST_RUN_ATTEMPT" \
             --sha "$TEST_SOURCE_SHA" \
             --completed-at "$TEST_COMPLETED_AT"
+
+      - name: Update BUG test repair history
+        env:
+          TEST_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          TEST_RUN_ID: ${{ github.event.workflow_run.id }}
+          TEST_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+          TEST_COMPLETED_AT: ${{ github.event.workflow_run.updated_at }}
+        run: |
+          bash infra/update_test_repair_history.sh \
+            --history target/metrics/test-repair-history.json \
+            --inventory target/metrics/test-inventory.json \
+            --test-run target/metrics/test-run.json \
+            --output target/metrics/test-repair-metrics.json \
+            --branch "$TEST_BRANCH" \
+            --run-id "$TEST_RUN_ID" \
+            --attempt "$TEST_RUN_ATTEMPT" \
+            --completed-at "$TEST_COMPLETED_AT"
+
+      - name: Collect PR approval metrics
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          bash infra/collect_pr_approval_metrics.sh \
+            --output target/metrics/pr-approval-metrics.json
 
       - name: Generate HTML Dashboard
         run: |
@@ -162,6 +195,7 @@ jobs:
           mkdir -p pages-publish/dashboard
           cp target/metrics/history.json pages-publish/history.json
           cp target/metrics/test-history.json pages-publish/test-history.json
+          cp target/metrics/test-repair-history.json pages-publish/test-repair-history.json
           cp target/metrics/dashboard/index.html pages-publish/dashboard/index.html
           jq -e 'type == "array" and length > 0' pages-publish/history.json > /dev/null
           test -s pages-publish/dashboard/index.html
@@ -195,6 +229,9 @@ jobs:
             target/metrics/history.json
             target/metrics/test-history.json
             target/metrics/flaky-metrics.json
+            target/metrics/test-repair-history.json
+            target/metrics/test-repair-metrics.json
+            target/metrics/pr-approval-metrics.json
             target/metrics/dashboard/index.html
             target/metrics/api-coverage.json
           if-no-files-found: error
