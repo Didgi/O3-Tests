@@ -8,15 +8,19 @@ on:
       - completed
 
 permissions:
-  contents: read
+  contents: write
   actions: read
 
 jobs:
   collect-metrics:
     name: Validate test metrics
+
+    # Same group as CI publish-report. The history is loaded only after the lock is acquired.
+    concurrency:
+      group: gh-pages-publishing
+      cancel-in-progress: false
     if: >
       github.event.workflow_run.event == 'push'
-#      && github.event.workflow_run.head_branch == 'main'
 
     runs-on: ubuntu-latest
 
@@ -71,6 +75,23 @@ jobs:
           ./mvnw --batch-mode exec:java \
             -Dexec.classpathScope=test \
             -Dexec.mainClass=metrics.ReleaseReadinessCollector
+      - name: Checkout existing gh-pages history
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: pages-history
+          persist-credentials: false
+
+      - name: Restore metrics history
+        shell: bash
+        run: |
+          if [[ -f pages-history/metrics/history.json ]]; then
+            cp pages-history/metrics/history.json target/metrics/history.json
+            echo "Restored $(jq 'length' target/metrics/history.json) history records"
+          else
+            echo "No previous metrics history; starting a new one"
+          fi
+
       - name: Update run history
         shell: bash
         run: |
@@ -83,7 +104,7 @@ jobs:
           ./mvnw --batch-mode exec:java \
             -Dexec.classpathScope=test \
             -Dexec.mainClass=metrics.MetricsDashboardGenerator
-      
+          
           echo "Generated HTML files:"
           find target/metrics -type f -name "*.html" -print
 
@@ -92,16 +113,32 @@ jobs:
         run: |
           echo "Files in target/metrics:"
           find target/metrics -maxdepth 3 -type f | sort
-      
+          
           DASHBOARD="target/metrics/dashboard/index.html"
-      
+          
           if [[ ! -s "$DASHBOARD" ]]; then
             echo "::error::Dashboard is missing or empty: $DASHBOARD"
             exit 1
           fi
-      
+          
           echo "Dashboard generated successfully"
           ls -lh "$DASHBOARD"
+
+      - name: Prepare metrics history for publishing
+        shell: bash
+        run: |
+          mkdir -p pages-publish
+          cp target/metrics/history.json pages-publish/history.json
+          jq -e 'type == "array" and length > 0' pages-publish/history.json > /dev/null
+
+      - name: Publish metrics history to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: pages-publish
+          destination_dir: metrics
+          keep_files: true
 
       - name: Upload validated metrics
         if: success()
