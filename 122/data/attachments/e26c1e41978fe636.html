@@ -1,0 +1,98 @@
+<div>POST to http://localhost:80/openmrs/ws/rest/v1/patient/6edf7b04-c1dc-4ebc-b1d8-f6e405fa59f5</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;uuid&quot;: &quot;6edf7b04-c1dc-4ebc-b1d8-f6e405fa59f5&quot;,
+    &quot;identifiers&quot;: [
+        {
+            &quot;uuid&quot;: &quot;a921a4a7-611c-4f42-8df7-b584bd38558e&quot;,
+            &quot;identifier&quot;: &quot;100036F&quot;,
+            &quot;identifierType&quot;: &quot;05a29f94-c0ed-11e2-94be-8c13b969e334&quot;,
+            &quot;location&quot;: &quot;44c3efb0-2583-4c80-a79e-1f756a03c0a1&quot;,
+            &quot;preferred&quot;: true
+        }
+    ],
+    &quot;person&quot;: {
+        &quot;uuid&quot;: &quot;6edf7b04-c1dc-4ebc-b1d8-f6e405fa59f5&quot;,
+        &quot;addresses&quot;: [
+            {
+                &quot;address1&quot;: &quot;6 Mkfqthrs Street&quot;,
+                &quot;cityVillage&quot;: &quot;Lyeeupdzext&quot;,
+                &quot;country&quot;: &quot;Urnpyzavgq&quot;,
+                &quot;postalCode&quot;: &quot;799602&quot;
+            }
+        ],
+        &quot;attributes&quot;: [
+            
+        ],
+        &quot;birthdate&quot;: &quot;1995-01-12&quot;,
+        &quot;birthdateEstimated&quot;: false,
+        &quot;dead&quot;: false,
+        &quot;gender&quot;: &quot;M&quot;,
+        &quot;names&quot;: [
+            {
+                &quot;uuid&quot;: &quot;c1d0bec2-a3dd-43e8-885f-9d594da48ed9&quot;,
+                &quot;preferred&quot;: true,
+                &quot;givenName&quot;: &quot;Yhmpnugyki&quot;,
+                &quot;middleName&quot;: &quot;Hosggwyzp&quot;,
+                &quot;familyName&quot;: &quot;Zqnamonhsh&quot;
+            }
+        ]
+    }
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Basic YWRtaW46QWRtaW4xMjM=</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://localhost:80/openmrs/ws/rest/v1/patient/6edf7b04-c1dc-4ebc-b1d8-f6e405fa59f5&#39; -H &#39;Authorization: Basic YWRtaW46QWRtaW4xMjM=&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;uuid&quot;: &quot;6edf7b04-c1dc-4ebc-b1d8-f6e405fa59f5&quot;,
+    &quot;identifiers&quot;: [
+        {
+            &quot;uuid&quot;: &quot;a921a4a7-611c-4f42-8df7-b584bd38558e&quot;,
+            &quot;identifier&quot;: &quot;100036F&quot;,
+            &quot;identifierType&quot;: &quot;05a29f94-c0ed-11e2-94be-8c13b969e334&quot;,
+            &quot;location&quot;: &quot;44c3efb0-2583-4c80-a79e-1f756a03c0a1&quot;,
+            &quot;preferred&quot;: true
+        }
+    ],
+    &quot;person&quot;: {
+        &quot;uuid&quot;: &quot;6edf7b04-c1dc-4ebc-b1d8-f6e405fa59f5&quot;,
+        &quot;addresses&quot;: [
+            {
+                &quot;address1&quot;: &quot;6 Mkfqthrs Street&quot;,
+                &quot;cityVillage&quot;: &quot;Lyeeupdzext&quot;,
+                &quot;country&quot;: &quot;Urnpyzavgq&quot;,
+                &quot;postalCode&quot;: &quot;799602&quot;
+            }
+        ],
+        &quot;attributes&quot;: [
+            
+        ],
+        &quot;birthdate&quot;: &quot;1995-01-12&quot;,
+        &quot;birthdateEstimated&quot;: false,
+        &quot;dead&quot;: false,
+        &quot;gender&quot;: &quot;M&quot;,
+        &quot;names&quot;: [
+            {
+                &quot;uuid&quot;: &quot;c1d0bec2-a3dd-43e8-885f-9d594da48ed9&quot;,
+                &quot;preferred&quot;: true,
+                &quot;givenName&quot;: &quot;Yhmpnugyki&quot;,
+                &quot;middleName&quot;: &quot;Hosggwyzp&quot;,
+                &quot;familyName&quot;: &quot;Zqnamonhsh&quot;
+            }
+        ]
+    }
+}&#39;
+    </div>
+
