@@ -52,16 +52,20 @@
     {
       "testId": "api.AuthTest#getAuthSessionWithValidDataAdmin()",
       "reason": "Не проходит авторизация",
-      "status": "OPEN",
+      "status": "REPAIRED",
       "detectedAt": "2026-10-15T19:04:43Z",
       "detectedRun": "38789814761/1",
-      "branch": "custom_report"
+      "branch": "custom_report",
+      "repairedAt": "2026-10-15T19:23:49Z",
+      "repairedRun": "38792476407/1",
+      "repairDurationMinutes": 19.1
     }
   ],
   "processedRuns": [
     "38763717090/1",
     "38765832121/1",
     "38768048206/1",
-    "38789814761/1"
+    "38789814761/1",
+    "38792476407/1"
   ]
 }
