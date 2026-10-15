@@ -109,3 +109,6 @@ src/test/java/
 - Scope и inventory OpenMRS API: [`docs/architecture/openmrs-api-inventory.md`](docs/architecture/openmrs-api-inventory.md)
 
 Если для ресурса еще нет Steps и endpoint specs, начинайте с resource-slice guide, а не с ручной сборки requester-а внутри каждого теста.
+
+## Собираемые метрики
+📊 [QA Metrics — описание, формулы и правила расчёта](docs/METRICS.md)

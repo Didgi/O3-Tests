@@ -99,6 +99,23 @@ public class DrugOrderForm<NEXT> extends BaseElement {
         return saveOrder();
     }
 
+    public void replaceInputValue(
+            SelenideElement input,
+            String newValue
+    ) {
+        input.shouldBe(visible, enabled).click();
+        String currentValue = input.getValue();
+
+        input.press(Keys.END);
+        for (int i = 0; i < currentValue.length(); i++) {
+            input.press(Keys.BACK_SPACE);
+        }
+
+        input.shouldHave(exactValue(""))
+                .press(newValue)
+                .shouldHave(exactValue(newValue));
+    }
+
     private void selectComboboxOption(
             SelenideElement input,
             String optionText

@@ -14,6 +14,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import common.annotations.GeneratedObservationRequest;
 import common.annotations.WithEncounter;
 import common.annotations.WithPatient;
+import io.qameta.allure.Issue;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,9 +33,11 @@ public class ObservationTest extends BaseApiTest {
     private static final ObjectMapper MAPPER =
             new ObjectMapper().findAndRegisterModules();
 
-    @DisplayName("OBS-P0-01 Создание наблюдения с числовым значением")
-    @WithPatient
     @Test
+    @Issue("TRACK-007")
+    @Severity(SeverityLevel.CRITICAL)
+    @WithPatient
+    @DisplayName("OBS-P0-01 Создание наблюдения с числовым значением")
     void createNumericObservationTest(
             @GeneratedObservationRequest ObservationCreateRequest request
     ) {
@@ -57,9 +62,11 @@ public class ObservationTest extends BaseApiTest {
                 .isEqualTo(request.obsDatetime());
     }
 
-    @DisplayName("OBS-P0-02 Отклонение несовместимого значения без создания наблюдения")
-    @WithPatient
     @Test
+    @Issue("TRACK-007")
+    @Severity(SeverityLevel.CRITICAL)
+    @WithPatient
+    @DisplayName("OBS-P0-02 Отклонение несовместимого значения без создания наблюдения")
     void rejectIncompatibleValueWithoutCreatingObservationTest(
             @GeneratedObservationRequest ObservationCreateRequest request,
             PatientResponse patient
@@ -85,9 +92,11 @@ public class ObservationTest extends BaseApiTest {
                 .isEmpty();
     }
 
-    @DisplayName("OBS-P0-03 Получение созданного наблюдения по UUID")
-    @WithPatient
     @Test
+    @Issue("TRACK-007")
+    @Severity(SeverityLevel.CRITICAL)
+    @WithPatient
+    @DisplayName("OBS-P0-03 Получение созданного наблюдения по UUID")
     void getCreatedObservationByUuid(
             @GeneratedObservationRequest ObservationCreateRequest request
     ) {
@@ -112,9 +121,11 @@ public class ObservationTest extends BaseApiTest {
                 .isEqualTo(createdObservation);
     }
 
-    @DisplayName("OBS-P0-04 Фильтрация наблюдений по пациенту и концепту")
-    @WithPatient
     @Test
+    @Issue("TRACK-007")
+    @Severity(SeverityLevel.CRITICAL)
+    @WithPatient
+    @DisplayName("OBS-P0-04 Фильтрация наблюдений по пациенту и концепту")
     void filterObservationByPatientAndConcept(
             @GeneratedObservationRequest ObservationCreateRequest weightRequest,
             @GeneratedObservationRequest(
@@ -163,9 +174,11 @@ public class ObservationTest extends BaseApiTest {
                 );
     }
 
-    @DisplayName("OBS-P0-05 Создание наблюдения, связанного с медицинским контактом")
-    @WithEncounter
     @Test
+    @Issue("TRACK-007")
+    @Severity(SeverityLevel.CRITICAL)
+    @WithEncounter
+    @DisplayName("OBS-P0-05 Создание наблюдения, связанного с медицинским контактом")
     void createObservationLinkedToEncounter(
             @GeneratedObservationRequest ObservationCreateRequest request,
             PatientResponse patient,
@@ -196,9 +209,11 @@ public class ObservationTest extends BaseApiTest {
                 .contains(response.uuid());
     }
 
-    @DisplayName("OBS-P0-06 Обновление наблюдения с сохранением истории версий")
-    @WithPatient
     @Test
+    @Issue("TRACK-007")
+    @Severity(SeverityLevel.CRITICAL)
+    @WithPatient
+    @DisplayName("OBS-P0-06 Обновление наблюдения с сохранением истории версий")
     void updateObservationPreservingVersionHistory(
             @GeneratedObservationRequest ObservationCreateRequest request
     ) {
@@ -261,9 +276,11 @@ public class ObservationTest extends BaseApiTest {
                 .isEqualByComparingTo(createdResponse.value().decimalValue());
     }
 
-    @DisplayName("OBS-P0-07 Логическое удаление наблюдения без физического удаления")
-    @WithPatient
     @Test
+    @Issue("TRACK-007")
+    @Severity(SeverityLevel.CRITICAL)
+    @WithPatient
+    @DisplayName("OBS-P0-07 Логическое удаление наблюдения без физического удаления")
     void deleteOperationPerformsVoidNotPurge(
             @GeneratedObservationRequest ObservationCreateRequest request,
             PatientResponse patient
@@ -291,9 +308,11 @@ public class ObservationTest extends BaseApiTest {
                 .doesNotContain(createdObservation.uuid());
     }
 
-    @DisplayName("OBS-P1-01 Missing person → rejected")
-    @WithPatient
     @Test
+    @Issue("TRACK-007")
+    @Severity(SeverityLevel.CRITICAL)
+    @WithPatient
+    @DisplayName("OBS-P1-01 Missing person → rejected")
     void rejectRequestWithoutRequiredPersonField(
             @GeneratedObservationRequest ObservationCreateRequest request
     ) {
@@ -305,9 +324,11 @@ public class ObservationTest extends BaseApiTest {
 
     }
 
-    @DisplayName("OBS-P1-02 Missing concept → rejected")
-    @WithPatient
     @Test
+    @Issue("TRACK-007")
+    @Severity(SeverityLevel.CRITICAL)
+    @WithPatient
+    @DisplayName("OBS-P1-02 Missing concept → rejected")
     void rejectRequestWithoutRequiredConceptField(
             @GeneratedObservationRequest ObservationCreateRequest request
     ) {
@@ -318,9 +339,11 @@ public class ObservationTest extends BaseApiTest {
         response.then().spec(requestReturnsBadRequest());
     }
 
-    @DisplayName("OBS-P1-03 Missing obsDatetime → rejected")
-    @WithPatient
     @Test
+    @Issue("TRACK-007")
+    @Severity(SeverityLevel.CRITICAL)
+    @WithPatient
+    @DisplayName("OBS-P1-03 Missing obsDatetime → rejected")
     void rejectRequestWithoutRequiredObsDatetimeField(
             @GeneratedObservationRequest ObservationCreateRequest request
     ) {
@@ -331,9 +354,11 @@ public class ObservationTest extends BaseApiTest {
         response.then().spec(requestReturnsBadRequest());
     }
 
-    @DisplayName("OBS-P1-04 Invalid/non-existing concept → rejected")
-    @WithPatient
     @Test
+    @Issue("TRACK-007")
+    @Severity(SeverityLevel.CRITICAL)
+    @WithPatient
+    @DisplayName("OBS-P1-04 Invalid/non-existing concept → rejected")
     void rejectRequestWithNonexistingConcept(
             @GeneratedObservationRequest ObservationCreateRequest request
     ) {
@@ -348,9 +373,11 @@ public class ObservationTest extends BaseApiTest {
         response.then().spec(requestReturnsBadRequest());
     }
 
-    @DisplayName("OBS-P1-05 Invalid/non-existing person → rejected")
-    @WithPatient
     @Test
+    @Issue("TRACK-007")
+    @Severity(SeverityLevel.CRITICAL)
+    @WithPatient
+    @DisplayName("OBS-P1-05 Invalid/non-existing person → rejected")
     void rejectRequestWithNonexistingPatient(
             @GeneratedObservationRequest ObservationCreateRequest request
     ) {
@@ -365,9 +392,11 @@ public class ObservationTest extends BaseApiTest {
         response.then().spec(requestReturnsBadRequest());
     }
 
-    @DisplayName("OBS-P1-06 Create Text observation")
-    @WithPatient
     @Test
+    @Issue("TRACK-007")
+    @Severity(SeverityLevel.CRITICAL)
+    @WithPatient
+    @DisplayName("OBS-P1-06 Create Text observation")
     void createTextObservation(
             @GeneratedObservationRequest(
                     concept = SeedObservationConcept.TEXT

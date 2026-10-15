@@ -5,6 +5,9 @@ import api.models.patients.PatientResponse;
 import api.testdata.ReferenceTestData;
 import api.utils.RandomData;
 import common.annotations.WithPatient;
+import io.qameta.allure.Issue;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ui.pages.AppointmentPage;
@@ -18,15 +21,20 @@ import java.time.format.DateTimeFormatter;
 import static com.codeborne.selenide.Condition.visible;
 
 public class AppointmentUiTest extends UIBaseTest {
+
     @Test
+    @Issue("TRACK-013")
+    @Severity(SeverityLevel.CRITICAL)
     @DisplayName("Переход на страницу appointments")
     public void openAppointmentPageUiTest() {
         new ServiceQueuesPage().open().goToAppointmentPage().getGetHeaderText().shouldBe(visible);
     }
 
     @Test
-    @DisplayName("Создание appointment")
+    @Issue("TRACK-013")
+    @Severity(SeverityLevel.CRITICAL)
     @WithPatient
+    @DisplayName("Создание appointment")
     public void createAppointmentPanelUiTest(PatientResponse patient) {
         String personName = patient.person().preferredName().display();
         String service = ReferenceTestData.appointmentServiceName(); 

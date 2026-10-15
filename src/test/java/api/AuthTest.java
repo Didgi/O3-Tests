@@ -15,8 +15,12 @@ import api.specs.RequestSpecs;
 import common.annotations.Bug;
 import common.annotations.WithUser;
 import io.qameta.allure.Allure;
+import io.qameta.allure.Issue;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import io.restassured.response.Response;
 import net.datafaker.Faker;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -42,6 +46,8 @@ public class AuthTest extends BaseApiTest {
     final int maxPasswordSizeForTest = 16;
 
     @Test
+    @Issue("TRACK-001")
+    @Severity(SeverityLevel.CRITICAL)
     @DisplayName("Позитивный тест: успешная авторизация с получением сессии")
     public void getAuthSessionWithValidDataAdmin() {
 
@@ -61,6 +67,8 @@ public class AuthTest extends BaseApiTest {
 
 
     @Test
+    @Issue("TRACK-001")
+    @Severity(SeverityLevel.CRITICAL)
     @DisplayName("Позитивный тест: успешная авторизация с получением сессии и " +
             "выполнение запроса только с указанием сессии")
     public void getAuthSessionWithValidDataAdminAndUseSession() {
@@ -77,8 +85,10 @@ public class AuthTest extends BaseApiTest {
     }
 
 
-    @Bug(true)
     @Test
+    @Disabled("BUG: Logout не завершает сессию")
+    @Issue("TRACK-002")
+    @Severity(SeverityLevel.CRITICAL)
     @DisplayName("Позитивный тест: logout завершает сессию")
     public void logoutUserEndsSession() {
         String searchByAdmin = "admin";
@@ -120,6 +130,8 @@ public class AuthTest extends BaseApiTest {
 
     @Test
     @WithUser
+    @Issue("TRACK-003")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("Позитивный тест: пользователь изменяет пароль самому себе и авторизуется по новому паролю")
     public void selfServicePasswordChangeAndGetSessionViaNewCredentialsSuccessfully(UserCreateRequest userCreateRequest) {
         String username = userCreateRequest.username();
@@ -153,6 +165,8 @@ public class AuthTest extends BaseApiTest {
 
     @Test
     @WithUser
+    @Issue("TRACK-003")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("Негативный тест: пользователь изменяет пароль самому себе и не может авторизоваться по старому паролю")
     public void selfServicePasswordChangeAndCheckGetSessionViaNewCredentialsNotSuccessfully(UserCreateRequest userCreateRequest) {
         String username = userCreateRequest.username();
@@ -185,6 +199,8 @@ public class AuthTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-002")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("Негативный тест: повторная авторизация не создаёт новую сессию")
     public void getTwiceAuthSessionWithValidDataAdminReturnSameSessionValue() {
 
@@ -211,6 +227,8 @@ public class AuthTest extends BaseApiTest {
 
     @MethodSource("invalidCredentials")
     @ParameterizedTest
+    @Issue("TRACK-001")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("Негативный тест: отказ в авторизации с несуществующими данными и получение не авторизованной сессии")
     public void getAuthSessionWithInvalidDataAdmin(String username, String password) {
 
@@ -230,6 +248,8 @@ public class AuthTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-001")
+    @Severity(SeverityLevel.CRITICAL)
     @DisplayName("Негативный тест: отказ в выполнении запроса с не авторизованной сессией")
     public void getAuthSessionWithInvalidDataAdminAndUseSession() {
 

@@ -7,6 +7,9 @@ import api.testdata.SeedObservationConcept;
 import api.testdata.VisitTestData;
 import common.annotations.GeneratedObservationRequest;
 import common.annotations.WithPatient;
+import io.qameta.allure.Issue;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +25,8 @@ public class VitalsAndBiometricsTest extends UIBaseTest {
     }
 
     @Test
+    @Issue("TRACK-016")
+    @Severity(SeverityLevel.CRITICAL)
     @WithPatient
     @DisplayName("Сохранение веса и роста пациента через UI")
     void saveWeightAndHeight(
