@@ -15,6 +15,7 @@ jobs:
   collect-metrics:
     name: Validate test metrics
 
+    # Same group as CI publish-report. The history is loaded only after the lock is acquired.
     concurrency:
       group: gh-pages-publishing
       cancel-in-progress: false
@@ -23,6 +24,9 @@ jobs:
       github.event.workflow_run.head_repository.full_name == github.repository
 
     runs-on: ubuntu-latest
+
+    outputs:
+      published: ${{ steps.publish_status.outputs.published }}
 
     steps:
       - name: Checkout tested revision
@@ -91,6 +95,12 @@ jobs:
           else
             echo "No previous metrics history; starting a new one"
           fi
+          if [[ -f pages-history/metrics/test-history.json ]]; then
+            cp pages-history/metrics/test-history.json target/metrics/test-history.json
+            echo "Restored test history"
+          else
+            echo "No previous test history; starting a new one"
+          fi
 
       - name: Update run history
         shell: bash
@@ -99,12 +109,31 @@ jobs:
             target/metrics/history.json \
             target/metrics/test-step-duration.json
 
+      - name: Update test history and calculate Flaky Rate
+        shell: bash
+        env:
+          TEST_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          TEST_RUN_ID: ${{ github.event.workflow_run.id }}
+          TEST_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+          TEST_SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+          TEST_COMPLETED_AT: ${{ github.event.workflow_run.updated_at }}
+        run: |
+          bash infra/update_test_history.sh \
+            --history target/metrics/test-history.json \
+            --test-run target/metrics/test-run.json \
+            --output target/metrics/flaky-metrics.json \
+            --branch "$TEST_BRANCH" \
+            --run-id "$TEST_RUN_ID" \
+            --attempt "$TEST_RUN_ATTEMPT" \
+            --sha "$TEST_SOURCE_SHA" \
+            --completed-at "$TEST_COMPLETED_AT"
+
       - name: Generate HTML Dashboard
         run: |
           ./mvnw --batch-mode exec:java \
             -Dexec.classpathScope=test \
             -Dexec.mainClass=metrics.MetricsDashboardGenerator
-      
+          
           echo "Generated HTML files:"
           find target/metrics -type f -name "*.html" -print
 
@@ -113,14 +142,14 @@ jobs:
         run: |
           echo "Files in target/metrics:"
           find target/metrics -maxdepth 3 -type f | sort
-      
+          
           DASHBOARD="target/metrics/dashboard/index.html"
-      
+          
           if [[ ! -s "$DASHBOARD" ]]; then
             echo "::error::Dashboard is missing or empty: $DASHBOARD"
             exit 1
           fi
-      
+          
           echo "Dashboard generated successfully"
           ls -lh "$DASHBOARD"
 
@@ -130,6 +159,7 @@ jobs:
           set -euo pipefail
           mkdir -p pages-publish/dashboard
           cp target/metrics/history.json pages-publish/history.json
+          cp target/metrics/test-history.json pages-publish/test-history.json
           cp target/metrics/dashboard/index.html pages-publish/dashboard/index.html
           jq -e 'type == "array" and length > 0' pages-publish/history.json > /dev/null
           test -s pages-publish/dashboard/index.html
@@ -145,6 +175,11 @@ jobs:
           destination_dir: metrics
           keep_files: true
 
+      - name: Record metrics publication status
+        id: publish_status
+        if: success()
+        run: echo "published=true" >> "$GITHUB_OUTPUT"
+
       - name: Upload validated metrics
         if: success()
         uses: actions/upload-artifact@v7
@@ -156,7 +191,91 @@ jobs:
             target/metrics/run-context.json
             target/metrics/release-readiness.json
             target/metrics/history.json
+            target/metrics/test-history.json
+            target/metrics/flaky-metrics.json
             target/metrics/dashboard/index.html
             target/metrics/api-coverage.json
           if-no-files-found: error
           retention-days: 30
+
+  notify-telegram:
+    name: Send final Telegram notification
+    needs: collect-metrics
+    if: >
+      always() &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    environment: Test
+
+    steps:
+      - name: Send Telegram notification
+        shell: bash
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TEST_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          METRICS_JOB_RESULT: ${{ needs.collect-metrics.result }}
+          METRICS_PUBLISHED: ${{ needs.collect-metrics.outputs.published }}
+          CI_RUN_NUMBER: ${{ github.event.workflow_run.run_number }}
+          CI_RUN_ID: ${{ github.event.workflow_run.id }}
+          CI_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          CI_SHA: ${{ github.event.workflow_run.head_sha }}
+          CI_ACTOR: ${{ github.event.workflow_run.actor.login }}
+          REPOSITORY: ${{ github.repository }}
+          REPOSITORY_NAME: ${{ github.event.repository.name }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+          SERVER_URL: ${{ github.server_url }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$TELEGRAM_BOT_TOKEN" || -z "$TELEGRAM_CHAT_ID" ]]; then
+            echo "::error::Telegram secrets are missing"
+            exit 1
+          fi
+
+          if [[ "$TEST_CONCLUSION" == "success" ]]; then
+            STATUS="RUN STATUS: ✅ PASSED"
+          elif [[ "$TEST_CONCLUSION" == "failure" ]]; then
+            STATUS="RUN STATUS: ❌ FAILED"
+          else
+            STATUS="RUN STATUS: ⚠️ ${TEST_CONCLUSION^^}"
+          fi
+
+          ALLURE_URL="https://${REPOSITORY_OWNER}.github.io/${REPOSITORY_NAME}/${CI_RUN_NUMBER}/"
+          SWAGGER_URL="${ALLURE_URL}swagger-coverage-report.html"
+          DASHBOARD_URL="https://${REPOSITORY_OWNER}.github.io/${REPOSITORY_NAME}/metrics/dashboard/"
+          ACTIONS_URL="${SERVER_URL}/${REPOSITORY}/actions/runs/${CI_RUN_ID}"
+
+          if [[ "$METRICS_JOB_RESULT" == "success" && "$METRICS_PUBLISHED" == "true" ]]; then
+            METRICS_SECTION="📈 Metrics Dashboard:\n${DASHBOARD_URL}"
+          else
+            METRICS_SECTION="⚠️ Metrics Dashboard was not updated (metrics job: ${METRICS_JOB_RESULT}).\nCheck the metrics workflow logs."
+          fi
+
+          MESSAGE=$(printf '%s\n' \
+            '🧪 OpenMRS O3 Tests' \
+            '' \
+            "$STATUS" \
+            '' \
+            "🔢 Run: #${CI_RUN_NUMBER}" \
+            "🌿 Branch: ${CI_BRANCH}" \
+            "👤 Author: ${CI_ACTOR}" \
+            "📝 Commit: ${CI_SHA}" \
+            '' \
+            '📊 Allure Report:' \
+            "$ALLURE_URL" \
+            '' \
+            '📋 Swagger Coverage:' \
+            "$SWAGGER_URL" \
+            '' \
+            "$(printf '%b' "$METRICS_SECTION")" \
+            '' \
+            '🔗 GitHub Actions:' \
+            "$ACTIONS_URL")
+
+          curl --fail-with-body --retry 3 --retry-delay 2 \
+            --request POST \
+            "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=${MESSAGE}"
