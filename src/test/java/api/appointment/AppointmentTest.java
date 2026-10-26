@@ -10,6 +10,9 @@ import api.testdata.AppointmentTestData;
 import api.testdata.ReferenceTestData;
 import api.utils.comparison.ModelAssertions;
 import common.annotations.WithPatient;
+import io.qameta.allure.Issue;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,8 +27,10 @@ import java.util.List;
 public class AppointmentTest extends BaseApiTest {
 
     @Test
-    @DisplayName("Создание нового appointment")
+    @Issue("TRACK-017")
+    @Severity(SeverityLevel.CRITICAL)
     @WithPatient
+    @DisplayName("Создание нового appointment")
     void adminCanCreateAppointment(PatientResponse patient) {
         AppointmentCreateRequest appointmentCreateRequest = AppointmentTestData.validAppointmentCreateRequest(patient.uuid());
         AppointmentResponse created = admin.appointments().createAppointment(appointmentCreateRequest);
@@ -46,9 +51,11 @@ public class AppointmentTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-017")
+    @Severity(SeverityLevel.CRITICAL)
     @Disabled("Тест стабильно падает")
-    @DisplayName("Получение списка Appointment за один день")
     @WithPatient
+    @DisplayName("Получение списка Appointment за один день")
     void getAppointmentsByOneDay(PatientResponse patient) {
 
         AppointmentCreateRequest appointmentCreateRequest = AppointmentTestData.validAppointmentCreateRequest(patient.uuid());
@@ -64,8 +71,10 @@ public class AppointmentTest extends BaseApiTest {
     }
 
     @Test
-    @DisplayName("Получение списка Appointments пациента")
+    @Issue("TRACK-017")
+    @Severity(SeverityLevel.CRITICAL)
     @WithPatient
+    @DisplayName("Получение списка Appointments пациента")
     void getAppointmentsByPatient(PatientResponse patient) {
         AppointmentCreateRequest appointmentCreateRequest = AppointmentTestData.validAppointmentCreateRequest(patient.uuid());
         AppointmentResponse created = admin.appointments().createAppointment(appointmentCreateRequest);
@@ -83,8 +92,10 @@ public class AppointmentTest extends BaseApiTest {
     }
 
     @Test
-    @DisplayName("Checkout appointment: статус становится Completed")
+    @Issue("TRACK-017")
+    @Severity(SeverityLevel.CRITICAL)
     @WithPatient
+    @DisplayName("Checkout appointment: статус становится Completed")
     void adminCanCheckoutAppointment(PatientResponse patient) {
         AppointmentCreateRequest appointmentCreateRequest = AppointmentTestData.validAppointmentCreateRequest(patient.uuid());
         AppointmentResponse created = admin.appointments().createAppointment(appointmentCreateRequest);

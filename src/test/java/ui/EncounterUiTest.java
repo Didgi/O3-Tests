@@ -8,6 +8,9 @@ import api.testdata.EncounterTestData;
 import api.testdata.ReferenceTestData;
 import common.annotations.WithEncounter;
 import common.retry.RetryUtils;
+import io.qameta.allure.Issue;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,6 +29,8 @@ public class EncounterUiTest extends UIBaseTest {
     }
 
     @Test
+    @Issue("TRACK-006")
+    @Severity(SeverityLevel.CRITICAL)
     @WithEncounter
     @DisplayName("Удаление Encounter через UI")
     void deleteEncounter(
@@ -51,6 +56,8 @@ public class EncounterUiTest extends UIBaseTest {
     }
 
     @Test
+    @Issue("TRACK-006")
+    @Severity(SeverityLevel.CRITICAL)
     @WithEncounter
     @DisplayName("Отмена удаления Encounter")
     void cancelEncounterDeletion(
@@ -73,6 +80,8 @@ public class EncounterUiTest extends UIBaseTest {
     }
 
     @Test
+    @Issue("TRACK-006")
+    @Severity(SeverityLevel.CRITICAL)
     @WithEncounter
     @DisplayName("Удаляется только выбранный Encounter")
     void deleteOnlySelectedEncounter(

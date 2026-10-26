@@ -5,6 +5,9 @@ import api.specs.ResponseSpecs;
 import api.testdata.PatientTestData;
 import api.utils.comparison.ModelAssertions;
 import common.annotations.WithPatient;
+import io.qameta.allure.Issue;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +15,8 @@ import org.junit.jupiter.api.Test;
 public class PatientTest extends BaseApiTest {
 
     @Test
+    @Issue("TRACK-010")
+    @Severity(SeverityLevel.CRITICAL)
     @DisplayName("PAT-P0-01: Создание пациента с валидными минимальными данными")
     void createPatientWithValidMinimalData() {
         PatientCreateRequest request =
@@ -73,6 +78,8 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-010")
+    @Severity(SeverityLevel.CRITICAL)
     @WithPatient
     @DisplayName("PAT-P0-02: Получение созданного пациента по UUID")
     void getCreatedPatientByUuid(PatientCreateRequest request, PatientResponse created) {
@@ -120,6 +127,8 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-010")
+    @Severity(SeverityLevel.NORMAL)
     @WithPatient
     @DisplayName("PAT-P0-03: Поиск пациента по идентификатору возвращает созданного пациента")
     void searchPatientByIdentifierReturnsCreatedPatient(
@@ -144,6 +153,8 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-010")
+    @Severity(SeverityLevel.CRITICAL)
     @WithPatient
     @DisplayName("PAT-P0-04: Обновление пациента с сохранением остальных данных")
     void updatePatientAndPreserveOtherData(
@@ -199,6 +210,8 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-010")
+    @Severity(SeverityLevel.NORMAL)
     @WithPatient
     @DisplayName("PAT-P0-05: Отклонение дублирующего идентификатора пациента")
     void rejectDuplicatePatientIdentifier(PatientCreateRequest firstRequest) {
@@ -222,6 +235,8 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-010")
+    @Severity(SeverityLevel.CRITICAL)
     @WithPatient
     @DisplayName("PAT-P1-01: Поиск пациента по имени возвращает созданного пациента")
     void searchPatientByNameReturnsCreatedPatient(
@@ -247,6 +262,8 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-011")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("PAT-P1-02: Получение пациента по несуществующему UUID возвращает 404")
     void getPatientByNonExistingUuidReturnsNotFound() {
         String nonExistingUuid =
@@ -260,6 +277,8 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-010")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("PAT-P1-03: Создание пациента без имени отклоняется")
     void createPatientWithoutNameReturnsBadRequest() {
         PatientCreateRequest request =
@@ -273,6 +292,8 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-010")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("PAT-P1-04: Создание пациента без пола отклоняется")
     void createPatientWithoutGenderReturnsBadRequest() {
         PatientCreateRequest request =
@@ -286,6 +307,8 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-010")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("PAT-P1-05: Создание пациента без идентификатора отклоняется")
     void createPatientWithoutIdentifierReturnsBadRequest() {
         PatientCreateRequest request =
@@ -299,6 +322,8 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-010")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("PAT-P1-06: Создание пациента с датой рождения в будущем отклоняется")
     void createPatientWithFutureBirthdateReturnsBadRequest() {
         PatientCreateRequest request =
@@ -312,6 +337,8 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-010")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("PAT-P1-07: Создание пациента со слишком старой датой рождения отклоняется")
     void createPatientWithTooOldBirthdateReturnsBadRequest() {
         PatientCreateRequest request =
@@ -325,6 +352,8 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-010")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("PAT-P1-08: Создание пациента с невалидным идентификатором отклоняется")
     void createPatientWithInvalidIdentifierReturnsBadRequest() {
         PatientCreateRequest request =
@@ -338,6 +367,8 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-010")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("PAT-P1-09: Создание пациента с несуществующим типом идентификатора отклоняется")
     void createPatientWithNonExistingIdentifierTypeReturnsBadRequest() {
         PatientCreateRequest request =
@@ -351,6 +382,8 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-010")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("PAT-P1-10: Создание пациента с несуществующей локацией идентификатора отклоняется")
     void createPatientWithNonExistingLocationReturnsBadRequest() {
         PatientCreateRequest request =
@@ -364,6 +397,8 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-011")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("PAT-P1-11: Поиск несуществующего пациента возвращает пустой список")
     void searchNonExistingPatientReturnsEmptyResults() {
         String nonExistingQuery =
@@ -380,6 +415,8 @@ public class PatientTest extends BaseApiTest {
     }
 
     @Test
+    @Issue("TRACK-010")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("PAT-P1-12: Создание пациента без даты рождения")
     void createPatientWithoutBirthdate() {
         PatientCreateRequest request =

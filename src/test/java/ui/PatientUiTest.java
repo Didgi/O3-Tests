@@ -7,13 +7,19 @@ import api.models.patients.PatientResponse;
 import api.testdata.PatientTestData;
 import common.annotations.WithPatient;
 import common.annotations.WithPatientData;
+import io.qameta.allure.Issue;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 
 public class PatientUiTest extends UIBaseTest {
+
     @Test
+    @Issue("TRACK-014")
+    @Severity(SeverityLevel.CRITICAL)
     @WithPatientData
     @DisplayName("PAT-UI-P0-01 Регистрация пациента с валидными минимальными данными")
     public void registerPatientWithValidMinimalData(PatientPersonRequest patient, PatientNameRequest patientName) {
@@ -33,6 +39,8 @@ public class PatientUiTest extends UIBaseTest {
     }
 
     @Test
+    @Issue("TRACK-014")
+    @Severity(SeverityLevel.CRITICAL)
     @WithPatient
     @DisplayName("PAT-UI-P0-02 Поиск пациента и открытие Patient Chart")
     public void searchPatientAndOpenPatientChart(PatientCreateRequest request, PatientResponse created) {
@@ -50,6 +58,8 @@ public class PatientUiTest extends UIBaseTest {
     }
 
     @Test
+    @Issue("TRACK-014")
+    @Severity(SeverityLevel.CRITICAL)
     @WithPatient
     @DisplayName("PAT-UI-P0-03 Редактирование данных пациента")
     public void editPatient(PatientCreateRequest request, PatientResponse created) {
@@ -74,6 +84,8 @@ public class PatientUiTest extends UIBaseTest {
     }
 
     @Test
+    @Issue("TRACK-014")
+    @Severity(SeverityLevel.CRITICAL)
     @WithPatientData
     @DisplayName("PAT-UI-P1-01 Регистрация без имени невозможна")
     public void registrationWithoutGivenName(PatientPersonRequest patient, PatientNameRequest patientName) {
@@ -90,6 +102,8 @@ public class PatientUiTest extends UIBaseTest {
     }
 
     @Test
+    @Issue("TRACK-014")
+    @Severity(SeverityLevel.NORMAL)
     @WithPatientData
     @DisplayName("PAT-UI-P1-02 Регистрация без пола невозможна")
     public void registrationWithoutGender(PatientPersonRequest patient, PatientNameRequest patientName) {
@@ -107,6 +121,8 @@ public class PatientUiTest extends UIBaseTest {
     }
 
     @Test
+    @Issue("TRACK-014")
+    @Severity(SeverityLevel.NORMAL)
     @WithPatientData
     @DisplayName("PAT-UI-P1-03 Регистрация без даты рождения невозможна")
     public void registrationWithoutBirthDate(PatientPersonRequest patient, PatientNameRequest patientName) {
@@ -124,6 +140,8 @@ public class PatientUiTest extends UIBaseTest {
     }
 
     @Test
+    @Issue("TRACK-014")
+    @Severity(SeverityLevel.NORMAL)
     @WithPatientData
     @DisplayName("PAT-UI-P1-04 Регистрация пациента с неизвестным именем")
     public void registerPatientWithUnknownName(PatientPersonRequest patient) {
@@ -144,6 +162,8 @@ public class PatientUiTest extends UIBaseTest {
     }
 
     @Test
+    @Issue("TRACK-014")
+    @Severity(SeverityLevel.NORMAL)
     @WithPatientData
     @DisplayName("PAT-UI-P1-05 Регистрация пациента с приблизительным возрастом")
     public void registerPatientWithEstimatedAge(PatientPersonRequest patient, PatientNameRequest patientName) {
@@ -164,6 +184,8 @@ public class PatientUiTest extends UIBaseTest {
     }
 
     @Test
+    @Issue("TRACK-014")
+    @Severity(SeverityLevel.CRITICAL)
     @WithPatient
     @DisplayName("PAT-UI-P1-06 Отмена несохранённых изменений пациента")
     public void discardUnsavedPatientChanges(PatientCreateRequest request, PatientResponse created) {
@@ -189,6 +211,8 @@ public class PatientUiTest extends UIBaseTest {
     }
 
     @Test
+    @Issue("TRACK-014")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("PAT-UI-P1-07 Проверка состояния поиска при отсутствии результатов")
     public void searchNonexistentPatient() {
         serviceQueuesPage
