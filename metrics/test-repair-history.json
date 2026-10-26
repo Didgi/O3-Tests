@@ -59,6 +59,54 @@
       "repairedAt": "2026-10-15T19:23:49Z",
       "repairedRun": "38792476407/1",
       "repairDurationMinutes": 19.1
+    },
+    {
+      "testId": "api.AuthTest#logoutUserEndsSession()",
+      "reason": "Logout не завершает сессию",
+      "status": "OPEN",
+      "detectedAt": "2026-10-26T07:25:23Z",
+      "detectedRun": "40284945527/1",
+      "branch": "main"
+    },
+    {
+      "testId": "api.EncounterTest#encounterIsNotCreatedWithUnknownEncounterRole(api.models.patients.PatientResponse,api.models.visit.VisitCreateResponse)",
+      "reason": "API возвращает 500 для несуществующего Encounter Role вместо клиентской ошибки",
+      "status": "OPEN",
+      "detectedAt": "2026-10-26T07:25:23Z",
+      "detectedRun": "40284945527/1",
+      "branch": "main"
+    },
+    {
+      "testId": "api.EncounterTest#encounterIsNotCreatedWithUnknownLocation(api.models.patients.PatientResponse,api.models.visit.VisitCreateResponse)",
+      "reason": "API создаёт Encounter с несуществующим Location вместо возврата 400",
+      "status": "OPEN",
+      "detectedAt": "2026-10-26T07:25:23Z",
+      "detectedRun": "40284945527/1",
+      "branch": "main"
+    },
+    {
+      "testId": "api.EncounterTest#encounterIsNotCreatedWithUnknownProvider(api.models.patients.PatientResponse,api.models.visit.VisitCreateResponse)",
+      "reason": "API возвращает 500 для несуществующего Provider вместо клиентской ошибки",
+      "status": "OPEN",
+      "detectedAt": "2026-10-26T07:25:23Z",
+      "detectedRun": "40284945527/1",
+      "branch": "main"
+    },
+    {
+      "testId": "api.EncounterTest#encounterIsNotCreatedWithUnknownVisit(api.models.patients.PatientResponse)",
+      "reason": "API создаёт Encounter с несуществующим Visit вместо возврата 400",
+      "status": "OPEN",
+      "detectedAt": "2026-10-26T07:25:23Z",
+      "detectedRun": "40284945527/1",
+      "branch": "main"
+    },
+    {
+      "testId": "api.visit.VisitTest#adminCanStopVisit(api.models.patients.PatientResponse)",
+      "reason": "Запись окончания приема записывается в +0000 зоне",
+      "status": "OPEN",
+      "detectedAt": "2026-10-26T07:25:23Z",
+      "detectedRun": "40284945527/1",
+      "branch": "main"
     }
   ],
   "processedRuns": [
@@ -67,6 +115,7 @@
     "38768048206/1",
     "38789814761/1",
     "38792476407/1",
-    "38797579222/1"
+    "38797579222/1",
+    "40284945527/1"
   ]
 }
